@@ -11,7 +11,10 @@ class Payroll
 
     public function getAllBenefitWithActive()
     {
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/benefits/');
+        $filter = ['status' => 'active'];
+
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/benefits/',['filter' => json_encode(['where' => $filter])]);
+
         if ($response->successful()) {
             return $response->json();
         }
