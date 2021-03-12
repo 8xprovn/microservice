@@ -257,6 +257,36 @@ class Hr
         return false;
     }
 
+    public function getRanksByEmployee($id) {
+        //var_dump(['filter' => json_encode(['where' => $filter])]); die;
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employees/'.$id.'/employee-teacher-ranks/');
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getSalariesByEmployee($id) {
+        //var_dump(['filter' => json_encode(['where' => $filter])]); die;
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employees/'.$id.'/employee-salary/');
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getActivitiesByEmployee($id) {
+        //var_dump(['filter' => json_encode(['where' => $filter])]); die;
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employees/'.$id.'/employee-activities/');
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
    
     public function getEmployeeDetail($id)
     {
@@ -638,7 +668,7 @@ class Hr
     //RANK
      public function getRanks($params)
      {
-         $whereArr = \Arr::only($params, ['rank_id']);
+         $whereArr = \Arr::only($params, ['rank_id', 'employee_id']);
          $filter = [];
          foreach($whereArr as $k => $v){
              if (is_null($v)) continue;
