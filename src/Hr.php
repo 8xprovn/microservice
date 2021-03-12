@@ -40,6 +40,43 @@ class Hr
         return false;
     }
 
+    public function getEmployeesIncludeRank($params) {
+        $whereArr = \Arr::only($params, ['employee_id']);
+        $filter = [];
+        foreach($whereArr as $k => $v){
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+        $filter = array_merge($filter, ['status' => 'active']);
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employees',['filter' => json_encode([
+            'where' => $filter,
+            'include' => [
+                [
+                    'relation' => 'employeeTeacherRanks',
+                    'scope' => [
+                        "limit" => 1,
+                        "order" => "created_time DESC",
+                        //'fields'=> ['rank_id','employee_id ','level_id','created_by'],
+                    ]
+                ]
+            ],
+            ])]);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
 
     public function getEmployeesIncludeDepartment($params) {
         $whereArr = \Arr::only($params, ['employee_id']);
@@ -597,4 +634,45 @@ class Hr
         \Log::error($response->body());
         return false;
     }
+
+    //RANK
+     public function getRanks($params)
+     {
+         $whereArr = \Arr::only($params, ['rank_id']);
+         $filter = [];
+         foreach($whereArr as $k => $v){
+             if (is_null($v)) continue;
+             switch ($k) {
+                 default:
+                     if (is_array($v)) {
+                         $filter[$k] = ['inq' => $v];
+                     }
+                     else {
+                         $filter[$k] = ['eq' => $v];
+                     }
+                     break;
+             }
+         }
+ 
+         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employee-teacher-ranks',['filter' => json_encode([
+             'where' => $filter,
+             //'fields' => ['tracking_id','employee_id','date_str','time_missing', 'ticket_id', 'branch_id', 'frequency', 'tracking_type' ,'status']
+             ])]);
+         if ($response->successful()) {
+             return $response->json();
+         }
+         \Log::error($response->body());
+         return false;
+     }
+ 
+
+     public function getRankDetail($id)
+     {
+         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employee-teacher-ranks/'.$id);
+         if ($response->successful()) {
+             return $response->json();
+         }
+         \Log::error($response->body());
+         return false;
+     }
 }
