@@ -748,4 +748,19 @@ class Lms
          return false;
      }
 
+     public function getCostLevelWithType($type)
+     {
+        $where['type'] = $type;
+        $filter = ['filter' => json_encode([
+            'where' => $where
+        ])];
+
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/cost-levels/', $filter);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+     }
+
 }
