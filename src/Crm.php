@@ -39,7 +39,17 @@ class Crm
         \Log::error($response->body());
         return false;
     }
+    public function findContact($phoneOrEmail) {
+        if (filter_var($phoneOrEmail, FILTER_VALIDATE_EMAIL)) {
+            $contacts = $this->getContacts(['email' => $phoneOrEmail]);
+        }
+        else {
+            $phoneOrEmail = preg_replace('/^0/', '+84', $phoneOrEmail);
+            $contacts = $this->getContacts(['phone' => $phoneOrEmail]);
+        }
 
+        return ($contacts) ? $contacts[0] : [];
+    }
     public function getContactsIncludeNotifications($params) {
         $whereArr = \Arr::only($params, ['contact_id']);
         $filter = [];
