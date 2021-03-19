@@ -336,7 +336,7 @@ class Payroll
     public function getPolicyWithStatusActive()
     {
         $filter = ['status' => 'active'];
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/policy/', ['filter' => json_encode(['where' => $filter])]);
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/policies/', ['filter' => json_encode(['where' => $filter])]);
 
         if ($response->successful()) {
             return $response->json();
