@@ -373,7 +373,7 @@ class Payroll
     
         $params['filter'] = json_encode($query);
         $params = array_filter($params);
-        $response = Http::withToken(env('API_SERVICE_TOKEN',''))->get($this->_url.'/employees/' . $employeeId . '?', http_build_query($params));
+        $response = \Http::withToken(env('API_SERVICE_TOKEN',''))->get($this->_url.'/employees/' . $employeeId . '?', http_build_query($params));
         if ($response->successful()) {
             
         	return $response->json();
@@ -385,7 +385,7 @@ class Payroll
     public function tracking($params=[])
     {
         $params = array_filter($params);
-        $response = Http::withToken(env('API_SERVICE_TOKEN',''))->get($this->_url.'/trackings/payroll?',http_build_query($params));
+        $response = \Http::withToken(env('API_SERVICE_TOKEN',''))->get($this->_url.'/trackings/payroll?',http_build_query($params));
         if ($response->successful()) {
         	return $response->json();
         }
@@ -397,7 +397,7 @@ class Payroll
     {
         $params = array_filter($params);
 
-        $response = Http::withToken(env('API_SERVICE_TOKEN',''))->get($this->_url.'/employees/' . $params['employeeArr'] .'/employee-activities?',http_build_query($params));
+        $response = \Http::withToken(env('API_SERVICE_TOKEN',''))->get($this->_url.'/employees/' . $params['employeeArr'] .'/employee-activities?',http_build_query($params));
         if ($response->successful()) {
         	return $response->json();
         }
@@ -409,7 +409,7 @@ class Payroll
     {
         $params = array_filter($params);
 
-        $response = Http::withToken(env('API_SERVICE_TOKEN',''))->get($this->_url.'/departments/',http_build_query($params));
+        $response = \Http::withToken(env('API_SERVICE_TOKEN',''))->get($this->_url.'/departments/',http_build_query($params));
         if ($response->successful()) {
         	return $response->json();
         }
@@ -421,7 +421,7 @@ class Payroll
     {
         $params = array_filter($params);
 
-        $response = Http::withToken(env('API_SERVICE_TOKEN',''))->get($this->_url.'//employee-job-titles/',http_build_query($params));
+        $response = \Http::withToken(env('API_SERVICE_TOKEN',''))->get($this->_url.'//employee-job-titles/',http_build_query($params));
         if ($response->successful()) {
         	return $response->json();
         }
