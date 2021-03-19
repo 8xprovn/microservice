@@ -705,4 +705,90 @@ class Hr
          \Log::error($response->body());
          return false;
      }
+
+    
+
+     public function departments()
+     {
+         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/departments');
+         if ($response->successful()) {
+             return $response->json();
+         }
+         \Log::error($response->body());
+         return false;
+     }
+ 
+     public function employee($employeeId, $toDate)
+     {
+         $item['relation'] = "employeeSalaries";
+         $item['scope'] = (object)[
+             "offset" => 0,
+             "limit" => 1,
+             "order" => "start_date DESC",
+             "where" => (object)[
+                 "start_date" => (object)[
+                     "lte" => $toDate
+                 ],
+                 "status" => "active"
+             ]
+         ];
+         $query['include'][] = $item;
+     
+         $params['filter'] = json_encode($query);
+         $params = array_filter($params);
+         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employees/' . $employeeId . '?', http_build_query($params));
+         if ($response->successful()) {
+             
+             return $response->json();
+         }
+         \Log::error($response->body());
+         return false;
+     }
+ 
+     public function tracking($params=[])
+     {
+         $params = array_filter($params);
+         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/trackings/payroll?',http_build_query($params));
+         if ($response->successful()) {
+             return $response->json();
+         }
+         \Log::error($response->body());
+         return false;
+     }
+ 
+     public function activity($params=[])
+     {
+         $params = array_filter($params);
+ 
+         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employees/' . $params['employeeArr'] .'/employee-activities?',http_build_query($params));
+         if ($response->successful()) {
+             return $response->json();
+         }
+         \Log::error($response->body());
+         return false;
+     }
+ 
+     public function department($params = [])
+     {
+         $params = array_filter($params);
+ 
+         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/departments/',http_build_query($params));
+         if ($response->successful()) {
+             return $response->json();
+         }
+         \Log::error($response->body());
+         return false;
+     }
+ 
+     public function jobTitle($params = [])
+     {
+         $params = array_filter($params);
+ 
+         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'//employee-job-titles/',http_build_query($params));
+         if ($response->successful()) {
+             return $response->json();
+         }
+         \Log::error($response->body());
+         return false;
+     }
 }
