@@ -724,7 +724,7 @@ class Hr
          $item['scope'] = (object)[
              "offset" => 0,
              "limit" => 1,
-             "order" => "start_date DESC",
+             "order" => "start_date, created_time DESC",
              "where" => (object)[
                  "start_date" => (object)[
                      "lte" => $toDate
