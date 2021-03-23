@@ -791,4 +791,17 @@ class Hr
          \Log::error($response->body());
          return false;
      }
+
+
+     public function getSalaryPolicy($params = [])
+     {
+         $params = array_filter($params);
+ 
+         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employee-salary-policies/',http_build_query($params));
+         if ($response->successful()) {
+             return $response->json();
+         }
+         \Log::error($response->body());
+         return false;
+     }
 }
