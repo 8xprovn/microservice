@@ -13,7 +13,7 @@ class Crm
 
     public function getContacts($params)
     {
-        $whereArr = \Arr::only($params, ['contact_id']);
+        $whereArr = \Arr::only($params, ['contact_id','manager_id','status','branch_id','department_id','gender']);
         $filter = [];
         foreach($whereArr as $k => $v){
             if (is_null($v)) continue;
