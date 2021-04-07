@@ -321,5 +321,28 @@ class Payroll
         return false;
     }
 
+    public function getPolicyGroup()
+    {
+
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/policy-groups/');
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getPolicyWithStatusActive()
+    {
+        $filter = ['status' => 'active'];
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/policies/', ['filter' => json_encode(['where' => $filter, 'limit' => 100])]);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
 
 }

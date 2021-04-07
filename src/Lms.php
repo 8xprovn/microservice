@@ -763,4 +763,13 @@ class Lms
         return false;
      }
 
+     public function getClassSchedule($params = [])
+     {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/class-schedules/', http_build_query($params));
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+     }
 }
