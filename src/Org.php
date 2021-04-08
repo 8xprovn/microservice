@@ -17,7 +17,7 @@ class Org
         \Log::error($response->body());
         return false;
     }
-    public function getBranchs($params)
+    public function getBranchs($params = array())
     {
         $whereArr = \Arr::only($params, ['branch_id']);
         $filter = [];
@@ -58,7 +58,7 @@ class Org
         return false;
     }
 
-    public function getBranchsIncludeBrands($params) {
+    public function getBranchsIncludeBrands($params = array()) {
         $whereArr = \Arr::only($params, ['branch_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -95,7 +95,7 @@ class Org
 
     //
 
-    public function getBrands($params)
+    public function getBrands($params = array())
     {
         $whereArr = \Arr::only($params, ['brand_id']);
         $filter = [];
@@ -136,7 +136,7 @@ class Org
     }
 
 
-    public function getBrandsIncludeBranchs($params) {
+    public function getBrandsIncludeBranchs($params = array()) {
         $whereArr = \Arr::only($params, ['brand_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -172,7 +172,7 @@ class Org
 
     //Location city
 
-    public function getLocations($params)
+    public function getLocations($params = array())
     {
         $whereArr = \Arr::only($params, ['city_id']);
         $filter = [];
@@ -202,7 +202,7 @@ class Org
         return false;
     }
 
-    public function getLocationsIncludeDistricts($params) {
+    public function getLocationsIncludeDistricts($params = array()) {
         $whereArr = \Arr::only($params, ['city_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -248,7 +248,7 @@ class Org
 
      //Location district
 
-     public function getDistricts($params)
+     public function getDistricts($params = array())
      {
          $whereArr = \Arr::only($params, ['district_id']);
          $filter = [];
@@ -278,7 +278,7 @@ class Org
          return false;
      }
 
-     public function getDistrictsIncludeCommunes($params) {
+     public function getDistrictsIncludeCommunes($params = array()) {
          $whereArr = \Arr::only($params, ['district_id']);
          $filter = [];
          foreach($whereArr as $k => $v){
@@ -322,7 +322,7 @@ class Org
         return false;
     }
 
-     public function getCommunes($params)
+     public function getCommunes($params = array())
      {
          $whereArr = \Arr::only($params, ['commune_id']);
          $filter = [];
@@ -363,7 +363,7 @@ class Org
     }
  
 
-    public function getSystemServices($params)
+    public function getSystemServices($params = array())
      {
          $whereArr = \Arr::only($params, ['service_id']);
          $filter = [];

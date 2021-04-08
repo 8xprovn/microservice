@@ -12,7 +12,7 @@ class Notify
     }
 
     //Send sms
-    public function send_sms($params)
+    public function send_sms($params = array())
     {
         date_default_timezone_set('Asia/Ho_Chi_Minh');
         $data = \Arr::only($params, ['channel','phone','description', 'type_sms']);
@@ -21,7 +21,7 @@ class Notify
     }
 
     //send email
-    public function send_email($params) {
+    public function send_email($params = array()) {
         $data = \Arr::only($params, ['channel','title','email', 'content']);
         $response = Http::post($this->url_mail, $data);
         return $response;

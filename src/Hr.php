@@ -11,7 +11,7 @@ class Hr
 
     //EMPLOYEE
 
-    public function getEmployees($params)
+    public function getEmployees($params= array())
     {
         $whereArr = \Arr::only($params, ['employee_id']);
         $filter = [];
@@ -40,7 +40,7 @@ class Hr
         return false;
     }
 
-    public function getEmployeesIncludeRank($params) {
+    public function getEmployeesIncludeRank($params= array()) {
         $whereArr = \Arr::only($params, ['employee_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -78,7 +78,7 @@ class Hr
     }
 
 
-    public function getEmployeesIncludeDepartment($params) {
+    public function getEmployeesIncludeDepartment($params = array()) {
         $whereArr = \Arr::only($params, ['employee_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -115,7 +115,7 @@ class Hr
     }
 
 
-    public function getEmployeesIncludeShift($params) {
+    public function getEmployeesIncludeShift($params = array()) {
         $whereArr = \Arr::only($params, ['employee_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -150,7 +150,7 @@ class Hr
         return false;
     }
 
-    public function getEmployeesIncludeJob($params) {
+    public function getEmployeesIncludeJob($params = array()) {
         $whereArr = \Arr::only($params, ['employee_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -185,7 +185,7 @@ class Hr
         return false;
     }
 
-    public function getEmployeesIncludeSalary($params) {
+    public function getEmployeesIncludeSalary($params = array()) {
         $whereArr = \Arr::only($params, ['employee_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -221,7 +221,7 @@ class Hr
     }
 
 
-    public function getEmployeesIncludeActivities($params) {
+    public function getEmployeesIncludeActivities($params = array()) {
         $whereArr = \Arr::only($params, ['employee_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -300,7 +300,7 @@ class Hr
 
     //SETTING SHIFT
 
-    public function getSettingShifts($params)
+    public function getSettingShifts($params = array())
     {
         $whereArr = \Arr::only($params, ['shift_id']);
         $filter = [];
@@ -341,7 +341,7 @@ class Hr
 
     //TRACKING
 
-    public function getTrackings($params)
+    public function getTrackings($params = array())
     {
         $whereArr = \Arr::only($params, ['tracking_id', 'employee_id', 'tracking_type']);
         $filter = [];
@@ -381,7 +381,7 @@ class Hr
     }
 
     //TICKET
-    public function getTickets($params)
+    public function getTickets($params = array())
     {
         $whereArr = \Arr::only($params, ['ticket_id ', 'employee_id', 'type_id ']);
         $filter = [];
@@ -412,7 +412,7 @@ class Hr
 
     
 
-    public function getTicketsIncludeType($params) {
+    public function getTicketsIncludeType($params = array()) {
         $whereArr = \Arr::only($params, ['ticket_id ', 'employee_id', 'type_id ']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -458,7 +458,7 @@ class Hr
         return false;
     }
 
-    public function getTicketCategories($params)
+    public function getTicketCategories($params = array())
     {
         $whereArr = \Arr::only($params, ['category_id']);
         $filter = [];
@@ -507,7 +507,7 @@ class Hr
     }
 
     //
-    public function getTicketTypes($params)
+    public function getTicketTypes($params = array())
     {
         $whereArr = \Arr::only($params, ['type_id']);
         $filter = [];
@@ -556,7 +556,7 @@ class Hr
     }
 
     //
-    public function getSchedule($params)
+    public function getSchedule($params = array())
     {
     	$params = array_merge(['date' => date('Y-m-d')],$params);
     	$whereArr = \Arr::only($params, ['date', 'employee_id','working_time']);
@@ -588,7 +588,7 @@ class Hr
     }
 
     //NOTIFICATION 
-    public function getNotifications($params)
+    public function getNotifications($params = array())
     {
         $whereArr = \Arr::only($params, ['notification_id']);
         $filter = [];
@@ -617,7 +617,7 @@ class Hr
         return false;
     }
 
-    public function getNotificationsIncludeEmployees($params) {
+    public function getNotificationsIncludeEmployees($params = array()) {
         $whereArr = \Arr::only($params, ['notification_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -666,7 +666,7 @@ class Hr
     }
 
     //RANK
-     public function getRanks($params)
+     public function getRanks($params = array())
      {
          $whereArr = \Arr::only($params, ['rank_id', 'employee_id']);
          $filter = [];
