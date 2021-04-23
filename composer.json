@@ -4,8 +4,5 @@
          "psr-4": {
              "Microservices\\": "src/"
          }
-    },
-    "require": {
-        "google/apiclient": "^2.0"
     }
  }
