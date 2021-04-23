@@ -28,7 +28,6 @@ class Crm
                     break;
             }
         }
-        $filter = array_merge($filter, ['status' => 'active']);
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/contacts',['filter' => json_encode([
             'where' => $filter,
             //'fields' => ['contact_id','first_name','last_name','email', 'phone', 'gender', 'birthdate', 'organization' ,'address']
