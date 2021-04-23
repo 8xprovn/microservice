@@ -24,7 +24,7 @@ class Payroll
 
     //TEMPLATE
 
-     public function getTemplates($params)
+     public function getTemplates($params = array())
      {
          $whereArr = \Arr::only($params, ['template_id']);
          $filter = [];
@@ -65,7 +65,7 @@ class Payroll
 
      //SYSTEM - VARIABLE
 
-     public function getSystemVariables($params)
+     public function getSystemVariables($params = array())
      {
          $whereArr = \Arr::only($params, ['variable_id']);
          $filter = [];
@@ -107,7 +107,7 @@ class Payroll
 
       //SETTING
 
-      public function getSettings($params)
+      public function getSettings($params = array())
       {
           $whereArr = \Arr::only($params, ['setting_id']);
           $filter = [];
@@ -148,7 +148,7 @@ class Payroll
 
       //EMPLOYEE
 
-      public function getEmployees($params)
+      public function getEmployees($params = array())
       {
           $whereArr = \Arr::only($params, ['id','employee_id','department_id','manager_id']);
           $filter = [];
@@ -178,7 +178,7 @@ class Payroll
       }
 
 
-      public function getEmployeesIncludeFomulas($params) {
+      public function getEmployeesIncludeFomulas($params = array()) {
         $whereArr = \Arr::only($params, ['id', 'employee_id','department_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -235,7 +235,7 @@ class Payroll
 
       //FORMULAS
       
-      public function getFormulas($params)
+      public function getFormulas($params = array())
       {
           $whereArr = \Arr::only($params, ['formula_id']);
           $filter = [];
@@ -285,7 +285,7 @@ class Payroll
       }
 
 
-      public function getFormulasIncludeDetails($params) {
+      public function getFormulasIncludeDetails($params = array()) {
         $whereArr = \Arr::only($params, ['id', 'employee_id','department_id']);
         $filter = [];
         foreach($whereArr as $k => $v){

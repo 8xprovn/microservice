@@ -10,7 +10,7 @@ class Lms
     }
 
     //COURSE PRICE
-    public function getCoursePrices($params)
+    public function getCoursePrices($params = array())
     {
         $whereArr = \Arr::only($params, ['course_id']);
         $filter = [];
@@ -38,7 +38,7 @@ class Lms
         \Log::error($response->body());
         return false;
     }
-    public function getCourseIncludePrice($params) {
+    public function getCourseIncludePrice($params = array()) {
         $whereArr = \Arr::only($params, ['course_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -76,7 +76,7 @@ class Lms
     
 
     //CLASS
-    public function getClass($params)
+    public function getClass($params = array())
     {
         $whereArr = \Arr::only($params, ['class_id']);
         $filter = [];
@@ -106,7 +106,7 @@ class Lms
     }
 
 
-    public function getClassIncludeStudent($params) {
+    public function getClassIncludeStudent($params = array()) {
         $whereArr = \Arr::only($params, ['class_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -154,7 +154,7 @@ class Lms
         return false;
     }
     //COURSE 
-    public function getCourse($params)
+    public function getCourse($params = array())
     {
         $whereArr = \Arr::only($params, ['course_id']);
         $filter = [];
@@ -183,7 +183,7 @@ class Lms
         return false;
     }
 
-    public function getCourseIncludeLesson($params) {
+    public function getCourseIncludeLesson($params = array()) {
         $whereArr = \Arr::only($params, ['course_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -215,7 +215,7 @@ class Lms
         return false;
     }
 
-    public function getCourseIncludeLevel($params) {
+    public function getCourseIncludeLevel($params = array()) {
         $whereArr = \Arr::only($params, ['course_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -263,7 +263,7 @@ class Lms
         return false;
     }
     //STUDENT
-    public function getStudent($params)
+    public function getStudent($params = array())
     {
         $whereArr = \Arr::only($params, ['student_id', 'contact_id']);
         $filter = [];
@@ -292,7 +292,7 @@ class Lms
         return false;
     }
 
-    public function getStudentIncludeClass($params) {
+    public function getStudentIncludeClass($params = array()) {
         $whereArr = \Arr::only($params, ['student_id', 'contact_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -340,7 +340,7 @@ class Lms
 
 
     //NEWS
-     public function getNews($params)
+     public function getNews($params = array())
      {
          $whereArr = \Arr::only($params, ['news_id']);
          $filter = [];
@@ -369,7 +369,7 @@ class Lms
          return false;
      }
  
-     public function getNewsIncludeCategories($params) {
+     public function getNewsIncludeCategories($params = array()) {
          $whereArr = \Arr::only($params, ['news_id']);
          $filter = [];
          foreach($whereArr as $k => $v){
@@ -417,7 +417,7 @@ class Lms
 
      //CATEGORY
 
-     public function getCategories($params)
+     public function getCategories($params = array())
      {
          $whereArr = \Arr::only($params, ['category_id']);
          $filter = [];
@@ -445,7 +445,7 @@ class Lms
          return false;
      }
  
-     public function getCategoriesIncludeNews($params) {
+     public function getCategoriesIncludeNews($params = array()) {
          $whereArr = \Arr::only($params, ['category_id']);
          $filter = [];
          foreach($whereArr as $k => $v){
@@ -493,7 +493,7 @@ class Lms
 
      //QUESTION
 
-     public function getQuestions($params)
+     public function getQuestions($params = array())
      {
          $whereArr = \Arr::only($params, ['question_id']);
          $filter = [];
@@ -521,7 +521,7 @@ class Lms
          return false;
      }
  
-     public function getQuestionsIncludeAnswers($params) {
+     public function getQuestionsIncludeAnswers($params = array()) {
          $whereArr = \Arr::only($params, ['question_id']);
          $filter = [];
          foreach($whereArr as $k => $v){
@@ -567,7 +567,7 @@ class Lms
      }
 
      //SURVEYS
-     public function getSurveys($params)
+     public function getSurveys($params = array())
      {
          $whereArr = \Arr::only($params, ['survey_id']);
          $filter = [];
@@ -595,7 +595,7 @@ class Lms
          return false;
      }
  
-     public function getSurveysIncludeResults($params) {
+     public function getSurveysIncludeResults($params = array()) {
          $whereArr = \Arr::only($params, ['survey_id']);
          $filter = [];
          foreach($whereArr as $k => $v){
@@ -641,7 +641,7 @@ class Lms
      }
 
      //TEST
-     public function getTests($params)
+     public function getTests($params = array())
      {
          $whereArr = \Arr::only($params, ['test_id']);
          $filter = [];
@@ -669,7 +669,7 @@ class Lms
          return false;
      }
  
-     public function getTestsIncludeLogs($params) {
+     public function getTestsIncludeLogs($params = array()) {
          $whereArr = \Arr::only($params, ['test_id']);
          $filter = [];
          foreach($whereArr as $k => $v){
@@ -703,7 +703,7 @@ class Lms
          return false;
      }
 
-     public function getTestsIncludeQuestions($params) {
+     public function getTestsIncludeQuestions($params = array()) {
         $whereArr = \Arr::only($params, ['test_id']);
         $filter = [];
         foreach($whereArr as $k => $v){

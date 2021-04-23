@@ -11,7 +11,7 @@ class Crm
 
     //CONTACT
 
-    public function getContacts($params)
+    public function getContacts($params = array())
     {
         $whereArr = \Arr::only($params, ['contact_id','manager_id','status','branch_id','department_id','gender']);
         $filter = [];
@@ -50,7 +50,7 @@ class Crm
 
         return ($contacts) ? $contacts[0] : [];
     }
-    public function getContactsIncludeNotifications($params) {
+    public function getContactsIncludeNotifications($params = array()) {
         $whereArr = \Arr::only($params, ['contact_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
@@ -100,7 +100,7 @@ class Crm
 
     //ACCOUNT
 
-    public function getAccounts($params)
+    public function getAccounts($params =array())
     {
         $whereArr = \Arr::only($params, ['account_id', 'employee_id']);
         $filter = [];
@@ -141,7 +141,7 @@ class Crm
 
     
     //LEAD
-    public function getLeads($params)
+    public function getLeads($params = array())
     {
         $whereArr = \Arr::only($params, ['lead_id', 'email', 'phone ']);
         $filter = [];
@@ -183,7 +183,7 @@ class Crm
 
     
     //
-    public function getOpportunities($params)
+    public function getOpportunities($params = array())
     {
         $whereArr = \Arr::only($params, ['opportunity_id', 'email', 'phone', 'contact_id']);
         $filter = [];
@@ -223,7 +223,7 @@ class Crm
 
 
     //NOTIFICATION 
-    public function getNotifications($params)
+    public function getNotifications($params = array())
     {
         $whereArr = \Arr::only($params, ['notification_id']);
         $filter = [];
@@ -252,7 +252,7 @@ class Crm
         return false;
     }
 
-    public function getNotificationsIncludeContacts($params) {
+    public function getNotificationsIncludeContacts($params = array()) {
         $whereArr = \Arr::only($params, ['notification_id']);
         $filter = [];
         foreach($whereArr as $k => $v){

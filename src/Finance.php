@@ -9,7 +9,7 @@ class Finance
         $this->_url = env('API_MICROSERVICE_URL').'/finance';
     }
 
-     public function getInvoices($params)
+     public function getInvoices($params = array())
      {
          $whereArr = \Arr::only($params, ['invoice_id', 'employee_id']);
          $filter = [];
