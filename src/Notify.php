@@ -9,6 +9,7 @@ class Notify
     public function __construct() {
         $this->url_sms = 'https://erp-api.ebomb.edu.vn/notification/send_sms';
         $this->url_mail = 'https://erp-api.ebomb.edu.vn/notification/send_mail';
+        $this->url_mobile = 'https://erp-api.ebomb.edu.vn/notification/send_mobile';
     }
 
     //Send sms
@@ -24,6 +25,13 @@ class Notify
     public function send_email($params = array()) {
         $data = \Arr::only($params, ['channel','title','email', 'content']);
         $response = Http::post($this->url_mail, $data);
+        return $response;
+    }
+
+    //send mobile
+    public function send_mobile($params = array()) {
+        $data = \Arr::only($params, ['channel','title','email', 'content', 'badge', 'token', 'url']);
+        $response = Http::post($this->url_mobile, $data);
         return $response;
     }
 }
