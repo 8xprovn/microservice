@@ -30,7 +30,7 @@ class Notify
 
     //send mobile
     public function send_mobile($params = array()) {
-        $data = \Arr::only($params, ['channel','title','email', 'content', 'badge', 'token', 'url']);
+        $data = \Arr::only($params, ['channel','title','email', 'description', 'content', 'badge', 'token', 'url']);
         $response = Http::post($this->url_mobile, $data);
         return $response;
     }
