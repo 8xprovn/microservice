@@ -189,8 +189,11 @@ class Crm
     //
     public function getOpportunities($params = array())
     {
-        $whereArr = \Arr::only($params, ['opportunity_id', 'email', 'phone', 'contact_id']);
+        $whereArr = \Arr::only($params, ['opportunity_id', 'email', 'phone', 'contact_id', 'account_id', 'limit', 'offset']);
         $filter = [];
+        $limit = $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+
         foreach($whereArr as $k => $v){
             if (is_null($v)) continue;
             switch ($k) {
@@ -198,13 +201,15 @@ class Crm
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
                     }
-                    else {
+                    else if($v != 'limit' && $v != 'offset') {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
             }
         }
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/opportunities',['filter' => json_encode([
+            'limit' => $limit,
+            'offset' => $offset,
             'where' => $filter,
             //'fields' => ['ticket_id','type_id','employee_id','data', 'reason', 'status', 'created_time', 'number_days' ,'from_date' , 'reject_reason']
             ])]);
