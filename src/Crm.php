@@ -1,7 +1,6 @@
 <?php
 namespace Microservices;
 
-
 class Crm
 {
     protected $_url;
@@ -191,8 +190,8 @@ class Crm
     {
         $whereArr = \Arr::only($params, ['opportunity_id', 'email', 'phone', 'contact_id', 'account_id', 'limit', 'offset']);
         $filter = [];
-        $limit = $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
-        $offset = $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
 
         foreach($whereArr as $k => $v){
             if (is_null($v)) continue;
@@ -309,18 +308,21 @@ class Crm
         return false;
     }
 
-    public function getExportOpportunities($filter = [])
+    //export
+
+    //
+    public function getExportOpportunities($params = [])
     {
-        $params = \Arr::only($filter, ['branch_id','start_date','end_date','brand_id','source','contact_id','campaign_id','status','assigned_employee_id','is_closed']);
+        $whereArr = \Arr::only($params, ['branch_id','start_date','end_date','brand_id','source','contact_id','campaign_id','status','assigned_employee_id','is_closed']);
         $filter = [];
-        $limit = $params['limit'] > 0 ? $params['limit'] : 200;
-        $offset = $params['offset'] > 0 ? $params['offset'] : 0;
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
         // > 92 ngay thi reject
-        if (strtotime($params['end_date']) - strtotime($params['start_date']) > 7948800) {
+        if (strtotime($whereArr['end_date']) - strtotime($whereArr['start_date']) > 7948800) {
             return \Response::json("Thời gian export không được quá 3 tháng", 422);
         }
         
-        foreach($params as $k => $v){
+        foreach($whereArr as $k => $v){
             if (is_null($v)) continue;
             switch ($k) {
                 case 'start_date':
@@ -352,6 +354,102 @@ class Crm
             ])]);
         if ($response->successful()) {
             return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+
+    public function getCountOpportunities($params = [])
+    {
+        $whereArr = \Arr::only($params, ['branch_id','start_date','end_date','brand_id','source','contact_id','campaign_id','status','assigned_employee_id','is_closed']);
+        $filter = [];
+        foreach($whereArr as $k => $v){
+            if (is_null($v)) continue;
+            switch ($k) {
+                case 'start_date':
+                    $filter['created_time'] = ['gte' => $v];
+                    break;
+                case 'end_date':
+                    $filter['created_time'] = ['lte' => $v];
+                    break;
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/opportunities/count',json_encode($filter));
+        
+        if ($response->successful()) {
+            return $response->json()['count'];
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getSumOpportunities($params = [])
+    {
+        $whereArr = \Arr::only($params, ['branch_id','start_date','end_date','brand_id','source','contact_id','campaign_id','status','assigned_employee_id','is_closed', 'limit', 'offset']);
+        $filter = [];
+        $limit =  isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+       
+        
+        foreach($whereArr as $k => $v){
+            if (is_null($v)) continue;
+            switch ($k) {
+                case 'start_date':
+                    $filter['created_time'] = ['gte' => $v];
+                    //$query->where('created_time', '>=', $v);
+                    break;
+                case 'end_date':
+                    $filter['created_time'] = ['lte' => $v];
+                    //$query->where('created_time', '<=', $v);
+                    break;
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else if($v != 'limit' && $v != 'offset') {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+
+    
+        if(count($filter) > 0) {
+            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/opportunities',['filter' => json_encode([
+                // 'limit' => $limit,
+                // 'offset' => $offset,
+                'where' => $filter,
+                //'fields' => ['ticket_id','type_id','employee_id','data', 'reason', 'status', 'created_time', 'number_days' ,'from_date' , 'reject_reason']
+                ])
+            ]);
+        } else {
+            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/opportunities');
+        }
+        
+        if ($response->successful()) {
+            $json = $response->json();
+            $sum = 0;
+            // $sum = array_reduce($json, function($carry, $item)
+            // {
+            //     return $carry + $item['invoice_amount'];
+            // },0);
+
+            foreach($json as $item) {
+                if($item['invoice_amount']) {
+                    $sum += $item['invoice_amount'];
+                }
+            }
+
+            return $sum;
         }
         \Log::error($response->body());
         return false;
