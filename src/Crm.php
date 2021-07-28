@@ -313,7 +313,7 @@ class Crm
     //
     public function getExportOpportunities($params = [])
     {
-        $whereArr = \Arr::only($params, ['branch_id','start_date','end_date','brand_id','source','contact_id','campaign_id','status','assigned_employee_id','is_closed']);
+        $whereArr = \Arr::only($params, ['branch_id','start_date','end_date','brand_id','source','contact_id','campaign_id','status','assigned_employee_id', 'account_id', 'is_closed']);
         $filter = [];
         $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
         $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
@@ -362,7 +362,7 @@ class Crm
 
     public function getCountOpportunities($params = [])
     {
-        $whereArr = \Arr::only($params, ['branch_id','start_date','end_date','brand_id','source','contact_id','campaign_id','status','assigned_employee_id','is_closed']);
+        $whereArr = \Arr::only($params, ['opportunity_id', 'email', 'phone', 'branch_id','start_date','end_date','brand_id','source','contact_id','campaign_id','status','assigned_employee_id','is_closed', 'account_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
             if (is_null($v)) continue;
@@ -394,7 +394,7 @@ class Crm
 
     public function getSumOpportunities($params = [])
     {
-        $whereArr = \Arr::only($params, ['branch_id','start_date','end_date','brand_id','source','contact_id','campaign_id','status','assigned_employee_id','is_closed', 'limit', 'offset']);
+        $whereArr = \Arr::only($params, ['opportunity_id', 'email', 'phone', 'branch_id','start_date','end_date','brand_id','source','contact_id','campaign_id','status','assigned_employee_id','is_closed', 'account_id', 'limit', 'offset']);
         $filter = [];
         $limit =  isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
         $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
