@@ -383,7 +383,8 @@ class Crm
                     break;
             }
         }
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/opportunities/count',json_encode($filter));
+        
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/opportunities/count',['where' => json_encode($filter)]);
         
         if ($response->successful()) {
             return $response->json()['count'];
