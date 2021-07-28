@@ -308,4 +308,52 @@ class Crm
         \Log::error($response->body());
         return false;
     }
+
+    public function getExportOpportunities($filter = [])
+    {
+        $params = \Arr::only($filter, ['branch_id','start_date','end_date','brand_id','source','contact_id','campaign_id','status','assigned_employee_id','is_closed']);
+        $filter = [];
+        $limit = $params['limit'] > 0 ? $params['limit'] : 200;
+        $offset = $params['offset'] > 0 ? $params['offset'] : 0;
+        // > 92 ngay thi reject
+        if (strtotime($params['end_date']) - strtotime($params['start_date']) > 7948800) {
+            return \Response::json("Thời gian export không được quá 3 tháng", 422);
+        }
+        
+        foreach($params as $k => $v){
+            if (is_null($v)) continue;
+            switch ($k) {
+                case 'start_date':
+                    $filter['created_time'] = ['gte' => $v];
+                    //$query->where('created_time', '>=', $v);
+                    break;
+                case 'end_date':
+                    $filter['created_time'] = ['lte' => $v];
+                    //$query->where('created_time', '<=', $v);
+                    break;
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+
+    
+
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/opportunities',['filter' => json_encode([
+            // 'limit' => $limit,
+            // 'offset' => $offset,
+            'where' => $filter,
+            //'fields' => ['ticket_id','type_id','employee_id','data', 'reason', 'status', 'created_time', 'number_days' ,'from_date' , 'reject_reason']
+            ])]);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
 }
