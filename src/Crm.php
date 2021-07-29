@@ -14,8 +14,8 @@ class Crm
     {
         $whereArr = \Arr::only($params, ['contact_id','manager_id','status','gender','email','phone', 'account_id', 'limit', 'offset']);
         $filter = [];
-        $limit = $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
-        $offset = $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
 
         foreach($whereArr as $k => $v){
             if (is_null($v)) continue;
