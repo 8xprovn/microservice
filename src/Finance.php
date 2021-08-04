@@ -75,6 +75,17 @@ class Finance
         return false;
      }
 
-    
+     public function getInvoiceDetailById($id)
+     {
+        
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/invoice-details/'.$id);
+
+        if ($response->successful()) {
+             return $response->json();
+        }
+
+        \Log::error($response->body());
+        return false;
+     }
 
 }
