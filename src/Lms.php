@@ -12,7 +12,7 @@ class Lms
     //COURSE PRICE
     public function getCoursePrices($params = array())
     {
-        $whereArr = \Arr::only($params, ['course_id']);
+        $whereArr = \Arr::only($params, ['course_id','price_id','type']);
         $filter = [];
         foreach($whereArr as $k => $v){
             if (is_null($v)) continue;
@@ -30,7 +30,7 @@ class Lms
         $filter = array_merge($filter, ['status' => 'active','from_date' => ['lte' => date("Y-m-d")],'to_date' => ['gte' => date('Y-m-d')]]);
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/course-prices',['filter' => json_encode([
             'where' => $filter,
-            'fields' => ['course_id','amount','price_id','validation']
+            //'fields' => ['name','course_id','amount','price_id','validation']
             ])]);
         if ($response->successful()) {
             return $response->json();
@@ -772,12 +772,4 @@ class Lms
         \Log::error($response->body());
         return false;
      }
-    public function getCourseUnitPrice($params) {
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/course-unit-prices', http_build_query($params));
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($response->body());
-        return false;
-    }
 }
