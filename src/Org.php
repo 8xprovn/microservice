@@ -124,6 +124,15 @@ class Org
         \Log::error($response->body());
         return false;
     }
+    public function getBrandDetail($id)
+    {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/brands/'.$id);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
 
     public function getBrandsByBranch($id) {
         //var_dump(['filter' => json_encode(['where' => $filter])]); die;
