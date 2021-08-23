@@ -263,13 +263,16 @@ class Crm
     public function createNotification($notification = [], $arrContactId = []) {
        
         $notiParams = \Arr::only($notification, ['name','type','title','content','created_time','description','is_all','brand_id','file','type_sms','sub_type','employee_id','send_time','is_processed','attachment']);
-        if(count($arrContactId) > 0) {
+        if(!empty($arrContactId)) {
+            if(!is_array($arrContactId)) {
+                $arrContactId = [$arrContactId];
+            }
             $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post($this->_url.'/notification-contacts/to-contacts',[
                 'notification' => $notiParams,
                 'contact_id'=> $arrContactId 
             ]);
         } else {
-            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post($this->_url.'/notification-contacts', $notification);
+            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post($this->_url.'/notification-contacts', $notiParams);
         }
        
 
