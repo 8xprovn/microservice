@@ -260,6 +260,26 @@ class Crm
         return false;
     }
 
+    public function createNotification($notification = [], $arrContactId = []) {
+       
+        $notiParams = \Arr::only($notification, ['name','type','title','content','created_time','description','is_all','brand_id','file','type_sms','sub_type','employee_id','send_time','is_processed','attachment']);
+        if(count($arrContactId) > 0) {
+            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post($this->_url.'/notification-contacts/to-contacts',[
+                'notification' => $notiParams,
+                'contact_id'=> $arrContactId 
+            ]);
+        } else {
+            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post($this->_url.'/notification-contacts', $notification);
+        }
+       
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
     public function getNotificationsIncludeContacts($params = array()) {
         $whereArr = \Arr::only($params, ['notification_id']);
         $filter = [];
@@ -497,4 +517,7 @@ class Crm
         \Log::error($response->body());
         return false;
     }
+
+
+
 }
