@@ -10,7 +10,7 @@ class Lime
         $this->_rpcUser="admin";
         $this->_rpcPassword="hoanguyen";
 
-        $this->_lsJSONRPCClient = new \org\jsonrpcphp\jsonRPCClient($this->_rpcUrl);
+        $this->_lsJSONRPCClient = new \org\jsonrpcphp\JsonRPCClient($this->_rpcUrl);
     }
 
     public function sessionKey(){
