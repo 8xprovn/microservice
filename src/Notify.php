@@ -7,11 +7,21 @@ class Notify
 {
     protected $_url;
     public function __construct() {
+        $this->_url = 'https://erp-api.ebomb.edu.vn/notification';
         $this->url_sms = 'https://erp-api.ebomb.edu.vn/notification/send_sms';
         $this->url_mail = 'https://erp-api.ebomb.edu.vn/notification/send_mail';
         $this->url_mobile = 'https://erp-api.ebomb.edu.vn/notification/send_mobile';
     }
-
+    public function send($params) {
+        switch($params['type']) {
+            default:
+            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/send_'.$params['type'],$params);
+            if ($response->successful()) {
+                return true;
+            }
+            return ['message' => $response->body()];
+        }
+    }
     //Send sms
     public function send_sms($params = array())
     {
