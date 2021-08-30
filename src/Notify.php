@@ -7,7 +7,7 @@ class Notify
 {
     protected $_url;
     public function __construct() {
-        $this->_url = env('NOTIFY_URL', 'https://erp-api.ebomb.edu.vn/notification');
+        $this->_url = env('API_MICROSERVICE_URL').'/notification';
         $this->url_sms = 'https://erp-api.ebomb.edu.vn/notification/send_sms';
         $this->url_mail = 'https://erp-api.ebomb.edu.vn/notification/send_mail';
         $this->url_mobile = 'https://erp-api.ebomb.edu.vn/notification/send_mobile';
