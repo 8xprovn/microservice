@@ -15,7 +15,7 @@ class Notify
     public function send($params) {
         switch($params['type']) {
             default:
-            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/send_'.$params['type'],$params);
+            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post($this->_url.'/send_'.$params['type'],$params);
             if ($response->successful()) {
                 return true;
             }
