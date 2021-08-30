@@ -6,9 +6,9 @@ class Lime
 
     public function __construct() {
         /* Remind to download and put files in https://github.com/weberhofer/jsonrpcphp at the good place */
-        $this->_rpcUrl="https://demo-qlcl.imap.edu.vn/index.php/admin/remotecontrol";
-        $this->_rpcUser="admin";
-        $this->_rpcPassword="hoanguyen";
+        $this->_rpcUrl=env('LIME_URL','');
+        $this->_rpcUser=env('LIME_USER','');
+        $this->_rpcPassword=env('LIME_PASSWORD','');
 
         $this->_lsJSONRPCClient = new \org\jsonrpcphp\JsonRPCClient($this->_rpcUrl);
     }
