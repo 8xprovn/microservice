@@ -33,6 +33,19 @@ class Lime
         return $response;
     }
 
+    //Active survey
+    public function activate_survey($iSurveyID){
+        $lsJSONRPCClient = $this->_lsJSONRPCClient;
+        try {
+            $sessionKey = $this->sessionKey();
+            $response = $lsJSONRPCClient->activate_survey($sessionKey, $iSurveyID);
+            return $response;
+        }catch (\Throwable $e){
+            $result =  ['status' => 'error', 'message' => $e->getMessage()];
+            return $result;
+        }
+    }
+
     public function get_responses($iSurveyID, $params = array()){
         $lsJSONRPCClient = $this->_lsJSONRPCClient;
         $sessionKey = $this->sessionKey();
