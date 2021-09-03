@@ -40,6 +40,13 @@ class Lime
         return json_decode(base64_decode($response), TRUE);
     }
 
+    public function get_summary($iSurveyID){
+        $lsJSONRPCClient = $this->_lsJSONRPCClient;
+        $sessionKey = $this->sessionKey();
+        $response = $lsJSONRPCClient->get_summary($sessionKey, $iSurveyID, 'all');
+        return $response;
+    }
+
     public function add_participants($iSurveyID, $aParticipantData){
         $lsJSONRPCClient = $this->_lsJSONRPCClient;
         try {
