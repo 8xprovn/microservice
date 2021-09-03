@@ -39,4 +39,28 @@ class Lime
         $response = $lsJSONRPCClient->export_responses($sessionKey, $iSurveyID, 'json');
         return json_decode(base64_decode($response), TRUE);
     }
+
+    public function add_participants($iSurveyID, $aParticipantData){
+        $lsJSONRPCClient = $this->_lsJSONRPCClient;
+        try {
+            $sessionKey = $this->sessionKey();
+            $response = $lsJSONRPCClient->add_participants($sessionKey, $iSurveyID, $aParticipantData);
+            return $response;
+        }catch (\Throwable $e){
+            $result =  ['status' => 'error', 'message' => $e->getMessage()];
+            return $result;
+        }
+    }
+
+    public function activate_tokens($iSurveyID){
+        $lsJSONRPCClient = $this->_lsJSONRPCClient;
+        try {
+            $sessionKey = $this->sessionKey();
+            $result = $lsJSONRPCClient->activate_tokens($sessionKey, $iSurveyID);
+            return $result;
+        }catch (\Throwable $e){
+            $result =  ['status' => 'error', 'message' => $e->getMessage()];
+            return $result;
+        }
+    }
 }
