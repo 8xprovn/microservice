@@ -30,17 +30,27 @@ class Crm
                     break;
             }
         }
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/contacts',['filter' => json_encode([
+
+        $newFilter = [
             'limit' => $limit,
-            'offset' => $offset,
-            'where' => $filter,
-            //'fields' => ['contact_id','first_name','last_name','email', 'phone', 'gender', 'birthdate', 'organization' ,'address']
-            ])]);
+            'offset' => $offset
+        ];
+
+        if(count($filter) > 0) {
+            $newFilter = [
+                'limit' => $limit,
+                'offset' => $offset,
+                'where' => $filter,
+            ];
+        }
+       
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/contacts',['filter' => json_encode($newFilter)]);
         if ($response->successful()) {
             return $response->json();
         }
         \Log::error($response->body());
         return false;
+
     }
     public function findContact($phoneOrEmail) {
         if (filter_var($phoneOrEmail, FILTER_VALIDATE_EMAIL)) {
