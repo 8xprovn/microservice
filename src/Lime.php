@@ -51,7 +51,7 @@ class Lime
         try {
             $sessionKey = $this->sessionKey();
             $response = $lsJSONRPCClient->export_responses($sessionKey, $iSurveyID, 'json', '', 'complete', 'full', 'long');
-            if(!empty($response['status'])){
+            if(is_array($response) && !empty($response['status'])){
                 $result =  ['status' => 'error', 'message' => $response['status']];
                 return $result;
             }
