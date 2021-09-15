@@ -265,7 +265,7 @@ class Lms
     //STUDENT
     public function getStudent($params = array())
     {
-        $whereArr = \Arr::only($params, ['student_id', 'contact_id']);
+        $whereArr = \Arr::only($params, ['student_id', 'contact_id', 'class_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
             if (is_null($v)) continue;
