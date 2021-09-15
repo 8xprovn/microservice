@@ -51,6 +51,10 @@ class Lime
         try {
             $sessionKey = $this->sessionKey();
             $response = $lsJSONRPCClient->export_responses($sessionKey, $iSurveyID, 'json', '', 'complete', 'full', 'long');
+            if(!empty($response['status'])){
+                $result =  ['status' => 'error', 'message' => $response['status']];
+                return $result;
+            }
             return json_decode(base64_decode($response), TRUE);
         }catch (\Throwable $e){
             $result =  ['status' => 'error', 'message' => $e->getMessage()];
