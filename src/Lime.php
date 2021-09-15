@@ -48,9 +48,14 @@ class Lime
 
     public function get_responses($iSurveyID, $params = array()){
         $lsJSONRPCClient = $this->_lsJSONRPCClient;
-        $sessionKey = $this->sessionKey();
-        $response = $lsJSONRPCClient->export_responses($sessionKey, $iSurveyID, 'json', '', 'complete', 'full', 'long');
-        return json_decode(base64_decode($response), TRUE);
+        try {
+            $sessionKey = $this->sessionKey();
+            $response = $lsJSONRPCClient->export_responses($sessionKey, $iSurveyID, 'json', '', 'complete', 'full', 'long');
+            return json_decode(base64_decode($response), TRUE);
+        }catch (\Throwable $e){
+            $result =  ['status' => 'error', 'message' => $e->getMessage()];
+            return $result;
+        }
     }
 
     public function get_summary($iSurveyID){
