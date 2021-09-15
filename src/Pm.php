@@ -7,7 +7,6 @@ class Pm
     protected $_url;
     public function __construct() {
         $this->_url = env('API_MICROSERVICE_URL').'/pm';
-        $this->_local_url = env('APP_URL').'/pm';
     }
 
     public function getTickets($params = array())
@@ -167,21 +166,4 @@ class Pm
         \Log::error($response->body());
         return false;
     }
-
-    public function createTicket($input)
-    {
-        $input = \Arr::only($input, ['name','priority','department_id','description']);
-        try {
-            $response = \Http::post($this->_local_url.'/api/ticket', $input);
-            if ($response->successful()) {
-                return $response->json();
-            }
-            \Log::error($response->body());
-        }catch (\Throwable $e){
-            $result =  ['status' => 'error', 'message' => $e->getMessage()];
-            return $result;
-        }
-        return false;
-    }
-
 }
