@@ -4,8 +4,10 @@ namespace Microservices;
 class Crm
 {
     protected $_url;
+    protected $_url2;
     public function __construct() {
         $this->_url = env('API_MICROSERVICE_URL').'/crm';
+        $this->_url2 = env('API_MICROSERVICE_URL2', 'https://staging.api.f6.com.vn').'/crm';
     }
 
     //CONTACT
@@ -527,6 +529,21 @@ class Crm
             return $response->json();
         }
         
+        \Log::error($response->body());
+        return false;
+    }
+
+
+    public function createOpportunity($opportunitie = []) {
+       
+        $oppParams = \Arr::only($opportunitie, ['first_name','phone','email','last_name','birthdate','brand_id','branch_id','subject','description','campaign_id','source','link_source', 'brand', 'branch','content','facebook','employee_id','created_employee_id','job_title']);
+        
+        $response = \Http::post($this->_url2.'/opportunities', $oppParams);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
         \Log::error($response->body());
         return false;
     }
