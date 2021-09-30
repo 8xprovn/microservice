@@ -804,4 +804,27 @@ class Hr
          \Log::error($response->body());
          return false;
      }
+
+     public function createNotification($notification = [], $arrEmployeeId = []) {
+       
+        $notiParams = \Arr::only($notification, ['name','type','title','content','created_time','description','is_all','brand_id','file','type_sms','sub_type','employee_id','send_time','is_processed','attachment']);
+        if(!empty($arrEmployeeId)) {
+            if(!is_array($arrEmployeeId)) {
+                $arrEmployeeId = [$arrEmployeeId];
+            }
+            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post($this->_url.'/notification-employees/to-employees',[
+                'notification' => $notiParams,
+                'employee_id'=> $arrEmployeeId 
+            ]);
+        } else {
+            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post($this->_url.'/notification-employees', $notiParams);
+        }
+       
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
 }
