@@ -772,4 +772,48 @@ class Lms
         \Log::error($response->body());
         return false;
      }
+
+     public function getQuestionByTest($test_id=0) {
+        if ((int)$test_id > 0) {
+            $response = \Http::withToken(env('API_GATEWAY_TOKEN',''))->get(env('API_GATEWAY_URL').'/edu/test/'.$test_id);
+            if ($response->successful()) {
+                return $response->json();
+            }
+            \Log::error($response->body());
+            return false;
+        }
+        return false;
+    }
+
+    public function createTestLog($test_id, $question_list = []) {
+        
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post(env('API_GATEWAY_URL').'/edu/test-logs',[
+            'test_id' => $test_id,
+            'question_list'=> $question_list 
+        ]);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function updateTestLog($test_id, $logs_id, $logs_token, $answers = []) {
+        
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post(env('API_GATEWAY_URL').'/edu/test',[
+            'test_id' => $test_id,
+            'logs_id' => $logs_id,
+            'logs_token' => $logs_token,
+            'answers' => $answers,
+        ]);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+        
+        \Log::error($response->body());
+        return false;
+    }
 }
