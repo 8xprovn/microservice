@@ -785,12 +785,24 @@ class Lms
         return false;
     }
 
-    public function createTestLog($test_id, $question_list = []) {
+    public function createTestLog($test_id, $question_list = [], $test_group_id) {
+        if(empty($test_id) || empty($question_list)) {
+            return false;
+        }
         
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post(env('API_GATEWAY_URL').'/edu/test-logs',[
-            'test_id' => $test_id,
-            'question_list'=> $question_list 
-        ]);
+        if(empty($test_group_id)) {
+            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post(env('API_GATEWAY_URL').'/edu/test-logs',[
+                'test_id' => $test_id,
+                'question_list'=> $question_list
+            ]);
+        } else {
+            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post(env('API_GATEWAY_URL').'/edu/test-logs',[
+                'test_id' => $test_id,
+                'question_list'=> $question_list,
+                'test_group_id' => $test_group_id
+            ]);
+           
+        }
 
         if ($response->successful()) {
             return $response->json();
