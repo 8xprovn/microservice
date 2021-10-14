@@ -775,7 +775,7 @@ class Lms
 
      public function getQuestionByTest($test_id=0) {
         if ((int)$test_id > 0) {
-            $response = \Http::withToken(env('API_GATEWAY_TOKEN',''))->get(env('API_GATEWAY_URL').'/edu/test/'.$test_id);
+            $response = \Http::withToken(env('API_GATEWAY_TOKEN',''))->get(env('API_GATEWAY_URL').'/edu/test/'.$test_id.'/questions');
             if ($response->successful()) {
                 return $response->json();
             }
@@ -785,14 +785,16 @@ class Lms
         return false;
     }
 
-    public function createTestLog($test_id, $question_list = [], $test_group_id = null) {
+    public function createTestLog($test_id, $question_list = [], $test_parent_id = null , $logs_parent_id = null, $is_group = 0) {
         if(empty($test_id) || empty($question_list)) {
             return false;
         }
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post(env('API_GATEWAY_URL').'/edu/test-logs',[
+        $response = \Http::withToken(env('API_GATEWAY_TOKEN',''))->post(env('API_GATEWAY_URL').'/edu/test-logs',[
             'test_id' => $test_id,
             'question_list'=> $question_list,
-            'test_group_id' => $test_group_id
+            'test_parent_id' => $test_parent_id,
+            'logs_parent_id' => $logs_parent_id,
+            'is_group' => $is_group
         ]);
            
         if ($response->successful()) {
@@ -805,7 +807,7 @@ class Lms
 
     public function updateTestLog($test_id, $logs_id, $logs_token, $answers = []) {
         
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post(env('API_GATEWAY_URL').'/edu/test',[
+        $response = \Http::withToken(env('API_GATEWAY_TOKEN',''))->post(env('API_GATEWAY_URL').'/edu/test',[
             'test_id' => $test_id,
             'logs_id' => $logs_id,
             'logs_token' => $logs_token,
