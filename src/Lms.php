@@ -785,7 +785,7 @@ class Lms
         return false;
     }
 
-    public function createTestLog($test_id, $question_list = [], $test_parent_id = null , $logs_parent_id = null, $is_group = 0, $relate_type = null, $relate_type_id = null) {
+    public function createTestLog($test_id, $question_list = [], $test_parent_id = null , $logs_parent_id = null, $is_group = 0, $relate_type = null, $relate_id = null) {
         if(empty($test_id) || empty($question_list)) {
             return false;
         }
@@ -796,7 +796,7 @@ class Lms
             'logs_parent_id' => $logs_parent_id,
             'is_group' => $is_group,
             'relate_type' => $relate_type,
-            'relate_type_id' => $relate_type_id
+            'relate_id' => $relate_id
         ]);
    
         if ($response->successful()) {
