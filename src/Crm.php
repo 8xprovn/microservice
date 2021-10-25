@@ -105,6 +105,34 @@ class Crm
 
     public function getContactDetail($id)
     {
+        if (is_array($id)) {
+            $limit = 100;
+            $countId = count($id);
+            $count = round($countId / $limit);
+            for ($i = 0; $i < $count; $i ++) {
+                $arrId = array_slice($id, $i*$limit, ($i+1)*$limit);
+                $newFilter = ['filter' => json_encode(['where' => ['contact_id' => ['inq' => $arrId]]])];
+                $p[] = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->async()->get($this->_url.'/contacts',$newFilter)->then(function($response) {
+                    if ($response->successful()) {
+                        return $response->json();    
+                    }
+                    else {
+                        return false;
+                    }
+                });
+            }
+            $results = \GuzzleHttp\Promise\all($p)->wait();
+            $contactDetail = [];
+            foreach($results as $result) {
+                if (!$result) {
+                    continue;
+                }
+                foreach($result as $r) {
+                    $contactDetail[$r['contact_id']] = $r;
+                }
+            }
+            return $contactDetail;
+        }
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/contacts/'.$id);
         if ($response->successful()) {
             return $response->json();

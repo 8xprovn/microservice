@@ -290,6 +290,17 @@ class Hr
    
     public function getEmployeeDetail($id)
     {
+        if (is_array($id)) {
+            $arrEmployee = $this->getEmployees(['employee_id' => $id]); $employeeDetail = [];
+            if (!$arrEmployee) {
+                return $arrEmployee;
+            }
+            foreach ($arrEmployee as $employee) {
+                $employeeDetail[$employee['employee_id']] = $employee;
+            }
+            unset ($arrEmployee);
+            return $employeeDetail;
+        }
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employees/'.$id);
         if ($response->successful()) {
             return $response->json();

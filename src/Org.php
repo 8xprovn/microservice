@@ -9,6 +9,17 @@ class Org
     }
     public function getBranchDetail($id)
     {
+        if (is_array($id)) {
+            $arrBranch = $this->getBranchs(['branch_id' => $id]); $branchDetail = [];
+            if (!$arrBranch) {
+                return $arrBranch;
+            }
+            foreach ($arrBranch as $branch) {
+                $branchDetail[$branch['branch_id']] = $branch;
+            }
+            unset ($arrBranch);
+            return $branchDetail;
+        }
         //var_dump(['filter' => json_encode(['where' => $filter])]); die;
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/brand-branches/'.$id);
         if ($response->successful()) {
@@ -126,6 +137,17 @@ class Org
     }
     public function getBrandDetail($id)
     {
+        if (is_array($id)) {
+            $arrBrand = $this->getBrands(['brand_id' => $id]); $brandDetail = [];
+            if (!$arrBrand) {
+                return $arrBrand;
+            }
+            foreach ($arrBrand as $brand) {
+                $brandDetail[$brand['brand_id']] = $brand;
+            }
+            unset ($arrBrand);
+            return $brandDetail;
+        }
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/brands/'.$id);
         if ($response->successful()) {
             return $response->json();
