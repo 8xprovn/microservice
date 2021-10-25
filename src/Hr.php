@@ -717,6 +717,49 @@ class Hr
          \Log::error($response->body());
          return false;
      }
+
+     public function getDepartments($params = [])
+     {
+        $whereArr = \Arr::only($params, ['department_id']);
+        $filter = [];
+        foreach($whereArr as $k => $v){
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+      
+        if(!empty($filter)) {
+            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/departments', ['filter' => json_encode([
+                'where' => $filter,
+            ])]);
+        } else {
+            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/departments');
+        }
+
+         if ($response->successful()) {
+             return $response->json();
+         }
+         \Log::error($response->body());
+         return false;
+     }
+
+     public function getDepartmentDetail($id)
+     {
+         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/departments/'. $id);
+         if ($response->successful()) {
+             return $response->json();
+         }
+         \Log::error($response->body());
+         return false;
+     }
  
      public function employee($employeeId, $toDate)
      {
@@ -768,17 +811,7 @@ class Hr
          return false;
      }
  
-     public function department($params = [])
-     {
-         $params = array_filter($params);
- 
-         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/departments/',http_build_query($params));
-         if ($response->successful()) {
-             return $response->json();
-         }
-         \Log::error($response->body());
-         return false;
-     }
+     
  
      public function jobTitle($params = [])
      {
