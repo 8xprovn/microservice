@@ -105,6 +105,30 @@ class Crm
 
     public function getContactDetail($id)
     {
+        if (is_array($id)) {
+            $fn = function (\Illuminate\Http\Client\Pool $pool) use ($id) {
+                $limit = 100;
+                $countId = count($id);
+                $count = ceil($countId / $limit);
+                for ($i = 0; $i < $count; $i ++) {
+                    $arrId = array_slice($id, $i*$limit, ($i+1)*$limit);
+                    $newFilter = ['filter' => json_encode(['where' => ['contact_id' => ['inq' => $arrId]]])];
+                    $arrayPools[] = $pool->withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/contacts',$newFilter);
+                }
+                return $arrayPools;
+            };
+            $responses = \Illuminate\Support\Facades\Http::pool($fn);
+            $results = [];
+            foreach ($responses as $response) {
+                if($response->successful()){
+                    $item = $response->json();
+                    foreach($item as $item) {
+                        $results[$item['contact_id']] = $item;
+                    }
+                }
+            }
+            return $results;
+        }
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/contacts/'.$id);
         if ($response->successful()) {
             return $response->json();
