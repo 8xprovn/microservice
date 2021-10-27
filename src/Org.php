@@ -9,13 +9,22 @@ class Org
     }
     public function getBranchDetail($id)
     {
-        //var_dump(['filter' => json_encode(['where' => $filter])]); die;
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/brand-branches/'.$id);
-        if ($response->successful()) {
-            return $response->json();
+        if (is_array($id)) {
+            return \Cache::rememberMany($id,'org:branch:detail:',env('CACHE_EXPIRE_DEFAULT'),function($arrKeyNotCache){
+                $arrBranch = $this->getBranchs(['branch_id' => $arrKeyNotCache]);
+                if (!$arrBranch) {
+                    return false;
+                }
+                return array_combine(array_column($arrBranch, 'branch_id'), $arrBranch);
+            });
         }
-        \Log::error($response->body());
-        return false;
+        return \Cache::remember($id,'org:branch:detail:',env('CACHE_EXPIRE_DEFAULT'),function(){
+            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/brand-branches/'.$id);
+            if ($response->successful()) {
+                return $response->json();
+            }
+            return [];
+        });
     }
     public function getBranchs($params = array())
     {
@@ -126,12 +135,23 @@ class Org
     }
     public function getBrandDetail($id)
     {
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/brands/'.$id);
-        if ($response->successful()) {
-            return $response->json();
+
+        if (is_array($id)) {
+            return \Cache::rememberMany($id,'org:brand:detail:',env('CACHE_EXPIRE_DEFAULT'),function($arrKeyNotCache){
+                $arrBrand = $this->getBrands(['brand_id' => $arrKeyNotCache]);
+                if (!$arrBrand) {
+                    return false;
+                }
+                return array_combine(array_column($arrBrand, 'brand_id'), $arrBrand);
+            });
         }
-        \Log::error($response->body());
-        return false;
+        return \Cache::remember($id,'org:brand:detail:',env('CACHE_EXPIRE_DEFAULT'),function(){
+            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/brands/'.$id);
+            if ($response->successful()) {
+                return $response->json();
+            }
+            return [];
+        });
     }
 
     public function getBrandsByBranch($id) {
