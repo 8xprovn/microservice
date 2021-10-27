@@ -290,6 +290,30 @@ class Hr
    
     public function getEmployeeDetail($id)
     {
+        if (is_array($id)) {
+            $fn = function (\Illuminate\Http\Client\Pool $pool) use ($id) {
+                $limit = 200;
+                $countId = count($id);
+                $count = ceil($countId / $limit);
+                for ($i = 0; $i < $count; $i ++) {
+                    $arrId = array_slice($id, $i*$limit, ($i+1)*$limit);
+                    $newFilter = ['filter' => json_encode(['where' => ['employee_id' => ['inq' => $arrId]]])];
+                    $arrayPools[] = $pool->withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employees',$newFilter);
+                }
+                return $arrayPools;
+            };
+            $responses = \Illuminate\Support\Facades\Http::pool($fn);
+            $results = [];
+            foreach ($responses as $response) {
+                if($response->successful()){
+                    $item = $response->json();
+                    foreach($item as $item) {
+                        $results[$item['employee_id']] = $item;
+                    }
+                }
+            }
+            return $results;
+        }
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employees/'.$id);
         if ($response->successful()) {
             return $response->json();
