@@ -18,7 +18,7 @@ class Org
                 return array_combine(array_column($arrBranch, 'branch_id'), $arrBranch);
             });
         }
-        return \Cache::remember($id,'org:branch:detail:',env('CACHE_EXPIRE_DEFAULT'),function(){
+        return \Cache::remember('org:branch:detail:'.$id,env('CACHE_EXPIRE_DEFAULT'),function(){
             $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/brand-branches/'.$id);
             if ($response->successful()) {
                 return $response->json();
@@ -145,7 +145,7 @@ class Org
                 return array_combine(array_column($arrBrand, 'brand_id'), $arrBrand);
             });
         }
-        return \Cache::remember($id,'org:brand:detail:',env('CACHE_EXPIRE_DEFAULT'),function(){
+        return \Cache::remember('org:brand:detail:'.$id,env('CACHE_EXPIRE_DEFAULT'),function(){
             $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/brands/'.$id);
             if ($response->successful()) {
                 return $response->json();
