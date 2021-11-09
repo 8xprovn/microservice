@@ -823,4 +823,15 @@ class Lms
         \Log::error($response->body());
         return false;
     }
+
+
+    public function getTestLogDetail($id)
+    {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/test-logs/'.$id);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
 }
