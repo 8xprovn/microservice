@@ -92,4 +92,20 @@ class Lime
             return $result;
         }
     }
+
+    public function export_responses_by_token($iSurveyID, $sToken){
+        $lsJSONRPCClient = $this->_lsJSONRPCClient;
+        try {
+            $sessionKey = $this->sessionKey();
+            $response = $lsJSONRPCClient->export_responses_by_token($sessionKey, $iSurveyID, 'json', $sToken, '', 'complete', 'full', 'long');
+            if(is_array($response) && !empty($response['status'])){
+                $result =  ['status' => 'error', 'message' => $response['status']];
+                return $result;
+            }
+            return json_decode(base64_decode($response), TRUE);
+        }catch (\Throwable $e){
+            $result =  ['status' => 'error', 'message' => $e->getMessage()];
+            return $result;
+        }
+    }
 }
