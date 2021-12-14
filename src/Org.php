@@ -28,7 +28,7 @@ class Org
     }
     public function getBranchs($params = array())
     {
-        $whereArr = \Arr::only($params, ['branch_id', 'city_code']); 
+        $whereArr = \Arr::only($params, ['branch_id', 'city_code', 'manager_id']); 
         $filter = [];
         foreach($whereArr as $k => $v){
             if (is_null($v)) continue;
