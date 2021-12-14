@@ -43,10 +43,12 @@ class Org
                     break;
             }
         }
+        $filter = array_merge($filter, ['status' => 'active']);
         $q = '';
         $q = ($filter) ? ['filter' => json_encode([
                 'where' => $filter
-            ])] : '';        
+            ])] : '';  
+              
         //var_dump(['filter' => json_encode(['where' => $filter])]); die;
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/brand-branches', $q);
         if ($response->successful()) {
