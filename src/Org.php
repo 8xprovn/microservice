@@ -476,5 +476,16 @@ class Org
         return false;
 
     }
+
+    public function getSystemLogDetail($id) {
+        //var_dump(['filter' => json_encode(['where' => $filter])]); die;
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/system-logs/'.$id);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
    
 }
