@@ -7,7 +7,7 @@ class Upload
     protected $_url;
     protected $_hash_secret;
     public function __construct() {
-        $this->_url = env('API_MICROSERVICE_UPLOAD_URL');
+        $this->_url = env('SERVICE_UPLOAD_URL');
         $this->_hash_secret = env('UPLOAD_HASH_SECRET');
     }
 
