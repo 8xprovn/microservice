@@ -11,7 +11,6 @@ class Upload
         $this->_hash_secret = env('UPLOAD_HASH_SECRET');
     }
 
-    
 
     public function moveFiles($files_path = null) {
         if(!$files_path) {
@@ -57,11 +56,11 @@ class Upload
         $fn = function (\Illuminate\Http\Client\Pool $pool) use ($newParams) {
             if(count($newParams['paths_delete']) > 0) {
                 $data = ['files_path' => $newParams['paths_delete'], 'hash' => hash('sha256',implode('',$newParams['paths_delete']).$this->_hash_secret) ];
-                $arrayPools[] = $pool->withToken(env('API_MICROSERVICE_TOKEN',''))->delete($this->_url.'/deletes',$data);
+                $arrayPools[] = $pool->as('delete')->withToken(env('API_MICROSERVICE_TOKEN',''))->delete($this->_url.'/deletes',$data);
             }
             if(count($newParams['paths_move']) > 0) {
                 $data = ['files_path' => $newParams['paths_move'], 'hash' => hash('sha256', implode('',$newParams['paths_move']).$this->_hash_secret) ];
-                $arrayPools[] = $pool->withToken(env('API_MICROSERVICE_TOKEN',''))->patch($this->_url.'/moves',$data);
+                $arrayPools[] = $pool->as('move')->withToken(env('API_MICROSERVICE_TOKEN',''))->patch($this->_url.'/moves',$data);
             }
            
             return $arrayPools;
@@ -69,25 +68,28 @@ class Upload
         
         
         $responses = \Illuminate\Support\Facades\Http::pool($fn);
-
-        if(count($responses) === 1) {
-            if($responses[0]->successful()) {
-                return $responses[0]->json();
+        $result = [];
+        if(isset($responses['delete'])) {
+            if($responses['delete']->successful()) {
+                $result['delete'] = true;
             } else {
-                \Log::error($responses[0]->body());
-                return false;
+                \Log::error($responses['delete']->body());
+                $result['delete'] = false;
             }
         }
-       
-        if($responses[0]->successful() && $responses[1]->successful()) {
-            $deleteResponse  = $responses[0]->json();
-            $moveResponse = $responses[1]->json();
-            $deleteResponse['paths_move'] = array_merge($deleteResponse['paths_move'], $moveResponse['paths_move']);
-            return $deleteResponse;
-        } else {
-            //\Log::error($responses[0]->body() . $responses[1]->body());
-            return false;
+        
+
+        if(isset($responses['move'])) {  
+            if($responses['move']->successful()) {
+                    $result['move'] = true;
+            } else {
+                \Log::error($responses['move']->body());
+                $result['move'] = false;
+            }
         }
+
+        return $result;
+
         
     }
 }
