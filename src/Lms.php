@@ -876,6 +876,17 @@ class Lms
         return false;
     }
 
+    public function getRoadMapDetail($id)
+    {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/roadmaps/'.$id);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+
     public function getRoadMapCourse($params = [])
     {
         $whereArr = \Arr::only($params, ['course_id', 'roadmap_id', 'limit', 'offset']);
@@ -909,6 +920,16 @@ class Lms
             ];
         }
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/roadmap-courses',['filter' => json_encode($newFilter)]);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getRoadMapCourseDetail($id)
+    {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/roadmap-courses/'.$id);
         if ($response->successful()) {
             return $response->json();
         }
