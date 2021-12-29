@@ -849,7 +849,7 @@ class Lms
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
                     }
-                    else {
+                    else if($v != 'limit' && $v != 'offset') {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
@@ -890,7 +890,7 @@ class Lms
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
                     }
-                    else {
+                    else if($v != 'limit' && $v != 'offset') {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
