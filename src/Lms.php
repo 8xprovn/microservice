@@ -5,8 +5,10 @@ namespace Microservices;
 class Lms
 {
     protected $_url;
+    protected $_hash_secret;
     public function __construct() {
         $this->_url = env('API_MICROSERVICE_URL').'/edu';
+        $this->_hash_secret = env('TEST_HASH_SECRET');
     }
 
     //COURSE PRICE
@@ -775,10 +777,13 @@ class Lms
 
      public function getQuestionByTest($test_id=0) {
         if ((int)$test_id > 0) {
-            $response = \Http::withToken(env('API_GATEWAY_TOKEN',''))->get(env('API_GATEWAY_URL').'/edu/test/'.$test_id.'/questions');
+            $hash =  hash('sha256', $test_id . $this->_hash_secret);
+            $response = \Http::withToken(env('API_GATEWAY_TOKEN',''))->get(env('API_GATEWAY_URL').'/edu/tests/'.$test_id.'/questions?hash='.$hash);
             if ($response->successful()) {
                 return $response->json();
             }
+
+            dd($response->body());
             \Log::error($response->body());
             return false;
         }
@@ -933,6 +938,24 @@ class Lms
         if ($response->successful()) {
             return $response->json();
         }
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function createTestShort($test_id, $question_list = [], $answers = []) {
+        if(empty($test_id) || empty($question_list) || empty($answers)) {
+            return false;
+        }
+        $response = \Http::withToken(env('API_GATEWAY_TOKEN',''))->post(env('API_GATEWAY_URL').'/edu/tests/short',[
+            'test_id' => $test_id,
+            'question_list'=> $question_list,
+            'answers' => $answers,
+        ]);
+   
+        if ($response->successful()) {
+            return $response->json();
+        }
+
         \Log::error($response->body());
         return false;
     }
