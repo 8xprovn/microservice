@@ -26,7 +26,7 @@ class Crm
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
                     }
-                    else if($v != 'limit' && $v != 'offset') {
+                    else if($k != 'limit' && $k != 'offset') {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
@@ -236,7 +236,7 @@ class Crm
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
                     }
-                    else if($v != 'limit' && $v != 'offset') {
+                    else if($k != 'limit' && $k != 'offset') {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
@@ -475,7 +475,7 @@ class Crm
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
                     }
-                    else if($v != 'limit' && $v != 'offset') {
+                    else if($k != 'limit' && $k != 'offset') {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
@@ -529,7 +529,7 @@ class Crm
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
                     }
-                    else if($v != 'limit' && $v != 'offset') {
+                    else if($k != 'limit' && $k != 'offset') {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
