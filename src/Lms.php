@@ -959,4 +959,49 @@ class Lms
         \Log::error($response->body());
         return false;
     }
+
+    public function getClassByCourse($params = [])
+    {
+        $whereArr = \Arr::only($params, ['class_id', 'status', 'course_id', 'start_date', 'limit', 'offset']);
+
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+
+        $filter = [];
+        foreach($whereArr as $k => $v){
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    } else if($v == 'start_date') {
+                        $filter[$k] = ['gte' => $v];
+                    }
+                    else if($v != 'limit' && $v != 'offset') {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+        $status = 'opened';
+        if(isset($whereArr['status'])) {
+            $status = $whereArr['status'];
+        }
+
+        $filter = array_merge($filter, ['status' => $status]);
+ 
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/classes',['filter' => json_encode([
+            'where' => $filter,
+            'limit' => $limit,
+            'offset' => $offset,
+            //'fields' => ['class_id','code','name']
+            ])]);
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+      
+        \Log::error($response->body());
+        return false;
+    }
 }
