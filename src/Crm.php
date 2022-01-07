@@ -562,7 +562,57 @@ class Crm
        
         $oppParams = \Arr::only($opportunitie, ['first_name','phone','email','last_name','birthdate','brand_id','branch_id','subject','description','campaign_id','source','link_source', 'brand', 'branch','content','facebook','employee_id','created_employee_id','job_title']);
         
-        $response = \Http::post($this->_url2.'/opportunities', $oppParams);
+        $response = \Http::post($this->_url.'/opportunities', $oppParams);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function createLead($lead = []) {
+       
+        $leadParams = \Arr::only($lead, [
+        'email',
+        'phone',
+        'facebook',
+        'subject',
+        'description',
+        'type',
+        'source',
+        'link_source',
+        'status',
+        'status_detail',
+        'brand_id',
+        'branch_id',
+        'campaign_id',
+        'content',
+        'is_duplicated',
+        'original_lead',
+        'data',
+        'first_name',
+        'last_name',
+        'birthdate',
+        'gender',
+        'hobby',
+        'job',
+        'school',
+        'area',
+        'fullname',
+        'target',
+        'score',
+        'opportunity_id',
+        'contact_id',
+        'needs_consulting',
+        'needs_classroom',
+        'data_score',
+        'is_merge',
+        'branch'
+       ]);
+        
+        $response = \Http::post($this->_url.'/leads', $leadParams);
 
         if ($response->successful()) {
             return $response->json();
