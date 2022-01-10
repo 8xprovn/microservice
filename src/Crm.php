@@ -20,13 +20,14 @@ class Crm
         $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
 
         foreach($whereArr as $k => $v){
+            if($k == 'limit' || $k == 'offset') continue;
             if (is_null($v)) continue;
             switch ($k) {
                 default:
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
                     }
-                    else if($k != 'limit' && $k != 'offset') {
+                    else {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
@@ -230,6 +231,7 @@ class Crm
         $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
 
         foreach($whereArr as $k => $v){
+            
             if (is_null($v)) continue;
             switch ($k) {
                 default:
@@ -523,13 +525,14 @@ class Crm
         $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
 
         foreach($whereArr as $k => $v){
+            if($k == 'limit' || $k == 'offset') continue;
             if (is_null($v)) continue;
             switch ($k) {
                 default:
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
                     }
-                    else if($k != 'limit' && $k != 'offset') {
+                    else  {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;

@@ -783,7 +783,7 @@ class Lms
                 return $response->json();
             }
 
-            dd($response->body());
+            //dd($response->body());
             \Log::error($response->body());
             return false;
         }

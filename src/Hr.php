@@ -884,4 +884,61 @@ class Hr
         \Log::error($response->body());
         return false;
     }
+
+
+    public function getDocuments($params = [])
+    {
+        $whereArr = \Arr::only($params, ['category_id', 'type_id', 'relate_type', 'relate_id', 'limit', 'offset']);
+        $filter = [];
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+
+        foreach($whereArr as $k => $v){
+            if ($k == 'relate_type' || $k == 'relate_id' || $k == 'limit' && $k == 'offset') continue;
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+
+     
+        $newFilter = [
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+
+        if(count($filter) > 0) {
+            $newFilter = [
+                'limit' => $limit,
+                'offset' => $offset,
+                'where' => $filter,
+            ];
+        }
+
+        $params = ['filter' => json_encode($newFilter)];
+
+        if(isset($whereArr['relate_type']) && $whereArr['relate_id']) {
+            $params = [
+                'relate_type'=> $whereArr['relate_type'],
+                'relate_id' => $whereArr['relate_id'],
+                'filter' => json_encode($newFilter)
+            ];
+        } 
+
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employee-documents', $params);
+       
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+
+    }
 }
