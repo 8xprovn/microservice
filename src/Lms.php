@@ -803,7 +803,7 @@ class Lms
             'relate_type' => $relate_type,
             'relate_id' => $relate_id
         ]);
-   
+
         if ($response->successful()) {
             return $response->json();
         }
@@ -969,6 +969,7 @@ class Lms
 
         $filter = [];
         foreach($whereArr as $k => $v){
+            if($k == 'limit' || $k == 'offset') continue;
             if (is_null($v)) continue;
             switch ($k) {
                 default:
@@ -977,7 +978,7 @@ class Lms
                     } else if($k == 'start_date') {
                         $filter[$k] = ['gte' => $v];
                     }
-                    else if($k != 'limit' && $k != 'offset') {
+                    else {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
@@ -1012,12 +1013,13 @@ class Lms
 
         $filter = [];
         foreach($whereArr as $k => $v){
+            if($k == 'limit' || $k == 'offset') continue;
             if (is_null($v)) continue;
             switch ($k) {
                 default:
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
-                    } else if($k != 'limit' && $k != 'offset') {
+                    } else {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
