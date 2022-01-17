@@ -645,7 +645,7 @@ class Lms
      //TEST
      public function getTests($params = array())
      {
-         $whereArr = \Arr::only($params, ['test_id']);
+         $whereArr = \Arr::only($params, ['test_id', 'parent_id']);
          $filter = [];
          foreach($whereArr as $k => $v){
              if (is_null($v)) continue;
