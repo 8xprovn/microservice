@@ -565,7 +565,7 @@ class Crm
        
         $oppParams = \Arr::only($opportunitie, ['first_name','phone','email','last_name','birthdate','brand_id','branch_id','subject','description','campaign_id','source','link_source', 'brand', 'branch','content','facebook','employee_id','created_employee_id','job_title']);
         
-        $response = \Http::post($this->_url.'/opportunities', $oppParams);
+        $response = \Http::post($this->_url2.'/opportunities', $oppParams);
 
         if ($response->successful()) {
             return $response->json();
