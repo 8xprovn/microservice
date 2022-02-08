@@ -783,19 +783,19 @@ class Lms
                 return $response->json();
             }
 
-            //dd($response->body());
             \Log::error($response->body());
             return false;
         }
         return false;
     }
 
-    public function createTestLog($test_id, $question_list = [], $test_parent_id = null , $logs_parent_id = null, $is_group = 0, $relate_type = null, $relate_id = null) {
-        if(empty($test_id) || empty($question_list)) {
+    public function createTestLog($test_id, $contact_id, $question_list = [], $test_parent_id = null , $logs_parent_id = null, $is_group = 0, $relate_type = null, $relate_id = null) {
+        if(empty($test_id) || empty($contact_id) || empty($question_list)) {
             return false;
         }
         $response = \Http::withToken(env('API_GATEWAY_TOKEN',''))->post(env('API_GATEWAY_URL').'/edu/test-logs',[
             'test_id' => $test_id,
+            'contact_id' => $contact_id,
             'question_list'=> $question_list,
             'test_parent_id' => $test_parent_id,
             'logs_parent_id' => $logs_parent_id,

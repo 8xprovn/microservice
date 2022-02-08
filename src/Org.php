@@ -54,6 +54,8 @@ class Org
         if ($response->successful()) {
             return $response->json();
         }
+
+        
         \Log::error($response->body());
         return false;
     }
@@ -521,7 +523,7 @@ class Org
         if ($response->successful()) {
             return $response->json();
         }
-        dd($response->body());
+
         \Log::error($response->body());
         return false;
 
