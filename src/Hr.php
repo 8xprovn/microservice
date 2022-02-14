@@ -7,7 +7,6 @@ class Hr
     protected $_url;
     public function __construct() {
         $this->_url = env('API_MICROSERVICE_URL').'/hr';
-        $this->_url = 'http://localhost:3000';
     }
 
     //EMPLOYEE
@@ -1182,6 +1181,43 @@ class Hr
     public function getRecruitJobById($id)
     {
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/recruit-jobs/'.$id);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function createRecruitCandidate($candidate = []) {
+       
+        $candidateData = \Arr::only($candidate, [
+            'candidate_id',
+            'name',
+            'phone',
+            'email',
+            'gender',
+            'address',
+            'birthdate',
+            'skills',
+            'city',
+            'current_salary',
+            'level',
+            'introducer',
+            'source',
+            'detail',
+            'created_by',
+            'experience',
+            'status',
+            'updated_time',
+            'rating',
+            'category_id',
+            'employee_id',
+            'attachment',
+            'avatar'
+        ]);
+        
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post($this->_url.'/recruit-candidates', $candidateData);
+
         if ($response->successful()) {
             return $response->json();
         }
