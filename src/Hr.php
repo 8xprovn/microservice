@@ -7,6 +7,7 @@ class Hr
     protected $_url;
     public function __construct() {
         $this->_url = env('API_MICROSERVICE_URL').'/hr';
+        $this->_url = 'http://localhost:3000';
     }
 
     //EMPLOYEE
@@ -945,6 +946,242 @@ class Hr
     public function getDocumentDetail($id)
     {
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employee-documents/'.$id);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+    
+    public function getRecruitInterviews($params = [])
+    {
+        $whereArr = \Arr::only($params, ['interview_id','name','job_id','candidate_id','status','limit', 'offset']);
+        $filter = [];
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+
+        foreach($whereArr as $k => $v){
+            if ( $k == 'limit' && $k == 'offset') continue;
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+
+     
+        $newFilter = [
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+
+        if(count($filter) > 0) {
+            $newFilter = [
+                'limit' => $limit,
+                'offset' => $offset,
+                'where' => $filter,
+            ];
+        }
+
+        $params = ['filter' => json_encode($newFilter)];
+
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/recruit-interviews', $params);
+       
+        if ($response->successful()) {
+            return $response->json();
+        }
+        dd($response->body());
+        \Log::error($response->body());
+        return false;
+
+    }
+    
+    public function getRecruitInterviewById($id)
+    {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/recruit-interviews/'.$id);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+
+    public function getRecruitInterviewDetails($params = [])
+    {
+        $whereArr = \Arr::only($params, ['detail_id','interview_id','status','limit', 'offset']);
+        $filter = [];
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+
+        foreach($whereArr as $k => $v){
+            if ( $k == 'limit' && $k == 'offset') continue;
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+
+     
+        $newFilter = [
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+
+        if(count($filter) > 0) {
+            $newFilter = [
+                'limit' => $limit,
+                'offset' => $offset,
+                'where' => $filter,
+            ];
+        }
+
+        $params = ['filter' => json_encode($newFilter)];
+
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/recruit-interview-details', $params);
+       
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+
+    }
+    
+    public function getRecruitInterviewDetailById($id)
+    {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/recruit-interview-details/'.$id);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getRecruitCandidates($params = [])
+    {
+        $whereArr = \Arr::only($params, ['candidate_id','status','limit', 'offset']);
+        $filter = [];
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+
+        foreach($whereArr as $k => $v){
+            if ( $k == 'limit' && $k == 'offset') continue;
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+
+     
+        $newFilter = [
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+
+        if(count($filter) > 0) {
+            $newFilter = [
+                'limit' => $limit,
+                'offset' => $offset,
+                'where' => $filter,
+            ];
+        }
+
+        $params = ['filter' => json_encode($newFilter)];
+
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/recruit-candidates', $params);
+       
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+
+    }
+    
+    public function getRecruitCandidateById($id)
+    {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/recruit-candidates/'.$id);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+
+    public function getRecruitJobs($params = [])
+    {
+        $whereArr = \Arr::only($params, ['job_id','brand_id','department_id','status','limit', 'offset']);
+        $filter = [];
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+
+        foreach($whereArr as $k => $v){
+            if ( $k == 'limit' && $k == 'offset') continue;
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+
+     
+        $newFilter = [
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+
+        if(count($filter) > 0) {
+            $newFilter = [
+                'limit' => $limit,
+                'offset' => $offset,
+                'where' => $filter,
+            ];
+        }
+
+        $params = ['filter' => json_encode($newFilter)];
+
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/recruit-jobs', $params);
+       
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+
+    }
+    
+    public function getRecruitJobById($id)
+    {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/recruit-jobs/'.$id);
         if ($response->successful()) {
             return $response->json();
         }
