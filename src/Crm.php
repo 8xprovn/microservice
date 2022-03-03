@@ -224,7 +224,7 @@ class Crm
     //
     public function getOpportunities($params = array())
     {
-        $whereArr = \Arr::only($params, ['opportunity_id', 'email', 'phone', 'contact_id', 'account_id', 'limit', 'offset']);
+        $whereArr = \Arr::only($params, ['opportunity_id', 'email', 'phone', 'contact_id', 'account_id', 'brand_id', 'branch_id', 'assigned_employee_id', 'is_closed', 'limit', 'offset']);
         $filter = [];
         $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
         $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;

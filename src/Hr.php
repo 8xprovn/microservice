@@ -291,6 +291,9 @@ class Hr
     public function getEmployeeDetail($id)
     {
         if (is_array($id)) {
+            if (empty($id)) {
+                return [];
+            }
             $fn = function (\Illuminate\Http\Client\Pool $pool) use ($id) {
                 $limit = 200;
                 $countId = count($id);
