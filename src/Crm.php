@@ -20,13 +20,14 @@ class Crm
         $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
 
         foreach($whereArr as $k => $v){
+            if($k == 'limit' || $k == 'offset') continue;
             if (is_null($v)) continue;
             switch ($k) {
                 default:
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
                     }
-                    else if($v != 'limit' && $v != 'offset') {
+                    else {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
@@ -230,13 +231,14 @@ class Crm
         $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
 
         foreach($whereArr as $k => $v){
+            
             if (is_null($v)) continue;
             switch ($k) {
                 default:
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
                     }
-                    else if($v != 'limit' && $v != 'offset') {
+                    else if($k != 'limit' && $k != 'offset') {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
@@ -475,7 +477,7 @@ class Crm
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
                     }
-                    else if($v != 'limit' && $v != 'offset') {
+                    else if($k != 'limit' && $k != 'offset') {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
@@ -523,13 +525,14 @@ class Crm
         $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
 
         foreach($whereArr as $k => $v){
+            if($k == 'limit' || $k == 'offset') continue;
             if (is_null($v)) continue;
             switch ($k) {
                 default:
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
                     }
-                    else if($v != 'limit' && $v != 'offset') {
+                    else  {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
@@ -566,6 +569,128 @@ class Crm
 
         if ($response->successful()) {
             return $response->json();
+        }
+
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function createLead($lead = []) {
+       
+        $leadParams = \Arr::only($lead, [
+        'email',
+        'phone',
+        'facebook',
+        'subject',
+        'description',
+        'type',
+        'source',
+        'link_source',
+        'status',
+        'status_detail',
+        'brand_id',
+        'branch_id',
+        'campaign_id',
+        'content',
+        'is_duplicated',
+        'original_lead',
+        'data',
+        'first_name',
+        'last_name',
+        'birthdate',
+        'gender',
+        'hobby',
+        'job',
+        'school',
+        'area',
+        'fullname',
+        'target',
+        'score',
+        'opportunity_id',
+        'contact_id',
+        'needs_consulting',
+        'needs_classroom',
+        'data_score',
+        'is_merge',
+        'branch'
+       ]);
+        
+        $response = \Http::post($this->_url.'/leads', $leadParams);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        \Log::error($response->body());
+        return false;
+    }
+
+
+    public function getForms($params = [])
+    {
+        $whereArr = \Arr::only($params, ['form_id','form_code','status','limit', 'offset']);
+        $filter = [];
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+
+        foreach($whereArr as $k => $v){
+            if($k == 'limit' || $k == 'offset') continue;
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else  {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+    
+        $newFilter = [
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+
+        if(count($filter) > 0) {
+            $newFilter = [
+                'limit' => $limit,
+                'offset' => $offset,
+                'where' => $filter,
+            ];
+        }
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/forms',['filter' => json_encode($newFilter)]);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getFormDetail($id)
+    {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/forms/'.$id);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getFormByCode($code)
+    {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/forms',
+        [
+            'filter' => json_encode([
+                'where' => ['form_code' => ['eq' => $code]]
+            ])
+        ]
+        );
+        if ($response->successful()) {
+            if(empty($response->json())) return false;
+            return $response->json()[0];
         }
 
         \Log::error($response->body());

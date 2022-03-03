@@ -54,6 +54,8 @@ class Org
         if ($response->successful()) {
             return $response->json();
         }
+
+        
         \Log::error($response->body());
         return false;
     }
@@ -433,5 +435,110 @@ class Org
         \Log::error($response->body());
         return false;
     }
+
+    public function getSystemLogs($params = [])
+    {
+        $whereArr = \Arr::only($params, ['log_id','relate_type','relate_id', 'limit', 'offset']);
+        $filter = [];
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+
+        foreach($whereArr as $k => $v){
+            if($k == 'limit' || $k == 'offset') continue;
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+
+        $newFilter = [
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+
+        if(count($filter) > 0) {
+            $newFilter = [
+                'limit' => $limit,
+                'offset' => $offset,
+                'where' => $filter,
+            ];
+        }
+       
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/system-logs',['filter' => json_encode($newFilter)]);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+
+    }
+
+    public function getSystemLogDetail($id) {
+        //var_dump(['filter' => json_encode(['where' => $filter])]); die;
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/system-logs/'.$id);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getCities($params = [])
+    {
+        $whereArr = \Arr::only($params, ['city_id', 'status', 'name','city_code', 'type','limit', 'offset']);
+        $filter = [];
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+        $status = isset($whereArr['status']) ? $whereArr['status'] : 'active';
+        foreach($whereArr as $k => $v){
+            if($k == 'limit' || $k == 'offset') continue;
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+        $filter = array_merge($filter, ['status' => $status]);
+        
+     
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/cities',['filter' => json_encode([
+            'limit' => $limit,
+            'offset' => $offset,
+            'where' => $filter,
+        ])]);
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        \Log::error($response->body());
+        return false;
+
+    }
+    public function getLocDetailCity($id) {
+        //var_dump(['filter' => json_encode(['where' => $filter])]); die;
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/cities/'.$id);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+   
    
 }

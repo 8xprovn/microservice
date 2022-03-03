@@ -5,8 +5,10 @@ namespace Microservices;
 class Lms
 {
     protected $_url;
+    protected $_hash_secret;
     public function __construct() {
         $this->_url = env('API_MICROSERVICE_URL').'/edu';
+        $this->_hash_secret = env('TEST_HASH_SECRET');
     }
 
     //COURSE PRICE
@@ -643,7 +645,7 @@ class Lms
      //TEST
      public function getTests($params = array())
      {
-         $whereArr = \Arr::only($params, ['test_id']);
+         $whereArr = \Arr::only($params, ['test_id', 'parent_id']);
          $filter = [];
          foreach($whereArr as $k => $v){
              if (is_null($v)) continue;
@@ -775,22 +777,25 @@ class Lms
 
      public function getQuestionByTest($test_id=0) {
         if ((int)$test_id > 0) {
-            $response = \Http::withToken(env('API_GATEWAY_TOKEN',''))->get(env('API_GATEWAY_URL').'/edu/test/'.$test_id.'/questions');
+            $hash =  hash('sha256', $test_id . $this->_hash_secret);
+            $response = \Http::withToken(env('API_GATEWAY_TOKEN',''))->get(env('API_GATEWAY_URL').'/edu/tests/'.$test_id.'/questions?hash='.$hash);
             if ($response->successful()) {
                 return $response->json();
             }
+
             \Log::error($response->body());
             return false;
         }
         return false;
     }
 
-    public function createTestLog($test_id, $question_list = [], $test_parent_id = null , $logs_parent_id = null, $is_group = 0, $relate_type = null, $relate_id = null) {
-        if(empty($test_id) || empty($question_list)) {
+    public function createTestLog($test_id, $contact_id, $question_list = [], $test_parent_id = null , $logs_parent_id = null, $is_group = 0, $relate_type = null, $relate_id = null) {
+        if(empty($test_id) || empty($contact_id) || empty($question_list)) {
             return false;
         }
         $response = \Http::withToken(env('API_GATEWAY_TOKEN',''))->post(env('API_GATEWAY_URL').'/edu/test-logs',[
             'test_id' => $test_id,
+            'contact_id' => $contact_id,
             'question_list'=> $question_list,
             'test_parent_id' => $test_parent_id,
             'logs_parent_id' => $logs_parent_id,
@@ -798,7 +803,7 @@ class Lms
             'relate_type' => $relate_type,
             'relate_id' => $relate_id
         ]);
-   
+
         if ($response->successful()) {
             return $response->json();
         }
@@ -828,6 +833,223 @@ class Lms
     public function getTestLogDetail($id)
     {
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/test-logs/'.$id);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getRoadMap($params = [])
+    {
+        $whereArr = \Arr::only($params, ['brand_id', 'limit', 'offset']);
+        $filter = [];
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+     
+        foreach($whereArr as $k => $v){
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else if($v != 'limit' && $v != 'offset') {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+        $newFilter = [
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+
+        if(count($filter) > 0) {
+            $newFilter = [
+                'limit' => $limit,
+                'offset' => $offset,
+                'where' => $filter,
+            ];
+        }
+       
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/roadmaps',['filter' => json_encode($newFilter)]);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getRoadMapDetail($id)
+    {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/roadmaps/'.$id);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+
+    public function getRoadMapCourse($params = [])
+    {
+        $whereArr = \Arr::only($params, ['course_id', 'roadmap_id', 'limit', 'offset']);
+        $filter = [];
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+
+        foreach($whereArr as $k => $v){
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else if($v != 'limit' && $v != 'offset') {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+        $newFilter = [
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+
+        if(count($filter) > 0) {
+            $newFilter = [
+                'limit' => $limit,
+                'offset' => $offset,
+                'where' => $filter,
+            ];
+        }
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/roadmap-courses',['filter' => json_encode($newFilter)]);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getRoadMapCourseDetail($id)
+    {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/roadmap-courses/'.$id);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function createTestShort($test_id, $question_list = [], $answers = []) {
+        if(empty($test_id) || empty($question_list) || empty($answers)) {
+            return false;
+        }
+        $response = \Http::withToken(env('API_GATEWAY_TOKEN',''))->post(env('API_GATEWAY_URL').'/edu/tests/short',[
+            'test_id' => $test_id,
+            'question_list'=> $question_list,
+            'answers' => $answers,
+        ]);
+   
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getClassByCourse($params = [])
+    {
+        $whereArr = \Arr::only($params, ['class_id', 'status', 'course_id', 'start_date', 'limit', 'offset']);
+
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+
+        $filter = [];
+        foreach($whereArr as $k => $v){
+            if($k == 'limit' || $k == 'offset') continue;
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    } else if($k == 'start_date') {
+                        $filter[$k] = ['gte' => $v];
+                    }
+                    else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+
+        if(!isset($whereArr['status'])) {
+            $filter = array_merge($filter, ['status' => 'opened']);
+        }
+
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/classes',['filter' => json_encode([
+            'where' => $filter,
+            'limit' => $limit,
+            'offset' => $offset,
+            //'fields' => ['class_id','code','name']
+            ])]);
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+      
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getSettingShifts($params = [])
+    {
+        $whereArr = \Arr::only($params, ['shift_id', 'limit', 'offset']);
+
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+
+        $filter = [];
+        foreach($whereArr as $k => $v){
+            if($k == 'limit' || $k == 'offset') continue;
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    } else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+        $newFilter = [
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+
+        if(count($filter) > 0) {
+            $newFilter = [
+                'limit' => $limit,
+                'offset' => $offset,
+                'where' => $filter,
+            ];
+        }
+
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/setting-shifts',['filter' => json_encode($newFilter)]);
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getSettingShiftDetail($id)
+    {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/setting-shifts/'.$id);
         if ($response->successful()) {
             return $response->json();
         }
