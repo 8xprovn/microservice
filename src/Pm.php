@@ -17,13 +17,14 @@ class Pm
         $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
 
         foreach($whereArr as $k => $v){
+            if($k == 'limit' || $k == 'offset') continue;
             if (is_null($v)) continue;
             switch ($k) {
                 default:
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
                     }
-                    else if($v != 'limit' && $v != 'offset') {
+                    else {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
@@ -41,6 +42,7 @@ class Pm
         if ($response->successful()) {
             return $response->json();
         }
+        
         \Log::error($response->body());
         return false;
     }
@@ -66,13 +68,14 @@ class Pm
         $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
 
         foreach($whereArr as $k => $v){
+            if($k == 'limit' || $k == 'offset') continue;
             if (is_null($v)) continue;
             switch ($k) {
                 default:
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
                     }
-                    else if($v != 'limit' && $v != 'offset') {
+                    else {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
@@ -96,6 +99,7 @@ class Pm
         if ($response->successful()) {
             return $response->json();
         }
+        
         \Log::error($response->body());
         return false;
     }
@@ -122,13 +126,14 @@ class Pm
         $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
 
         foreach($whereArr as $k => $v){
+            if($k == 'limit' || $k == 'offset') continue;
             if (is_null($v)) continue;
             switch ($k) {
                 default:
                     if (is_array($v)) {
                         $filter[$k] = ['inq' => $v];
                     }
-                    else if($v != 'limit' && $v != 'offset') {
+                    else {
                         $filter[$k] = ['eq' => $v];
                     }
                     break;
@@ -158,6 +163,121 @@ class Pm
     public function getTicketProcessDetailById($id)
     {
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/ticket-processes/'.$id);
+
+        if ($response->successful()) {
+             return $response->json();
+        }
+
+        \Log::error($response->body());
+        return false;
+    }
+
+
+    public function getSurveyParticipants($params = [])
+    {
+        $whereArr = \Arr::only($params, ['participant_id','survey_id','student_id','contact_id', 'status', 'limit', 'offset']);
+        $filter = [];
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+
+        foreach($whereArr as $k => $v){
+            if($k == 'limit' || $k == 'offset') continue;
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+
+        $newFilter = [
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+
+        if(count($filter) > 0) {
+            $newFilter = [
+                'limit' => $limit,
+                'offset' => $offset,
+                'where' => $filter,
+            ];
+        }
+       
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/survey-participants',['filter' => json_encode($newFilter)]);
+        if ($response->successful()) {
+            return $response->json();
+        }
+       
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getSurveyParticipantById($id)
+    {
+        
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/survey-participants/'.$id);
+
+        if ($response->successful()) {
+             return $response->json();
+        }
+
+        \Log::error($response->body());
+        return false;
+    }
+
+
+    public function getSurveys($params = [])
+    {
+        $whereArr = \Arr::only($params, ['survey_id','class_id','category_id','status', 'limit', 'offset']);
+        $filter = [];
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
+
+        foreach($whereArr as $k => $v){
+            if($k == 'limit' || $k == 'offset') continue;
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+
+        $newFilter = [
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+
+        if(count($filter) > 0) {
+            $newFilter = [
+                'limit' => $limit,
+                'offset' => $offset,
+                'where' => $filter,
+            ];
+        }
+       
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/surveys',['filter' => json_encode($newFilter)]);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
+    public function getSurveyById($id)
+    {
+        
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/surveys/'.$id);
 
         if ($response->successful()) {
              return $response->json();
