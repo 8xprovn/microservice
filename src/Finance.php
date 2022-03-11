@@ -11,7 +11,7 @@ class Finance
 
      public function getInvoices($params = array())
      {
-         $whereArr = \Arr::only($params, ['invoice_id', 'employee_id']);
+         $whereArr = \Arr::only($params, ['invoice_id', 'employee_id' , 'contact_id']);
          $filter = [];
          foreach($whereArr as $k => $v){
              if (is_null($v)) continue;
