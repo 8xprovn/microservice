@@ -33,7 +33,7 @@ class Notify
 
     //send email
     public function send_email($params = array()) {
-        $data = \Arr::only($params, ['channel','title','email', 'content', 'attachment', 'cc']);
+        $data = \Arr::only($params, ['channel','title','email', 'content', 'attachment', 'cc_email']);
         $response = Http::post($this->url_mail, $data);
         return $response;
     }
