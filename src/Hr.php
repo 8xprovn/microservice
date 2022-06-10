@@ -13,7 +13,7 @@ class Hr
 
     public function getEmployees($params= array())
     {
-        $whereArr = \Arr::only($params, ['employee_id','manager_id','branch_id','department_id']);
+        $whereArr = \Arr::only($params, ['employee_id','manager_id','branch_id','department_id', 'type', 'limit', 'offset']);
         $filter = [];
         foreach($whereArr as $k => $v){
             if (is_null($v)) continue;
