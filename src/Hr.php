@@ -16,7 +16,7 @@ class Hr
         $whereArr = \Arr::only($params, ['employee_id','manager_id','branch_id','department_id', 'type', 'limit', 'offset']);
         $filter = [];
         foreach($whereArr as $k => $v){
-            if (is_null($v)) continue;
+            if (is_null($v) || $k == 'limit' || $k == 'offset') continue;
             switch ($k) {
                 default:
                     if (is_array($v)) {
@@ -28,11 +28,21 @@ class Hr
                     break;
             }
         }
-        $filter = array_merge($filter, ['status' => 'active']);
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employees',['filter' => json_encode([
+        $filter = array_merge($filter, ['status' => ['eq' => 'active']]);
+
+        $newFilter = [
             'where' => $filter,
-            //'fields' => ['employee_id','department_id','branch_id','manager_id', 'first_name', 'last_name', 'birth_date', 'email' ,'phone']
-            ])]);
+        ];
+
+        if(!empty($whereArr['limit'])){
+            $newFilter['limit'] = $whereArr['limit'];
+        }
+
+        if(!empty($whereArr['offset'])){
+            $newFilter['offset'] = $whereArr['offset'];
+        }
+
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employees',['filter' => json_encode($newFilter)]);
         if ($response->successful()) {
             return $response->json();
         }
