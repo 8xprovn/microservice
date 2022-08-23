@@ -189,6 +189,24 @@ class Pm
         \Log::error($response->body());
         return false;
     }
+    
+    //Create ticket
+    public function createTicketProcess($params = array())
+    {
+        $data = \Arr::only($params, ['description', 'ticket_id', 'action']);
+        foreach($data as $k => $v){
+            if(in_array($k, ['ticket_id'])){
+                $data[$k] = (int)$v;
+            }
+        }
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post($this->_url.'/ticket-processes', $data);
+
+        if ($response->successful()) {
+             return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
 
 
     public function getSurveyParticipants($params = [])
