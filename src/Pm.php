@@ -11,7 +11,7 @@ class Pm
 
     public function getTickets($params = array())
     {
-        $whereArr = \Arr::only($params, ['ticket_id', 'created_id', 'assigned_id', 'limit', 'offset']);
+        $whereArr = \Arr::only($params, ['ticket_id', 'created_type', 'created_id', 'assigned_id', 'status', 'limit', 'offset']);
         $filter = [];
         $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
         $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
@@ -168,6 +168,24 @@ class Pm
              return $response->json();
         }
 
+        \Log::error($response->body());
+        return false;
+    }
+    
+    //Create ticket
+    public function createTicket($params = array())
+    {
+        $data = \Arr::only($params, ['name', 'branch_id', 'department_id', 'topic_id', 'description', 'created_type', 'created_id']);
+        foreach($data as $k => $v){
+            if(in_array($k, ['branch_id', 'department_id', 'topic_id', 'created_id'])){
+                $data[$k] = (int)$v;
+            }
+        }
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post($this->_url.'/tickets', $data);
+
+        if ($response->successful()) {
+             return $response->json();
+        }
         \Log::error($response->body());
         return false;
     }
