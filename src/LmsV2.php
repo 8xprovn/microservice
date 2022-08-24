@@ -2,7 +2,7 @@
 namespace Microservices;
 
 
-class Lms
+class LmsV2
 {
     protected $_url;
     protected $_hash_secret;
