@@ -28,6 +28,16 @@ class FinanceV2
          \Log::error($response->body());
          return false;
     }
+    public function getInvoiceDetailById($id)
+     {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/invoices-detail/'.$id);
+        if ($response->successful()) {
+             return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+     }
+    
     public function getWalletTransactions($params) {
         $params = \Arr::only($params, ['filter','page','limit']); 
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/wallet-transaction',$params);
