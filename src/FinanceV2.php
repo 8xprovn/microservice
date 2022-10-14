@@ -18,6 +18,15 @@ class FinanceV2
          \Log::error($response->body());
          return false;
     }
+    public function getInvoiceById($id)
+     {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/invoices/'.$id);
+        if ($response->successful()) {
+             return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+     }
     public function getInvoicesDetail($params = array())
     {
          $params = \Arr::only($params, ['filter','page','limit']); 
