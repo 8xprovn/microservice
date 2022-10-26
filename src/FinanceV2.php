@@ -56,7 +56,7 @@ class FinanceV2
         \Log::error($response->body());
         return false;
     }
-    public function getWallets() {
+    public function getWallets($params) {
         $params = \Arr::only($params, ['filter','page','limit']); 
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/wallets',$params);
         if ($response->successful()) {
