@@ -53,7 +53,7 @@ class LmsV2
         return false;
     }
     public function createLicense($input) {
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN', ''))->post($this->_url.'/lms/license', $input);
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN', ''))->post($this->_url.'/license', $input);
         if ($response->successful()) {
             return $response->json();
         }
