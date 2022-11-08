@@ -2,7 +2,8 @@
     "name": "8xprovn/microservice",
     "autoload": {
          "psr-4": {
-             "Microservices\\": "src/"
+             "Microservices\\": "src/",
+             "Models\\": "models/"
          }
     }
  }
