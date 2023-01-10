@@ -19,14 +19,10 @@ abstract class Model
                     break;
             }
         }
-        $q = '';
-        $q = ($filter) ? ['filter' => json_encode([
-            'where' => $filter
-        ])] : '';  
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/'.$this->prefix, $q);
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/'.$this->prefix, $filter);
         if ($response->successful()) {
             return $response->json();
-        }
+        } 
         \Log::error($response->body());
         return false;
     }
