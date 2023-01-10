@@ -1,6 +1,6 @@
 <?php
 
-namespace Models\Org;
+namespace Microservices\Models\Org;
 
 use Illuminate\Support\Arr;
 
