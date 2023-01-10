@@ -10,16 +10,12 @@ abstract class Model
             if (is_null($v)) continue;
             switch ($k) {
                 default:
-                    if (is_array($v)) {
-                        $filter[$k] = ['inq' => $v];
-                    }
-                    else {
-                        $filter[$k] = ['eq' => $v];
-                    }
+                    $filter[$k] = $v;
                     break;
             }
         }
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/'.$this->prefix, $filter);
+        $q = ['filter' => $filter];
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/'.$this->prefix, $q);
         if ($response->successful()) {
             return $response->json();
         } 
