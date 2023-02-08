@@ -1,10 +1,10 @@
 <?php
 
-namespace Microservices\Models\CallCenter;
+namespace Models\CallCenter;
 
 use Illuminate\Support\Arr;
 
-class Calls extends \Microservices\models\Model
+class Calls extends Models\Model
 {
     protected $_url;
     public function __construct() {
