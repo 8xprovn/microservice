@@ -1,5 +1,7 @@
 <?php
-namespace Microservices\Models;
+namespace Models;
+
+use MongoDB\Operation\FindOneAndUpdate;
 
 abstract class Model
 {
