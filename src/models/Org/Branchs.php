@@ -4,7 +4,7 @@ namespace Models\Org;
 
 use Illuminate\Support\Arr;
 
-class Branchs extends Models\Model
+class Branchs extends \Models\Model
 {
     protected $_url;
     public function __construct() {
