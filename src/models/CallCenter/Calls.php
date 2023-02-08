@@ -1,10 +1,10 @@
 <?php
 
-namespace Models\CallCenter;
+namespace Microservices\models\CallCenter;
 
 use Illuminate\Support\Arr;
 
-class Calls extends Models\Model
+class Calls extends \Microservices\models\Model
 {
     protected $_url;
     public function __construct() {
@@ -12,3 +12,4 @@ class Calls extends Models\Model
         $this->prefix = "calls";
     }
 }
+
