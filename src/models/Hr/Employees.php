@@ -4,7 +4,7 @@ namespace Models\Hr;
 
 use Illuminate\Support\Arr;
 
-class Employees extends \Models\ModelV2
+class Employees extends \Microservices\models\ModelV2
 {
     protected $_url;
     public function __construct() {
