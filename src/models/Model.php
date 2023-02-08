@@ -1,5 +1,5 @@
 <?php
-namespace Microservices\Models;
+namespace Models;
 
 abstract class Model
 {
