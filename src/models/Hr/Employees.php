@@ -1,6 +1,6 @@
 <?php
 
-namespace Models\Hr;
+namespace Microservices\Models\Hr;
 
 use Illuminate\Support\Arr;
 
