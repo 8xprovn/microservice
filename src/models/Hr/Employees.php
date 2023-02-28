@@ -1,10 +1,10 @@
 <?php
 
-namespace Models\Hr;
+namespace Microservices\models\Hr;
 
 use Illuminate\Support\Arr;
 
-class Employees extends \Models\Model
+class Employees extends \Microservices\models\Model
 {
     protected $_url;
     public function __construct() {
