@@ -60,4 +60,12 @@ class LmsV2
         \Log::error($response->body());
         return false;
     }
+    public function getSettingShifts($input) {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN', ''))->post($this->_url.'/setting-shifts', $input);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
 }
