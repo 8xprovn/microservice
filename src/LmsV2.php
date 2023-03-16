@@ -61,7 +61,7 @@ class LmsV2
         return false;
     }
     public function getSettingShifts($input) {
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN', ''))->post($this->_url.'/setting-shifts', $input);
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN', ''))->get($this->_url.'/setting-shifts', $input);
         if ($response->successful()) {
             return $response->json();
         }
