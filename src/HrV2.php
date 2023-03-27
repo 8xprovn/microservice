@@ -94,6 +94,15 @@ class HrV2
         return false;
     }
 
-    
+    public function getSchedule($params = [])
+     {
+        $whereArr = \Arr::only($params, ['filter','page','limit']);
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/schedule',$params);
+        if ($response->successful()) {
+             return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+     }
     
 }
