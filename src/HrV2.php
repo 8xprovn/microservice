@@ -5,7 +5,7 @@ class HrV2
 {
     protected $_url;
     public function __construct() {
-        $this->_url = env('API_MICROSERVICE_URL').'/hr';
+        $this->_url = env('API_MICROSERVICE_URL_V2').'/hr';
     }
 
     //EMPLOYEE
