@@ -104,7 +104,7 @@ class Crm
         return false;
     }
 
-    public function getContactDetail($id)
+    public function getContactDetail($id,$options = [])
     {
         if (is_array($id)) {
             $fn = function (\Illuminate\Http\Client\Pool $pool) use ($id, $options) {
