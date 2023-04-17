@@ -107,13 +107,22 @@ class Crm
     public function getContactDetail($id)
     {
         if (is_array($id)) {
-            $fn = function (\Illuminate\Http\Client\Pool $pool) use ($id) {
-                $limit = 100;
+            $fn = function (\Illuminate\Http\Client\Pool $pool) use ($id, $options) {
+                $limit = 200;
                 $countId = count($id);
                 $count = ceil($countId / $limit);
+                $filter = [];
                 for ($i = 0; $i < $count; $i ++) {
                     $arrId = array_slice($id, $i*$limit, ($i+1)*$limit);
-                    $newFilter = ['filter' => json_encode(['where' => ['contact_id' => ['inq' => $arrId]]])];
+                    $filter['where'] = ['contact_id' => ['inq' => $arrId]];
+                    if (!empty($options['select'])) {
+                        foreach ($options['select'] as $field) {
+                            $filter['fields'][$field] = true; 
+                        }
+                        $filter['fields']['contact_id'] = true;
+                    }
+                    $newFilter = ['filter' => json_encode($filter)];
+
                     $arrayPools[] = $pool->withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/contacts',$newFilter);
                 }
                 return $arrayPools;
