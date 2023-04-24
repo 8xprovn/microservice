@@ -49,7 +49,7 @@ class Crm
             foreach ($options['select'] as $field) {
                 $newFilter['fields'][$field] = true; 
             }
-            $filter['fields']['contact_id'] = true;
+            $newFilter['fields']['contact_id'] = true;
         }
        
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/contacts',['filter' => json_encode($newFilter)]);
