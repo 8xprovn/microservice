@@ -12,13 +12,12 @@ class Crm
 
     //CONTACT
 
-    public function getContacts($params = array())
+    public function getContacts($params = array(),$options = array())
     {
         $whereArr = \Arr::only($params, ['contact_id','manager_id','status','gender','email','phone', 'account_id', 'limit', 'offset']);
         $filter = [];
-        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 200;
+        $limit = isset($whereArr['limit']) && $whereArr['limit'] > 0 ? $whereArr['limit'] : 1000;
         $offset = isset($whereArr['offset']) && $whereArr['offset'] > 0 ? $whereArr['offset'] : 0;
-
         foreach($whereArr as $k => $v){
             if($k == 'limit' || $k == 'offset') continue;
             if (is_null($v)) continue;
@@ -45,6 +44,12 @@ class Crm
                 'offset' => $offset,
                 'where' => $filter,
             ];
+        }
+        if (!empty($options['select'])) {
+            foreach ($options['select'] as $field) {
+                $newFilter['fields'][$field] = true; 
+            }
+            $filter['fields']['contact_id'] = true;
         }
        
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/contacts',['filter' => json_encode($newFilter)]);
