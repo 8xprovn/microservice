@@ -828,6 +828,34 @@ class Lms
         \Log::error($response->body());
         return false;
     }
+    
+    public function getAnswers($params = array())
+     {
+         $whereArr = \Arr::only($params, ['question_id']);
+         $filter = [];
+         foreach($whereArr as $k => $v){
+             if (is_null($v)) continue;
+             switch ($k) {
+                 default:
+                     if (is_array($v)) {
+                         $filter[$k] = ['inq' => $v];
+                     }
+                     else {
+                         $filter[$k] = ['eq' => $v];
+                     }
+                     break;
+             }
+         }
+         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/question-answers',['filter' => json_encode([
+             'where' => $filter,
+             //'fields' => ['news_id ','title','description']
+             ])]);
+         if ($response->successful()) {
+             return $response->json();
+         }
+         \Log::error($response->body());
+         return false;
+     }
 
 
     public function getTestLogDetail($id)
