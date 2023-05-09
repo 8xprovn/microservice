@@ -14,22 +14,23 @@ abstract class Model
                     break;
             }
         }
-        $q = ['filter' => $filter];
+        $q = $options;
+        $q['filter'] = $filter;
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/'.$this->prefix, $q);
         if ($response->successful()) {
             return $response->json();
         } 
-        \Log::error($response->body());
+        \Log::error($this->_url . $response->body());
         return false;
     }
-
     public function detail($id)
     {
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/'.$this->prefix.'/'.$id);
+        $url = $this->_url.'/'.$this->prefix.'/'.$id;
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($url);
         if ($response->successful()) {
             return $response->json();
         } 
-        \Log::error($response->body());
+        \Log::error($url . $response->body());
         return false;
     }
 
@@ -47,11 +48,12 @@ abstract class Model
             $params[$this->primaryKey] = $this->getNextSequence($this->table);
         }
         $params['created_time'] = time();
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->POST($this->_url.'/'.$this->prefix, $params);
+        $url = $this->_url.'/'.$this->prefix;
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         } 
-        \Log::error($response->body());
+        \Log::error($url . $response->body());
         return false;
     }
 
@@ -67,21 +69,23 @@ abstract class Model
         if (!empty($this->idAutoIncrement)) {
             $id = (int) $id;
         }
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->PUT($this->_url.'/'.$this->prefix.'/'.$id, $params);
+        $url = $this->_url.'/'.$this->prefix.'/'.$id;
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->PUT($url, $params);
         if ($response->successful()) {
             return $response->json();
         } 
-        \Log::error($response->body());
+        \Log::error($url . $response->body());
         return false;
     }
 
     public function remove($id)
     {
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->DELETE($this->_url.'/'.$this->prefix.'/'.$id);
+        $url = $this->_url.'/'.$this->prefix.'/'.$id;
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->DELETE($url);
         if ($response->successful()) {
             return $response->json();
         } 
-        \Log::error($response->body());
+        \Log::error($this->$url . $response->body());
         return false;
     }
 
