@@ -111,7 +111,6 @@ abstract class BaseModel
         $condition = $this->filter($conditions);
         /// get id to reset cache
         if (!empty($this->is_cache)) {
-            
             $arrResetCache = $this->all($condition,['select' => $this->primaryKey,'limit' => 1000])->keyBy($this->primaryKey)->all();
         }
         // 
@@ -136,9 +135,16 @@ abstract class BaseModel
         if(empty($conditions)){
             return false;
         }
+        if (!empty($this->is_cache)) {
+            $arrResetCache = $this->all($condition,['select' => $this->primaryKey,'limit' => 1000])->keyBy($this->primaryKey)->all();
+        }
         $query = \DB::table($this->table);
         $this->setWhere($query, $conditions);
         $query->delete();
+        if (!empty($this->is_cache)) {
+            $tags = [config('app.service_code'),$this->table];
+            \Cache::tags($tags)->putMany($arrResetCache,-1);
+        }
     }
     public function detail($id,$options = [])
     {
