@@ -2,7 +2,7 @@
 
 namespace Microservices\models\Finance;
 
-class Invoices extends \Microservices\models\Model
+class Wallets extends \Microservices\models\Model
 {
     protected $_url;
     public function __construct() {
