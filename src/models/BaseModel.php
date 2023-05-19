@@ -6,6 +6,7 @@ use MongoDB\Operation\FindOneAndUpdate;
 
 abstract class BaseModel
 {
+    private $cacheDetailTime = 86400;
     public function count($params)
     {
         $params = $this->filter($params);
@@ -36,6 +37,7 @@ abstract class BaseModel
         } else {
             return $query->limit($options['limit'] ?? 100)->offset($options['offset'] ?? 0)->get();
         }
+        
     }
     public function create(array $params)
     {
@@ -90,6 +92,10 @@ abstract class BaseModel
         if (!empty($this->idAutoIncrement)) {
             $id = (int) $id;
         }
+        if (!empty($this->is_cache)) {
+            $tags = [config('app.service_code'),$this->table];
+            \Cache::tags($tags)->forget($id);
+        }
         return \DB::table($this->table)->where($this->primaryKey, $id)->update($params);
         //$query->update($params);
     }
@@ -103,9 +109,23 @@ abstract class BaseModel
         }
         $params = $this->filter($params);
         $condition = $this->filter($conditions);
+        /// get id to reset cache
+        if (!empty($this->is_cache)) {
+            
+            $arrResetCache = $this->all($condition,['select' => $this->primaryKey,'limit' => 1000])->keyBy($this->primaryKey)->all();
+        }
+        // 
+        // array_map()
+        /// update
         $query = \DB::table($this->table);
         $this->setWhere($query, $conditions);
         $query->update($params);
+        if (!empty($this->is_cache)) {
+            $tags = [config('app.service_code'),$this->table];
+            \Cache::tags($tags)->putMany($arrResetCache,-1);
+        }
+        /// reset cache ///
+
     }
     public function deleteBatch($conditions)
     {
@@ -120,17 +140,66 @@ abstract class BaseModel
         $this->setWhere($query, $conditions);
         $query->delete();
     }
-    public function detail($id)
+    public function detail($id,$options = [])
     {
-        if (!empty($this->idAutoIncrement)) {
-            $id = (int) $id;
+        $idDetail = 0;
+        if (!is_array($id)) {
+            $idDetail = $id;
+            $id = [$id];
         }
-        return \DB::table($this->table)->where($this->primaryKey, $id)->first();
+        if (!empty($this->idAutoIncrement)) {
+            $id = array_map('intval',$id);
+        }
+        //////// CHECK CACHE ////////
+        $arrData = [];
+        //////// GET CACHE ////////
+        if (!empty($this->is_cache)) {
+            $tags = [config('app.service_code'),$this->table];
+            if (empty($options['reset_cache'])) {
+                $arrData = \Cache::tags($tags)->many($id);
+                $arrData = \Arr::whereNotNull($arrData);
+                ////// lay cac key data ///
+                if ($arrData) {
+                    $arrKeysHit = array_keys($arrData);
+                    $id = array_diff($id,$arrKeysHit);
+                }
+            }
+            
+        }
+        if ($id) {
+            $data = $this->all([$this->primaryKey => $id],['limit' => 1000])->toArray();
+            $data = \Arr::keyBy($data, $this->primaryKey);
+            
+            //////// SET CACHE /////
+            if (!empty($this->is_cache) && $data) {
+                \Cache::tags($tags)->putMany($data,$this->cacheDetailTime);
+            }
+            
+            $arrData = $arrData + $data;
+            ///////
+            unset($data);
+        }
+        if (!empty($options['select'])) {
+            if (!is_array($options['select'])) {
+                $options['select'] = explode(',',$options['select']);
+            }
+            $arrData = \Arr::map($arrData, function ($value, $key) use($options) {
+                return \Arr::only($value,$options['select']);
+            });
+        }
+        if ($idDetail) {
+            $arrData = $arrData[$idDetail] ?? [];
+        }
+        return $arrData;
     }
     public function remove($id)
     {
         if (!empty($this->idAutoIncrement)) {
             $id = (int) $id;
+        }
+        if (!empty($this->is_cache)) {
+            $tags = [config('app.service_code'),$this->table];
+            \Cache::tags($tags)->forget($id);
         }
         return \DB::table($this->table)->where($this->primaryKey, $id)->delete();
     }
