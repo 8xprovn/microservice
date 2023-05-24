@@ -9,9 +9,20 @@ class CrmV2
     }
 
     //Opportunity
-    public function getOpportunitieDetail($params= array())
+    public function getOpportunitieDetail($id)
     {
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/opportunities/'.$id);
+        if ($response->successful()) {
+             return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+    
+    //Contact
+    public function getContactDetail($id)
+    {
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/contacts/'.$id);
         if ($response->successful()) {
              return $response->json();
         }
