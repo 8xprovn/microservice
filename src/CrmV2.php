@@ -8,11 +8,10 @@ class CrmV2
         $this->_url = env('API_MICROSERVICE_URL_V2').'/crm';
     }
 
-    //EMPLOYEE
-    public function getEmployees($params= array())
+    //Opportunity
+    public function getOpportunitieDetail($params= array())
     {
-        $whereArr = \Arr::only($params, ['filter','page','limit']);
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employees',$params);
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/opportunities/'.$id);
         if ($response->successful()) {
              return $response->json();
         }
