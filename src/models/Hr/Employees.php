@@ -7,8 +7,11 @@ use Illuminate\Support\Arr;
 class Employees extends \Microservices\models\Model
 {
     protected $_url;
-    public function __construct() {
-        $this->_url = env('API_MICROSERVICE_URL_V2').'/hr';
-    }
     protected $prefix = 'employees';
+    public function __construct($options) {
+        $this->_url = env('API_MICROSERVICE_URL_V2').'/hr';
+        if (!empty($options['token'])) {
+            $this->setToken($options['token']);
+        }
+    }
 }
