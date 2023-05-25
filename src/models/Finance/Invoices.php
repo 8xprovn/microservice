@@ -7,9 +7,7 @@ class Invoices extends \Microservices\models\Model
     protected $_url;
     public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/finance';
-        if (!empty($options['token'])) {
-            $this->setToken($options['token']);
-        }
+        $this->setToken($options['token'] ?? 'system');
     }
     protected $prefix = 'invoices';
 }

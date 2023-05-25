@@ -230,6 +230,13 @@ abstract class BaseModel
 
                 if (isset($params[$key])) {
                     $isRegex = 0;
+                    if (is_array($params[$key])) {
+                        $params[$key] = \Arr::whereNotNull($params[$key]);
+                        if (empty($params[$key])) {
+                            unset($params[$key]);
+                            continue;
+                        }
+                    }
                 } elseif (strpos($key, '.') !== false) {
                     $arr = explode('.', $key, 2);
                     if (!isset($params[$arr[0]])) {
@@ -238,10 +245,8 @@ abstract class BaseModel
                     $data = \Arr::dot($params[$arr[0]]);
                     $isRegex = 1;
                 } else {
-
                     continue;
                 }
-
                 switch ($formatType) {
                     case 'integer':
                         if ($isRegex == 0) {

@@ -8,10 +8,8 @@ class Employees extends \Microservices\models\Model
 {
     protected $_url;
     protected $prefix = 'employees';
-    public function __construct($options) {
+    public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/hr';
-        if (!empty($options['token'])) {
-            $this->setToken($options['token']);
-        }
+        $this->setToken($options['token'] ?? 'system');
     }
 }

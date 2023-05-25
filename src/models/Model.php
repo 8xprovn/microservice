@@ -3,15 +3,13 @@ namespace Microservices\models;
 
 abstract class Model
 {
-    private $access_token = '';
+    protected $access_token = '';
     protected $person_token = '';
-    public function __construct(){
-        $this->person_token = env('API_MICROSERVICE_TOKEN','');
-        $this->setToken();
-    }
+
     public function setToken($type = 'system') {
-        if ($this->token == 'user') {
-            $this->access_token = \Request::cookie('imap_authen_access_token');
+        $this->person_token = \Request::cookie('imap_authen_access_token');
+        if ($type == 'user') {
+            $this->access_token = env('API_MICROSERVICE_TOKEN','');
         }
         else {
             $this->access_token = $this->person_token;
