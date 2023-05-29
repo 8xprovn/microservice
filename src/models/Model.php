@@ -3,6 +3,18 @@ namespace Microservices\models;
 
 abstract class Model
 {
+    protected $access_token = '';
+    protected $person_token = '';
+
+    public function setToken($type = 'system') {
+        $this->person_token = \Request::cookie('imap_authen_access_token');
+        if ($type == 'user') {
+            $this->access_token = env('API_MICROSERVICE_TOKEN','');
+        }
+        else {
+            $this->access_token = $this->person_token;
+        }
+    }
     public function all($params = [], $options = [])
     {
         $filter = [];
@@ -16,7 +28,7 @@ abstract class Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/'.$this->prefix, $q);
+        $response = \Http::withToken($this->access_token)->get($this->_url.'/'.$this->prefix, $q);
         if ($response->successful()) {
             return $response->json();
         } 
@@ -43,13 +55,12 @@ abstract class Model
         if (!empty($this->dataDefault['create'])) {
             $params = array_merge($this->dataDefault['create'], $params);
         }
-        $params = $this->filter($params);
         if (!empty($this->idAutoIncrement) && empty($params[$this->primaryKey])) {
             $params[$this->primaryKey] = $this->getNextSequence($this->table);
         }
         $params['created_time'] = time();
         $url = $this->_url.'/'.$this->prefix;
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->POST($url, $params);
+        $response = \Http::withToken($this->access_token)->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         } 
@@ -65,12 +76,11 @@ abstract class Model
         if (!empty($this->only['update'])) {
             $params = \Arr::only($params, $this->only['update']);
         }
-        $params = $this->filter($params);
         if (!empty($this->idAutoIncrement)) {
             $id = (int) $id;
         }
         $url = $this->_url.'/'.$this->prefix.'/'.$id;
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->PUT($url, $params);
+        $response = \Http::withToken($this->access_token)->PUT($url, $params);
         if ($response->successful()) {
             return $response->json();
         } 
@@ -81,93 +91,11 @@ abstract class Model
     public function remove($id)
     {
         $url = $this->_url.'/'.$this->prefix.'/'.$id;
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->DELETE($url);
+        $response = \Http::withToken($this->access_token)->DELETE($url);
         if ($response->successful()) {
             return $response->json();
         } 
         \Log::error($this->$url . $response->body());
         return false;
-    }
-
-    public function filter($params)
-    {
-        if (empty($this->casts) || empty($params)) {
-            return $params;
-        }
-        //$params = \Arr::dot($params);
-
-        $result = [];
-        $arrKeys = array_keys($params);
-        foreach ($this->casts as $formatType => $v) {
-            //////////// CHECK CAC KEY TRUNG //////
-            //var_dump($v,$arrKeys);
-            // $keysIntersect = array_intersect($v,$arrKeys);
-            // if (!$keysIntersect) {
-            //     continue;
-            // }
-
-            foreach ($v as $key) {
-
-                if (isset($params[$key])) {
-                    $isRegex = 0;
-                } elseif (strpos($key, '.') !== false) {
-                    $arr = explode('.', $key, 2);
-                    if (!isset($params[$arr[0]])) {
-                        continue;
-                    }
-                    $data = \Arr::dot($params[$arr[0]]);
-                    $isRegex = 1;
-                } else {
-
-                    continue;
-                }
-
-                switch ($formatType) {
-                    case 'integer':
-                        if ($isRegex == 0) {
-                            $params[$key] = (!is_array($params[$key])) ? (int) $params[$key] : array_map("intval", $params[$key]);
-                        } else {
-
-                            foreach ($data as $k => $dt) {
-                                $kk = preg_replace('/(\.|^)(\d+)(\.|$)/', '.', $k);
-                                $kk = trim($kk, '.');
-                                //var_dump($arr[0].'.'.$k,$key);
-                                if ($arr[0] . '.' . $kk == $key) {
-                                    $data[$k] = (int) $dt;
-                                }
-                            }
-                            $data = \Arr::undot($data);
-                            $params[$arr[0]] = $data;
-                        }
-
-                        break;
-                    case 'string':
-                        $params[$key] = (!is_array($params[$key])) ? (string) $params[$key] : array_map("strval", $params[$key]);
-                        break;
-                    case 'unixtime':
-
-                        if ((!is_array($params[$key]))) {
-                            $params[$key] = (is_numeric($params[$key])) ? (int) $params[$key] : strtotime($params[$key]);
-                        } else {
-                            if (array_keys($params[$key]) !== range(0, count($params[$key]) - 1)) { // nhieu chieu
-                                foreach ($params[$key] as $k => $v) {
-                                    if (is_null($v)) {
-                                        unset($params[$key][$k]);
-                                        continue;
-                                    }
-                                    $params[$key][$k] = (is_numeric($v)) ? (int) $v : strtotime($v);
-                                }
-                            } else {
-                                $params[$key] = array_map(function ($item) {
-                                    return (is_numeric($item)) ? (int) $item : strtotime($item);
-                                }, $params[$key]);
-                            }
-
-                        }
-                        break;
-                }
-            }
-        }
-        return $params;
     }
 }
