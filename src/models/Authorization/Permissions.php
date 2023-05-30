@@ -12,6 +12,10 @@ class Permissions extends \Microservices\models\Model
     }
     public function me($params)
     {
+        $userId = \Auth::id();
+        if (!$userId) {
+            return false;
+        }
         ////// GET FROM CACHE ////////
         // $tags = [$params['service'],$params['group']];
 
