@@ -12,11 +12,22 @@ class Permissions extends \Microservices\models\Model
     }
     public function me($params)
     {
-        $url = $this->_url.'/'.$this->prefix.'/me';
-        $response = \Http::withToken($this->person_token)->get($url,$params);
-        if ($response->successful()) {
-            return $response->json();
-        } 
+        ////// GET FROM CACHE ////////
+        // $tags = [$params['service'],$params['group']];
+
+        // $arrData = \Cache::tags($tags)->many($id);
+        if (config('app.service_code') == 'erp_authorization_backend_v2') {
+            
+            return (new \App\Models\Permission)->permissionByEmployee($userId,$params);
+        }
+        else {
+            $url = $this->_url.'/'.$this->prefix.'/me';
+            $response = \Http::withToken($this->person_token)->get($url,$params);
+            if ($response->successful()) {
+                return $response->json();
+            } 
+        }
+        
         \Log::error($url . $response->body());
         return false;
     }
