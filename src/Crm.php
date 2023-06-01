@@ -710,7 +710,68 @@ class Crm
         \Log::error($response->body());
         return false;
     }
+    
+    //CALENDAR 
+    public function getCalendars($params = array())
+    {
+        $whereArr = \Arr::only($params, ['calendar_id', 'assigned_employee_id']);
+        $filter = [];
+        foreach($whereArr as $k => $v){
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
 
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/calendars',['filter' => json_encode([
+            'where' => $filter,
+            ])]);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+    
+    public function getContactsIncludeCalendars($params = array()) {
+        $whereArr = \Arr::only($params, ['calendar_id']);
+        $filter = [];
+        foreach($whereArr as $k => $v){
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    if (is_array($v)) {
+                        $filter[$k] = ['inq' => $v];
+                    }
+                    else {
+                        $filter[$k] = ['eq' => $v];
+                    }
+                    break;
+            }
+        }
+        
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/calendar-to-contacts',['filter' => json_encode([
+            'where' => $filter,
+            'include' => [
+                [
+                    'relation' => 'crmContacts',
+                ]
+            ],
+        ])]);
 
+  
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
 
 }
