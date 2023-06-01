@@ -714,7 +714,7 @@ class Crm
     //CALENDAR 
     public function getCalendars($params = array())
     {
-        $whereArr = \Arr::only($params, ['calendar_id', 'assigned_employee_id']);
+        $whereArr = \Arr::only($params, ['calendar_id', 'employee_id', 'assigned_employee_id']);
         $filter = [];
         foreach($whereArr as $k => $v){
             if (is_null($v)) continue;
