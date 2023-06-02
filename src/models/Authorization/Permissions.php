@@ -22,7 +22,7 @@ class Permissions extends \Microservices\models\Model
         // $arrData = \Cache::tags($tags)->many($id);
         if (config('app.service_code') == 'erp_authorization_backend_v2') {
             
-            return (new \App\Models\Permission)->permissionByEmployee($userId,$params);
+            return (new \App\Models\Permission)->me($userId,$params);
         }
         else {
             $url = $this->_url.'/'.$this->prefix.'/me';
