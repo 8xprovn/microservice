@@ -758,12 +758,7 @@ class Crm
         }
         
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/calendar-to-contacts',['filter' => json_encode([
-            'where' => $filter,
-            'include' => [
-                [
-                    'relation' => 'crmContacts',
-                ]
-            ],
+            'where' => $filter
         ])]);
 
   
