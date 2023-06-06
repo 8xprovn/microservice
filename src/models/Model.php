@@ -28,7 +28,7 @@ abstract class Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $response = \Http::withToken($this->access_token)->get($this->_url.'/'.$this->prefix, $q);
+        $response = \Http::acceptJson()->withToken($this->access_token)->get($this->_url.'/'.$this->prefix, $q);
         if ($response->successful()) {
             return $response->json();
         } 
@@ -38,7 +38,7 @@ abstract class Model
     public function detail($id)
     {
         $url = $this->_url.'/'.$this->prefix.'/'.$id;
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($url);
+        $response = \Http::acceptJson()->withToken(env('API_MICROSERVICE_TOKEN',''))->get($url);
         if ($response->successful()) {
             return $response->json();
         } 
@@ -60,7 +60,7 @@ abstract class Model
         }
         $params['created_time'] = time();
         $url = $this->_url.'/'.$this->prefix;
-        $response = \Http::withToken($this->access_token)->POST($url, $params);
+        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         } 
@@ -80,7 +80,7 @@ abstract class Model
             $id = (int) $id;
         }
         $url = $this->_url.'/'.$this->prefix.'/'.$id;
-        $response = \Http::withToken($this->access_token)->PUT($url, $params);
+        $response = \Http::acceptJson()->withToken($this->access_token)->PUT($url, $params);
         if ($response->successful()) {
             return $response->json();
         } 
@@ -91,7 +91,7 @@ abstract class Model
     public function remove($id)
     {
         $url = $this->_url.'/'.$this->prefix.'/'.$id;
-        $response = \Http::withToken($this->access_token)->DELETE($url);
+        $response = \Http::acceptJson()->withToken($this->access_token)->DELETE($url);
         if ($response->successful()) {
             return $response->json();
         } 
