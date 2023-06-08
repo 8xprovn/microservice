@@ -23,7 +23,10 @@ abstract class BaseModel
         $params = $this->filter($params);
         $query = \DB::table($this->table);
         if (!empty($options['select'])) {
-            $query->select([$options['select']]);
+            if (!is_array($options['select'])) {
+                $options['select'] = explode(',',$options['select']);
+            }
+            $query->select($options['select']);
         }
         if ($params) {
             $this->setWhere($query, $params);
@@ -59,6 +62,7 @@ abstract class BaseModel
             $params['created_by'] = (int) \Auth::id();
         }
         $params['created_time'] = time();
+        $params['updated_time'] = time();
 
         return DB::table($this->table)->insertGetId($params);
     }
@@ -77,6 +81,7 @@ abstract class BaseModel
             }
             $params['created_by'] = (int) \Auth::id();
             $params['created_time'] = time();
+            $params['updated_time'] = time();
             $multiParams[$k] = $params;
         }
         return \DB::table($this->table)->insert($multiParams);
@@ -92,11 +97,13 @@ abstract class BaseModel
         if (!empty($this->idAutoIncrement)) {
             $id = (int) $id;
         }
-        if (!empty($this->is_cache)) {
-            $tags = [config('app.service_code'),$this->table];
+        $params['updated_time'] = time();
+        $result = \DB::table($this->table)->where($this->primaryKey, $id)->update($params);
+        if (!empty($this->is_cache) && \Cache::supportsTags()) {
+            $tags = $this->getCacheTag();
             \Cache::tags($tags)->forget($id);
         }
-        return \DB::table($this->table)->where($this->primaryKey, $id)->update($params);
+        return $result;
         //$query->update($params);
     }
     public function updateBatch($conditions, $params)
@@ -109,22 +116,16 @@ abstract class BaseModel
         }
         $params = $this->filter($params);
         $condition = $this->filter($conditions);
-        /// get id to reset cache
-        if (!empty($this->is_cache)) {
-            $arrResetCache = $this->all($condition,['select' => $this->primaryKey,'limit' => 1000])->keyBy($this->primaryKey)->all();
-        }
-        // 
-        // array_map()
+        $params['updated_time'] = time();
         /// update
         $query = \DB::table($this->table);
         $this->setWhere($query, $conditions);
         $query->update($params);
-        if (!empty($this->is_cache)) {
-            $tags = [config('app.service_code'),$this->table];
-            \Cache::tags($tags)->putMany($arrResetCache,-1);
+        /// clear cache
+        if (!empty($this->is_cache) && \Cache::supportsTags()) {
+            $tags = $this->getCacheTag();
+            \Cache::tags($tags[1])->flush();
         }
-        /// reset cache ///
-
     }
     public function deleteBatch($conditions)
     {
@@ -135,32 +136,24 @@ abstract class BaseModel
         if(empty($conditions)){
             return false;
         }
-        if (!empty($this->is_cache)) {
-            $arrResetCache = $this->all($condition,['select' => $this->primaryKey,'limit' => 1000])->keyBy($this->primaryKey)->all();
-        }
         $query = \DB::table($this->table);
         $this->setWhere($query, $conditions);
         $query->delete();
-        if (!empty($this->is_cache)) {
-            $tags = [config('app.service_code'),$this->table];
-            \Cache::tags($tags)->putMany($arrResetCache,-1);
+        // xoa cache
+        if (!empty($this->is_cache) && \Cache::supportsTags()) {
+            $tags = $this->getCacheTag();
+            \Cache::tags($tags[1])->flush();
         }
     }
-    public function detail($id,$options = [])
-    {
-        $idDetail = 0;
-        if (!is_array($id)) {
-            $idDetail = $id;
-            $id = [$id];
-        }
+    public function details($id, $options = []) {
         if (!empty($this->idAutoIncrement)) {
             $id = array_map('intval',$id);
         }
-        //////// CHECK CACHE ////////
         $arrData = [];
-        //////// GET CACHE ////////
-        if (!empty($this->is_cache)) {
-            $tags = [config('app.service_code'),$this->table];
+        $isCache = (!empty($this->is_cache) && \Cache::supportsTags()) ? 1 : 0;
+        $queryOptions = ['limit' => 1000];
+        if ($isCache) {
+            $tags = $this->getCacheTag();
             if (empty($options['reset_cache'])) {
                 $arrData = \Cache::tags($tags)->many($id);
                 $arrData = \Arr::whereNotNull($arrData);
@@ -170,41 +163,74 @@ abstract class BaseModel
                     $id = array_diff($id,$arrKeysHit);
                 }
             }
-            
+        }
+        else {
+             //////// NEU KO SU DUNG CACHE SE CHI QUERY DU //////
+            $queryOptions = array_merge($queryOptions,$options);
         }
         if ($id) {
-            $data = $this->all([$this->primaryKey => $id],['limit' => 1000])->toArray();
-            $data = \Arr::keyBy($data, $this->primaryKey);
-            
-            //////// SET CACHE /////
-            if (!empty($this->is_cache) && $data) {
-                \Cache::tags($tags)->putMany($data,$this->cacheDetailTime);
-            }
-            
+            /// QUERY DATA
+            $data = $this->all([$this->primaryKey => $id],$queryOptions)->keyBy($this->primaryKey)->all();
             $arrData = $arrData + $data;
             ///////
+        }
+        if ($isCache && !empty($data)) {
+            \Cache::tags($tags)->putMany($data,$this->cacheDetailTime);
             unset($data);
-        }
-        if (!empty($options['select'])) {
-            if (!is_array($options['select'])) {
-                $options['select'] = explode(',',$options['select']);
+            if (!empty($options['select'])) {
+                $arrData = \Arr::map($arrData, function ($value, $key) use($options) {
+                    return \Arr::only($value,$options['select']);
+                });
             }
-            $arrData = \Arr::map($arrData, function ($value, $key) use($options) {
-                return \Arr::only($value,$options['select']);
-            });
-        }
-        if ($idDetail) {
-            $arrData = $arrData[$idDetail] ?? [];
         }
         return $arrData;
+    }
+    public function detail($id,$options = [])
+    {
+        if (is_array($id)) {
+            $this->details($id, $options);
+        }
+        if (!empty($this->idAutoIncrement)) {
+            $id = (int) $id;
+        }
+        //////// CHECK CACHE ////////
+        $data = $queryOptions = [];
+        $isCache = (!empty($this->is_cache) && \Cache::supportsTags()) ? 1 : 0;
+        //////// GET CACHE ////////
+        if ($isCache) {
+            $tags = $this->getCacheTag();
+            if (empty($options['reset_cache'])) {
+                $data = \Cache::tags($tags)->get($id);
+            }
+        }
+        else {
+            $queryOptions = array_merge($queryOptions, $options);
+        }
+
+        //////// NEU KO SU DUNG CACHE SE CHI QUERY DU //////
+        if (!$data) {
+            $query = \DB::table($this->table)->where($this->primaryKey, $id);
+            if (!empty($queryOptions['select'])) {
+                $query->select([$options['select']]);
+            }
+            $data = $query->first();
+        }
+        //////// SET CACHE /////
+        if ($isCache && $data) {
+            \Cache::tags($tags)->put($id,$data,$this->cacheDetailTime);
+            if (!empty($options['select'])) {
+                $data = \Arr::only($data,$options['select']);
+            }
+        }
+        return $data;
     }
     public function remove($id)
     {
         if (!empty($this->idAutoIncrement)) {
             $id = (int) $id;
         }
-        if (!empty($this->is_cache)) {
-            $tags = [config('app.service_code'),$this->table];
+        if (!empty($this->is_cache) && \Cache::supportsTags()) {
+            $tags = $this->getCacheTag();
             \Cache::tags($tags)->forget($id);
         }
         return \DB::table($this->table)->where($this->primaryKey, $id)->delete();
@@ -405,5 +431,15 @@ abstract class BaseModel
             }
 
         }
+    }
+    public function getCacheTag($tagsAdd = []) {
+        $service = config('app.service_code');
+        $tags = [$service,$service.':'.$this->table];
+        if ($tagsAdd) {
+            foreach ($tagsAdd as $tag) {
+                $tags[] = $service.':'.$this->table.':'.$tag;
+            }
+        }
+        return $tags;
     }
 }

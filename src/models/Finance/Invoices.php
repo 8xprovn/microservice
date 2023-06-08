@@ -10,4 +10,6 @@ class Invoices extends \Microservices\models\Model
         $this->setToken($options['token'] ?? 'system');
     }
     protected $prefix = 'invoices';
+    protected $service = 'erp_finance_backend_v2';
+    protected $table = 'invoices';
 }

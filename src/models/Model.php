@@ -15,6 +15,15 @@ abstract class Model
             $this->access_token = $this->person_token;
         }
     }
+    public function getCacheTag($tagsAdd = []) {
+        $tags = [$this->service,$this->service.':'.$this->table];
+        if ($tagsAdd) {
+            foreach ($tagsAdd as $tag) {
+                $tags[] = $this->service.':'.$this->table.':'.$tag;
+            }
+        }
+        return $tags;
+    }
     public function all($params = [], $options = [])
     {
         $filter = [];
@@ -35,10 +44,50 @@ abstract class Model
         \Log::error($this->_url . $response->body());
         return false;
     }
-    public function detail($id)
+    public function details($id, $options = []) {
+        $arrData = [];
+        $isCache = (!empty($this->is_cache) && \Cache::supportsTags()) ? 1 : 0;
+        if ($isCache) {
+            $tags = $this->getCacheTag();
+            $arrData = \Cache::tags($tags)->many($id);
+            $arrData = \Arr::whereNotNull($arrData);
+            ////// lay cac key data ///
+            if ($arrData) {
+                if (!empty($options['select'])) {
+                    $arrData = \Arr::map($arrData, function ($value, $key) use($options) {
+                        return \Arr::only($value,$options['select']);
+                    });
+                }
+                $arrKeysHit = array_keys($arrData);
+                $id = array_diff($id,$arrKeysHit);
+            }
+        }
+        if ($id) {
+            $primaryKey = $this->primaryKey ?? '_id';
+            $data = $this->all([$primaryKey => $id],$options);
+            $data = \Arr::keyBy($data, $primaryKey);
+            $arrData = $arrData + $data;
+        }
+        return $arrData;
+    }
+    public function detail($id, $options = [])
     {
+        if (is_array($id)) {
+            return $this->details($id,$options);
+        }
+        $isCache = (!empty($this->is_cache) && \Cache::supportsTags()) ? 1 : 0;
+        if ($isCache) {
+            $tags = $this->getCacheTag();
+            $detail = \Cache::tags($tags)->get($id);       
+            if ($detail) {
+                if (!empty($options['select'])) {
+                    $detail = \Arr::only($detail,$options['select']);
+                }
+                return $detail;
+            }     
+        }
         $url = $this->_url.'/'.$this->prefix.'/'.$id;
-        $response = \Http::acceptJson()->withToken(env('API_MICROSERVICE_TOKEN',''))->get($url);
+        $response = \Http::acceptJson()->withToken(env('API_MICROSERVICE_TOKEN',''))->get($url,$options);
         if ($response->successful()) {
             return $response->json();
         } 
