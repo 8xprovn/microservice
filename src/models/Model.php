@@ -8,7 +8,7 @@ abstract class Model
 
     public function setToken($type = 'system') {
         $this->person_token = \Request::cookie('imap_authen_access_token');
-        if ($type == 'user') {
+        if ($type == 'system') {
             $this->access_token = env('API_MICROSERVICE_TOKEN','');
         }
         else {
@@ -16,13 +16,19 @@ abstract class Model
         }
     }
     public function getCacheTag($tagsAdd = []) {
-        $tags = [$this->service,$this->service.':'.$this->table];
-        if ($tagsAdd) {
-            foreach ($tagsAdd as $tag) {
-                $tags[] = $this->service.':'.$this->table.':'.$tag;
-            }
+        if (!is_array($tagsAdd)) {
+            $tagsAdd = [$tagsAdd];
+        }
+        foreach ($tagsAdd as $tag) {
+            $tags[] = $this->service.':'.$this->table.':'.$tag;
         }
         return $tags;
+    }
+    public function getCacheKey($key) {
+        if (is_array($key)) {
+            $key = implode(':',$key);
+        }
+        return $this->service.':'.$this->table.':'.$key;
     }
     public function all($params = [], $options = [])
     {
