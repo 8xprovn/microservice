@@ -7,7 +7,7 @@ class Permissions extends \Microservices\models\Model
     protected $_url;
     protected $prefix = 'permission';
     protected $service = 'erp_authorization_backend_v2';
-    protected $table = 'permission';
+    protected $table = 'authorization_permissions';
     public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/authorization';
         $this->setToken($options['token'] ?? 'system');
