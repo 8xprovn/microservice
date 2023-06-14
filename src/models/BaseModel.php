@@ -7,6 +7,7 @@ use MongoDB\Operation\FindOneAndUpdate;
 abstract class BaseModel
 {
     protected $cacheDetailTime = 86400;
+    
     public function count($params)
     {
         $params = $this->filter($params);
@@ -448,5 +449,12 @@ abstract class BaseModel
             $key = implode(':',$key);
         }
         return $service.':'.$this->table.':'.$key;
+    }
+    public function getCacheExpire($type = 'detail') {
+        switch ($type) {
+            default:
+            $time = $this->cacheDetailTime;
+        }
+        return $time;
     }
 }
