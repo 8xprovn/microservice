@@ -437,7 +437,7 @@ abstract class BaseModel
         if (!is_array($tagsAdd)) {
             $tagsAdd = [$tagsAdd];
         }
-        $prefix = $this->service.':'.$this->table;
+        $prefix = config('app.service_code').':'.$this->table;
         foreach ($tagsAdd as $tag) {
             $tags[] = $prefix.':'.$tag;
         }
