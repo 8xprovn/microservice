@@ -442,4 +442,11 @@ abstract class BaseModel
         }
         return $tags;
     }
+    public function getCacheKey($key) {
+        $service = config('app.service_code');
+        if (is_array($key)) {
+            $key = implode(':',$key);
+        }
+        return $service.':'.$this->table.':'.$key;
+    }
 }
