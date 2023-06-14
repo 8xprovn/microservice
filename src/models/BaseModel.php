@@ -6,7 +6,7 @@ use MongoDB\Operation\FindOneAndUpdate;
 
 abstract class BaseModel
 {
-    private $cacheDetailTime = 86400;
+    protected $cacheDetailTime = 86400;
     public function count($params)
     {
         $params = $this->filter($params);
