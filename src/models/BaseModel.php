@@ -433,13 +433,13 @@ abstract class BaseModel
 
         }
     }
-    public function getCacheTag($tagsAdd = []) {
-        $service = config('app.service_code');
-        $tags = [$service,$service.':'.$this->table];
-        if ($tagsAdd) {
-            foreach ($tagsAdd as $tag) {
-                $tags[] = $service.':'.$this->table.':'.$tag;
-            }
+    public function getCacheTag($tagsAdd) {
+        if (!is_array($tagsAdd)) {
+            $tagsAdd = [$tagsAdd];
+        }
+        $prefix = $this->service.':'.$this->table;
+        foreach ($tagsAdd as $tag) {
+            $tags[] = $prefix.':'.$tag;
         }
         return $tags;
     }
