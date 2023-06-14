@@ -19,10 +19,13 @@ class Permissions extends \Microservices\models\Model
             return false;
         }
         ////// GET FROM CACHE ////////
-        $key = $this->getCacheKey([$userId, $params['service']]);
-        $permissions = \Cache::get($key);
-        if (!empty($permissions[$params['group']])) {
-            return $permissions[$params['group']];
+        if (\Cache::supportsTags()) {
+            $tags = $this->getCacheTag('me:'.$userId);
+            $keys = $params['service'].':'.$params['group'];
+            $permissions = \Cache::tags($tags)->get($keys);
+            if (!empty($permissions)) {
+                return $permissions;
+            }
         }
         ////// MISS CACHE //////////
         $url = $this->_url.'/'.$this->prefix.'/me';
