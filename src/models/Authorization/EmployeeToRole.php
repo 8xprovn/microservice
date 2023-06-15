@@ -27,7 +27,7 @@ class EmployeeToRole extends \Microservices\models\Model
             }
         }
         ////// MISS CACHE //////////
-        $url = $this->_url.'/'.$this->prefix.'/me';
+        $url = $this->_url.'/me';
         $response = \Http::withToken($this->person_token)->get($url,$params);
         
         if ($response->successful()) {
