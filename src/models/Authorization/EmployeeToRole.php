@@ -2,14 +2,13 @@
 
 namespace Microservices\models\Authorization;
 
-class Permissions extends \Microservices\models\Model
+class EmployeeToRole extends \Microservices\models\Model
 {
     protected $_url;
-    protected $prefix = 'permission';
     protected $service = 'erp_authorization_backend_v2';
-    protected $table = 'authorization_permissions';
+    protected $table = 'authorization_employee_to_roles';
     public function __construct($options = []) {
-        $this->_url = env('API_MICROSERVICE_URL_V2').'/authorization';
+        $this->_url = env('API_MICROSERVICE_URL_V2').'/authorization/employee';
         $this->setToken($options['token'] ?? 'system');
     }
     public function me($params)

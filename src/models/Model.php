@@ -43,7 +43,7 @@ abstract class Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $response = \Http::acceptJson()->withToken($this->access_token)->get($this->_url.'/'.$this->prefix, $q);
+        $response = \Http::acceptJson()->withToken($this->access_token)->get($this->_url, $q);
         if ($response->successful()) {
             return $response->json();
         } 
@@ -92,7 +92,7 @@ abstract class Model
                 return $detail;
             }     
         }
-        $url = $this->_url.'/'.$this->prefix.'/'.$id;
+        $url = $this->_url.'/'.$id;
         $response = \Http::acceptJson()->withToken(env('API_MICROSERVICE_TOKEN',''))->get($url,$options);
         if ($response->successful()) {
             return $response->json();
@@ -114,7 +114,7 @@ abstract class Model
             $params[$this->primaryKey] = $this->getNextSequence($this->table);
         }
         $params['created_time'] = time();
-        $url = $this->_url.'/'.$this->prefix;
+        $url = $this->_url;
         $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
@@ -134,7 +134,7 @@ abstract class Model
         if (!empty($this->idAutoIncrement)) {
             $id = (int) $id;
         }
-        $url = $this->_url.'/'.$this->prefix.'/'.$id;
+        $url = $this->_url.'/'.$id;
         $response = \Http::acceptJson()->withToken($this->access_token)->PUT($url, $params);
         if ($response->successful()) {
             return $response->json();
@@ -145,7 +145,7 @@ abstract class Model
 
     public function remove($id)
     {
-        $url = $this->_url.'/'.$this->prefix.'/'.$id;
+        $url = $this->_url.'/'.$id;
         $response = \Http::acceptJson()->withToken($this->access_token)->DELETE($url);
         if ($response->successful()) {
             return $response->json();
