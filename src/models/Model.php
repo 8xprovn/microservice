@@ -15,21 +15,6 @@ abstract class Model
             $this->access_token = $this->person_token;
         }
     }
-    public function getCacheTag($tagsAdd = []) {
-        if (!is_array($tagsAdd)) {
-            $tagsAdd = [$tagsAdd];
-        }
-        foreach ($tagsAdd as $tag) {
-            $tags[] = $this->service.':'.$this->table.':'.$tag;
-        }
-        return $tags;
-    }
-    public function getCacheKey($key) {
-        if (is_array($key)) {
-            $key = implode(':',$key);
-        }
-        return $this->service.':'.$this->table.':'.$key;
-    }
     public function all($params = [], $options = [])
     {
         $filter = [];
