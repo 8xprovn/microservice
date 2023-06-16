@@ -433,28 +433,5 @@ abstract class BaseModel
 
         }
     }
-    public function getCacheTag($tagsAdd) {
-        if (!is_array($tagsAdd)) {
-            $tagsAdd = [$tagsAdd];
-        }
-        $prefix = config('app.service_code').':'.$this->table;
-        foreach ($tagsAdd as $tag) {
-            $tags[] = $prefix.':'.$tag;
-        }
-        return $tags;
-    }
-    public function getCacheKey($key) {
-        $service = config('app.service_code');
-        if (is_array($key)) {
-            $key = implode(':',$key);
-        }
-        return $service.':'.$this->table.':'.$key;
-    }
-    public function getCacheExpire($type = 'detail') {
-        switch ($type) {
-            default:
-            $time = $this->cacheDetailTime;
-        }
-        return $time;
-    }
+    
 }

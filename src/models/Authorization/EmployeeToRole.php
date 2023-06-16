@@ -2,11 +2,11 @@
 
 namespace Microservices\models\Authorization;
 
+use Microservices\Caches\Authorization\EmployeeToRole as EmployeeToRoleCache;
+
 class EmployeeToRole extends \Microservices\models\Model
 {
     protected $_url;
-    protected $service = 'erp_authorization_backend_v2';
-    protected $table = 'authorization_employee_to_roles';
     public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/authorization/employee';
         $this->setToken($options['token'] ?? 'system');
@@ -18,13 +18,10 @@ class EmployeeToRole extends \Microservices\models\Model
             return false;
         }
         ////// GET FROM CACHE ////////
-        if (\Cache::supportsTags()) {
-            $tags = $this->getCacheTag('me:'.$userId);
-            $keys = $params['service'].':'.$params['group'];
-            $permissions = \Cache::tags($tags)->get($keys);
-            if (!empty($permissions)) {
-                return $permissions;
-            }
+        $cacheInstance = new EmployeeToRoleCache;
+        $permission = $cacheInstance->getMe($userId,$params);
+        if ($permission) {
+            return $permission;
         }
         ////// MISS CACHE //////////
         $url = $this->_url.'/me';
