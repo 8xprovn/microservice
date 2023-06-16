@@ -123,7 +123,7 @@ abstract class BaseModel
         $query->update($params);
         /// clear cache
         if (!empty($this->is_cache)) {
-            $this->cache()->deleteBatch();
+            $this->cache()->flush();
         }
     }
     public function deleteBatch($conditions)
@@ -140,7 +140,7 @@ abstract class BaseModel
         $query->delete();
         // xoa cache
         if (!empty($this->is_cache)) {
-            $this->cache()->deleteBatch();
+            $this->cache()->flush();
         }
     }
     public function details($id, $options = []) {
@@ -155,7 +155,7 @@ abstract class BaseModel
             $arrData = \Arr::whereNotNull($arrData);
             ////// lay cac key data ///
             if ($arrData) {
-                $arrKeysHit = \Arr::pluck($arrData,$this->primaryKey);
+                $arrKeysHit = array_keys($arrData);
                 $id = array_diff($id,$arrKeysHit);
             }
         }
@@ -170,13 +170,9 @@ abstract class BaseModel
             ///////
         }
         if ($isCache && !empty($data)) {
-            \Cache::tags($tags)->putMany($data,$this->cacheDetailTime);
+            $this->cache()->update($data);
             unset($data);
-            if (!empty($options['select'])) {
-                $arrData = \Arr::map($arrData, function ($value, $key) use($options) {
-                    return \Arr::only($value,$options['select']);
-                });
-            }
+    
         }
         return $arrData;
     }

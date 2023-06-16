@@ -34,4 +34,48 @@ class BaseCache
         }
         return $time;
     }
+    public function detail($id,$options = []) {
+        if (!\Cache::supportsTags()) {
+            return null;
+        }
+        $tags = $this->getCacheTag('detail');
+        $data = \Cache::tags($tags)->get($id);
+        if ($data && !empty($options['select'])) {
+            if (is_array($id)) {
+                $data = \Arr::map($data, function ($value, $key) use($options) {
+                    return \Arr::only($value,$options['select']);
+                });
+            } else {
+                $data = \Arr::only($data,$options['select']);
+            }
+        }
+        return $data;
+    }
+    public function delete($id,$tag = 'detail') {
+        if (!\Cache::supportsTags()) {
+            return null;
+        }
+        $tags = $this->getCacheTag($tag);
+        \Cache::tags($tags)->forget($id);
+    }
+    public function flush($tag = 'detail') {
+        if (!\Cache::supportsTags()) {
+            return null;
+        }
+        $tags = $this->getCacheTag($tag);
+        \Cache::tags($tags)->flush();
+    }
+    public function update($key,$data = [],$tag = 'detail') {
+        if (!\Cache::supportsTags()) {
+            return null;
+        }
+        $tags = $this->getCacheTag($tag);
+        if (is_array($key)) {
+            \Cache::tags($tags)->putMany($key,$this->cacheDetailTime);
+        }
+        else {
+            \Cache::tags($tags)->put($key,$data, $this->cacheDetailTime);
+        }
+        
+    }
 }

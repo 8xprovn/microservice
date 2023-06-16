@@ -24,11 +24,17 @@ class EmployeeToRole extends \Microservices\Caches\BaseCache
     //     return Cache::tags($tags)->remember($keys, 3600, $callback);
     // }
     public function putMe($userId,$params,$values) {
+        if (!\Cache::supportsTags()) {
+            return null;
+        }
         $tags = $this->getCacheTag('me:'.$userId);
         $keys = $params['service'].':'.$params['group'];     
         return \Cache::tags($tags)->put($keys,$values,3600);  
     }
     public function flushMe($userId) {
+        if (!\Cache::supportsTags()) {
+            return null;
+        }
         $tags = $this->getCacheTag('me:'.$userId);
         return \Cache::tags($tags)->flush();  
     }
