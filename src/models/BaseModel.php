@@ -100,9 +100,8 @@ abstract class BaseModel
         }
         $params['updated_time'] = time();
         $result = \DB::table($this->table)->where($this->primaryKey, $id)->update($params);
-        if (!empty($this->is_cache) && \Cache::supportsTags()) {
-            $tags = $this->getCacheTag();
-            \Cache::tags($tags)->forget($id);
+        if (!empty($this->is_cache)) {
+            $this->cache()->delete($id);
         }
         return $result;
         //$query->update($params);
@@ -123,9 +122,8 @@ abstract class BaseModel
         $this->setWhere($query, $conditions);
         $query->update($params);
         /// clear cache
-        if (!empty($this->is_cache) && \Cache::supportsTags()) {
-            $tags = $this->getCacheTag();
-            \Cache::tags($tags[1])->flush();
+        if (!empty($this->is_cache)) {
+            $this->cache()->deleteBatch();
         }
     }
     public function deleteBatch($conditions)
@@ -141,9 +139,8 @@ abstract class BaseModel
         $this->setWhere($query, $conditions);
         $query->delete();
         // xoa cache
-        if (!empty($this->is_cache) && \Cache::supportsTags()) {
-            $tags = $this->getCacheTag();
-            \Cache::tags($tags[1])->flush();
+        if (!empty($this->is_cache)) {
+            $this->cache()->deleteBatch();
         }
     }
     public function details($id, $options = []) {
@@ -151,18 +148,15 @@ abstract class BaseModel
             $id = array_map('intval',$id);
         }
         $arrData = [];
-        $isCache = (!empty($this->is_cache) && \Cache::supportsTags()) ? 1 : 0;
+        $isCache = (!empty($this->is_cache) && empty($options['reset_cache'])) ? 1 : 0;
         $queryOptions = ['limit' => 1000];
         if ($isCache) {
-            $tags = $this->getCacheTag();
-            if (empty($options['reset_cache'])) {
-                $arrData = \Cache::tags($tags)->many($id);
-                $arrData = \Arr::whereNotNull($arrData);
-                ////// lay cac key data ///
-                if ($arrData) {
-                    $arrKeysHit = array_keys($arrData);
-                    $id = array_diff($id,$arrKeysHit);
-                }
+            $arrData = $this->cache()->detail($id);
+            $arrData = \Arr::whereNotNull($arrData);
+            ////// lay cac key data ///
+            if ($arrData) {
+                $arrKeysHit = \Arr::pluck($arrData,$this->primaryKey);
+                $id = array_diff($id,$arrKeysHit);
             }
         }
         else {
@@ -196,13 +190,10 @@ abstract class BaseModel
         }
         //////// CHECK CACHE ////////
         $data = $queryOptions = [];
-        $isCache = (!empty($this->is_cache) && \Cache::supportsTags()) ? 1 : 0;
         //////// GET CACHE ////////
+        $isCache = (!empty($this->is_cache) && empty($options['reset_cache'])) ? 1 : 0;
         if ($isCache) {
-            $tags = $this->getCacheTag();
-            if (empty($options['reset_cache'])) {
-                $data = \Cache::tags($tags)->get($id);
-            }
+            $this->cache()->detail($id);
         }
         else {
             $queryOptions = array_merge($queryOptions, $options);
@@ -218,7 +209,7 @@ abstract class BaseModel
         }
         //////// SET CACHE /////
         if ($isCache && $data) {
-            \Cache::tags($tags)->put($id,$data,$this->cacheDetailTime);
+            $this->cache()->update($id,$data);
             if (!empty($options['select'])) {
                 $data = \Arr::only($data,$options['select']);
             }
@@ -230,9 +221,8 @@ abstract class BaseModel
         if (!empty($this->idAutoIncrement)) {
             $id = (int) $id;
         }
-        if (!empty($this->is_cache) && \Cache::supportsTags()) {
-            $tags = $this->getCacheTag();
-            \Cache::tags($tags)->forget($id);
+        if (!empty($this->is_cache)) {
+            $this->cache->delete($id);
         }
         return \DB::table($this->table)->where($this->primaryKey, $id)->delete();
     }
