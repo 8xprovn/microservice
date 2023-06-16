@@ -2,8 +2,6 @@
 
 namespace Microservices\models\Authorization;
 
-use Microservices\Caches\Authorization\EmployeeToRole as EmployeeToRoleCache;
-
 class EmployeeToRole extends \Microservices\models\Model
 {
     protected $_url;
@@ -18,8 +16,7 @@ class EmployeeToRole extends \Microservices\models\Model
             return false;
         }
         ////// GET FROM CACHE ////////
-        $cacheInstance = new EmployeeToRoleCache;
-        $permission = $cacheInstance->getMe($userId,$params);
+        $permission = $this->cache()->getMe($userId,$params);
         if ($permission) {
             return $permission;
         }
@@ -32,6 +29,9 @@ class EmployeeToRole extends \Microservices\models\Model
         } 
         \Log::error($url . $response->body());
         return false;
+    }
+    public function cache() {
+        return new \Microservices\Caches\Authorization\EmployeeToRole();
     }
 }
 
