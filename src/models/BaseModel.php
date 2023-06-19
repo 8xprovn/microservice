@@ -56,9 +56,6 @@ abstract class BaseModel
         if (!empty($this->idAutoIncrement) && empty($params[$this->primaryKey])) {
             $params[$this->primaryKey] = $this->getNextSequence($this->table);
         }
-        if (!empty($params[$this->primaryKey] && $params[$this->primaryKey] != "_id")) {
-            $params['_id'] = $this->getNextSequence($this->table);
-        }
         if (empty($params['created_by']) && \Auth::id()) {
             $params['created_by'] = (int) \Auth::id();
         }
