@@ -180,8 +180,11 @@ abstract class BaseModel
         if ($id) {
             /// QUERY DATA
             $data = $this->all([$this->primaryKey => $id],$queryOptions);
+            if ($data->isEmpty()) {
+                return $arrData;
+            }
             ///////
-            if ($isCache && !empty($data)) {
+            if ($isCache) {
                 $data = $data->keyBy($this->primaryKey)->all();
                 $this->cache()->update($data);
                 $data = \Arr::map($data, function ($value, $key) use($options) {
@@ -189,7 +192,9 @@ abstract class BaseModel
                 });
                 $data = array_values($data);
             }
-            $data = $data->toArray();
+            else {
+                $data = $data->toArray();
+            }
             $arrData = $arrData + $data;
             unset($data);
         }
