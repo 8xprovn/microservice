@@ -26,6 +26,7 @@ class BaseCache
         else {
             $key = $prefix.$key;
         }
+        return $key;
     }
     public function getCacheExpire($type = 'detail') {
         switch ($type) {
@@ -34,13 +35,21 @@ class BaseCache
         }
         return $time;
     }
-    public function detail($id,$options = []) {
-        if (!\Cache::supportsTags()) {
+    public function detail($id,$options = [],$tag = 'detail') {
+        // if (!\Cache::supportsTags()) {
+        //     return null;
+        // }
+        // $tags = $this->getCacheTag($tag);
+        
+        $key = $this->getCacheKey($id);
+        $data = \Cache::get($key);
+        $data = \Arr::whereNotNull($data);
+        if (!$data) {
             return null;
         }
-        $tags = $this->getCacheTag('detail');
-        $data = \Cache::tags($tags)->get($id);
-        if ($data && !empty($options['select'])) {
+        // $id = $this->getCacheKey($id);
+        // $data = \Cache::get($id);
+        if (!empty($options['select'])) {
             if (is_array($id)) {
                 $data = \Arr::map($data, function ($value, $key) use($options) {
                     return \Arr::only($value,$options['select']);
@@ -48,34 +57,49 @@ class BaseCache
             } else {
                 $data = \Arr::only($data,$options['select']);
             }
-        }
-        return $data;
+        } 
+        
+        return array_values($data);
     }
-    public function delete($id,$tag = 'detail') {
-        if (!\Cache::supportsTags()) {
-            return null;
+    public function delete($ids,$tag = 'detail') {
+        // if (!\Cache::supportsTags()) {
+        //     return null;
+        // }
+        // $tags = $this->getCacheTag($tag);
+        // \Cache::tags($tags)->forget($id);
+        $ids = $this->getCacheKey($ids);
+        if (!is_array($ids)) {
+            $ids = [$ids];
         }
-        $tags = $this->getCacheTag($tag);
-        \Cache::tags($tags)->forget($id);
+        \Cache::connection()->del($ids);
+        //\Cache::forget($ids);
+        
     }
     public function flush($tag = 'detail') {
-        if (!\Cache::supportsTags()) {
-            return null;
-        }
-        $tags = $this->getCacheTag($tag);
-        \Cache::tags($tags)->flush();
+        // if (!\Cache::supportsTags()) {
+        //     return null;
+        // }
+        // $tags = $this->getCacheTag($tag);
+        // \Cache::tags($tags)->flush();
     }
     public function update($key,$data = [],$tag = 'detail') {
-        if (!\Cache::supportsTags()) {
-            return null;
-        }
-        $tags = $this->getCacheTag($tag);
+        // $tags = $this->getCacheTag($tag);
+        // if (is_array($key)) {
+        //     \Cache::tags($tags)->putMany($key,$this->cacheDetailTime);
+        // }
+        // else {
+        //     \Cache::tags($tags)->put($key,$data, $this->cacheDetailTime);
+        // }
         if (is_array($key)) {
-            \Cache::tags($tags)->putMany($key,$this->cacheDetailTime);
+            $prefix = $this->service.':'.$this->table.':';
+            $key = \Arr::prependKeysWith($key, $prefix);
+            $mapped = array_map('serialize',$key);
+            \Cache::connection()->mset($mapped);
+            //\Cache::putMany($key,$this->cacheDetailTime);
         }
         else {
-            \Cache::tags($tags)->put($key,$data, $this->cacheDetailTime);
-        }
-        
+            $key = $this->getCacheKey($key);
+            \Cache::put($key,$data, $this->cacheDetailTime);
+        }        
     }
 }
