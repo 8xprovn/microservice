@@ -21,6 +21,11 @@ abstract class BaseModel
             $arrOnly = array_merge($this->only['lists'], [$this->primaryKey]);
             $params = \Arr::only($params, $arrOnly);
         }
+        ////// KTRA NEU CHI LAY THEO ID 
+        // dd($params);
+        if (count($params) == 1 && !empty($params[$this->primaryKey])) {
+            return $this->details($params[$this->primaryKey],$options);      
+        }
         $params = $this->filter($params);
         $query = \DB::table($this->table);
         if (!empty($options['select'])) {
@@ -154,50 +159,55 @@ abstract class BaseModel
         return $result;
     }
     public function details($id, $options = []) {
+        if (!is_array($id)) {
+            $id = [$id]; 
+        }
         if (!empty($this->idAutoIncrement)) {
             $id = array_map('intval',$id);
         }
         $arrData = [];
         $isCache = (!empty($this->is_cache) && empty($options['reset_cache'])) ? 1 : 0;
-        $queryOptions = ['limit' => 2000];
         if (!empty($options['select'])) {
-            $options['select'] = (is_array($options['select'])) ? $options['select'] : explode(',',$options['select']);
+            $options['select'] = is_array($options['select']) ? $options['select'] : explode(',',$options['select']);
             array_push($options['select'],$this->primaryKey);
         }
         if ($isCache) {
             $arrData = $this->cache()->detail($id,$options) ?? [];
-
             ////// lay cac key data ///
             if ($arrData) {
                 $arrKeysHit = \Arr::pluck($arrData,$this->primaryKey);
                 $id = array_diff($id,$arrKeysHit);
             }
         }
-        else {
-             //////// NEU KO SU DUNG CACHE SE CHI QUERY DU //////
-            $queryOptions = array_merge($queryOptions,$options);
+        if (!$id) {
+            return $arrData;
         }
-        if ($id) {
-            /// QUERY DATA
-            $data = $this->all([$this->primaryKey => $id],$queryOptions);
-            if ($data->isEmpty()) {
-                return $arrData;
-            }
-            ///////
-            if ($isCache) {
-                $data = $data->keyBy($this->primaryKey)->all();
-                $this->cache()->update($data);
+
+        $query = \DB::table($this->table)->whereIn($this->primaryKey,$id);
+
+        if (!$isCache && !empty($options['select'])) {
+            $query->select($options['select']);
+        }
+        $data = $query->get();
+        if ($data->isEmpty()) {
+            return $arrData;
+        }
+        ///////
+        if ($isCache) {
+            $data = $data->keyBy($this->primaryKey)->all();
+            $this->cache()->update($data);
+            if (!empty($options['select'])) {
                 $data = \Arr::map($data, function ($value, $key) use($options) {
                     return \Arr::only($value,$options['select']);
                 });
-                $data = array_values($data);
             }
-            else {
-                $data = $data->toArray();
-            }
-            $arrData = $arrData + $data;
-            unset($data);
+            $data = array_values($data);
         }
+        else {
+            $data = $data->toArray();
+        }
+        $arrData = $arrData + $data;
+        unset($data);
         return $arrData;
     }
     public function detail($id,$options = [])
@@ -208,35 +218,31 @@ abstract class BaseModel
         if (!empty($this->idAutoIncrement)) {
             $id = (int) $id;
         }
-        //////// CHECK CACHE ////////
-        $data = $queryOptions = [];
-        if (!empty($options['select'])) {
-            $options['select'] = is_array($options['select']) ? $options['select'] : explode(',',$options['select']);
-            array_push($options['select'],$this->primaryKey);
-        }
         //////// GET CACHE ////////
         $isCache = (!empty($this->is_cache) && empty($options['reset_cache'])) ? 1 : 0;
         if ($isCache) {
-            $data = $this->cache()->detail($id);
-        }
-        else {
-            $queryOptions = $options;
-        }
-
-        //////// NEU KO SU DUNG CACHE SE CHI QUERY DU //////
-        if (!$data) {
-            $query = \DB::table($this->table)->where($this->primaryKey, $id);
-            if (!empty($queryOptions['select'])) {
-                $query->select($queryOptions['select']);
-            }
-            $data = $query->first();
-            if ($isCache) {
-                $this->cache()->update($id,$data);
+            $data = $this->cache()->detail($id,$options);
+            if ($data) {
+                return $data;
             }
         }
-        //////// SET CACHE /////
-        if ($isCache && !empty($options['select'])) {
-            $data = \Arr::only($data,$options['select']);
+        /////// SELECT ///
+        
+        $query = \DB::table($this->table)->where($this->primaryKey, $id);
+        // GET DATA WITHOUT CACHE + WITH SELECT
+        if (!empty($options['select'])) {
+            $options['select'] = is_array($options['select']) ? $options['select'] : explode(',',$options['select']);
+            array_push($options['select'],$this->primaryKey);
+            if (!$isCache) {
+                $query->select($options['select']);
+            }
+        }
+        $data = $query->first();
+        if ($isCache) {
+            $this->cache()->update($id,$data);
+            if(!empty($options['select'])) {
+                $data = \Arr::only($data,$options['select']);
+            }
         }
         return $data;
     }
@@ -245,10 +251,12 @@ abstract class BaseModel
         if (!empty($this->idAutoIncrement)) {
             $id = (int) $id;
         }
+        
+        $result = \DB::table($this->table)->where($this->primaryKey, $id)->delete();
         if (!empty($this->is_cache)) {
             $this->cache->delete($id);
         }
-        return \DB::table($this->table)->where($this->primaryKey, $id)->delete();
+        return $result;
     }
     public function filter($params)
     {

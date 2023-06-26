@@ -52,6 +52,7 @@ class BaseCache
         // $id = $this->getCacheKey($id);
         // $data = \Cache::get($id);
         if (!empty($options['select'])) {
+            $options['select'] = (is_array($options['select'])) ? $options['select'] : explode(',',$options['select']);
             if (is_array($id)) {
                 $data = \Arr::map($data, function ($value, $key) use($options) {
                     return \Arr::only($value,$options['select']);
@@ -91,12 +92,15 @@ class BaseCache
         // else {
         //     \Cache::tags($tags)->put($key,$data, $this->cacheDetailTime);
         // }
+        $expireTime = $this->cacheDetailTime;
         if (is_array($key)) {
-            $prefix = $this->service.':'.$this->table.':';
-            $key = \Arr::prependKeysWith($key, $prefix);
-            $mapped = array_map('serialize',$key);
-            \Cache::connection()->mset($mapped);
-            //\Cache::putMany($key,$this->cacheDetailTime);
+            $responses = \Cache::connection()->pipeline(function ($pipe) use($key) {
+                foreach ($key as $k => $v) {
+                    $key = $this->getCacheKey($k);
+                    $v = serialize($v);
+                    $pipe->setex($key, $this->cacheDetailTime , $v);
+                }
+            });
         }
         else {
             $key = $this->getCacheKey($key);
