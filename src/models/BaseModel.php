@@ -210,24 +210,28 @@ abstract class BaseModel
         }
         //////// CHECK CACHE ////////
         $data = $queryOptions = [];
+        if (!empty($options['select'])) {
+            $options['select'] = is_array($options['select']) ? $options['select'] : explode(',',$options['select']);
+            array_push($options['select'],$this->primaryKey);
+        }
         //////// GET CACHE ////////
         $isCache = (!empty($this->is_cache) && empty($options['reset_cache'])) ? 1 : 0;
         if ($isCache) {
             $data = $this->cache()->detail($id);
         }
         else {
-            $queryOptions = array_merge($queryOptions, $options);
+            $queryOptions = $options;
         }
 
         //////// NEU KO SU DUNG CACHE SE CHI QUERY DU //////
         if (!$data) {
             $query = \DB::table($this->table)->where($this->primaryKey, $id);
             if (!empty($queryOptions['select'])) {
-                $query->select([$queryOptions['select']]);
+                $query->select($queryOptions['select']);
             }
             $data = $query->first();
             if ($isCache) {
-                //$this->cache()->update($id,$data);
+                $this->cache()->update($id,$data);
             }
         }
         //////// SET CACHE /////
@@ -443,5 +447,12 @@ abstract class BaseModel
 
         }
     }
-    
+    /**
+     * @author: namtq
+     * @todo: load class cache from cachePath
+     */
+    public function cache($cachePath = '') {
+        $className = ($cachePath) ? $cachePath : $this->cachePath;
+        return \Microservices::loadCache($className);
+    }
 }

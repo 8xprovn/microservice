@@ -43,7 +43,9 @@ class BaseCache
         
         $key = $this->getCacheKey($id);
         $data = \Cache::get($key);
-        $data = \Arr::whereNotNull($data);
+        if (is_array($id)) {
+            $data = \Arr::whereNotNull($data);
+        }
         if (!$data) {
             return null;
         }
@@ -58,8 +60,7 @@ class BaseCache
                 $data = \Arr::only($data,$options['select']);
             }
         } 
-        
-        return array_values($data);
+        return (is_array($id)) ? array_values($data) : $data;
     }
     public function delete($ids,$tag = 'detail') {
         // if (!\Cache::supportsTags()) {

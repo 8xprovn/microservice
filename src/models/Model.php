@@ -37,26 +37,19 @@ abstract class Model
     }
     public function details($id, $options = []) {
         $arrData = [];
-        $isCache = (!empty($this->is_cache) && \Cache::supportsTags()) ? 1 : 0;
+        $primaryKey = $this->primaryKey ?? '_id';
+        $isCache = (!empty($this->is_cache) && empty($options['reset_cache'])) ? 1 : 0;
         if ($isCache) {
-            $tags = $this->getCacheTag();
-            $arrData = \Cache::tags($tags)->many($id);
-            $arrData = \Arr::whereNotNull($arrData);
+            $arrData = $this->cache()->detail($id,$options) ?? [];
             ////// lay cac key data ///
             if ($arrData) {
-                if (!empty($options['select'])) {
-                    $arrData = \Arr::map($arrData, function ($value, $key) use($options) {
-                        return \Arr::only($value,$options['select']);
-                    });
-                }
-                $arrKeysHit = array_keys($arrData);
+                $arrKeysHit = \Arr::pluck($arrData,$primaryKey);
                 $id = array_diff($id,$arrKeysHit);
             }
+            ////// lay cac key data ///
         }
         if ($id) {
-            $primaryKey = $this->primaryKey ?? '_id';
             $data = $this->all([$primaryKey => $id],$options);
-            $data = \Arr::keyBy($data, $primaryKey);
             $arrData = $arrData + $data;
         }
         return $arrData;
@@ -66,16 +59,12 @@ abstract class Model
         if (is_array($id)) {
             return $this->details($id,$options);
         }
-        $isCache = (!empty($this->is_cache) && \Cache::supportsTags()) ? 1 : 0;
+        $isCache = (!empty($this->is_cache) && empty($options['reset_cache'])) ? 1 : 0;
         if ($isCache) {
-            $tags = $this->getCacheTag();
-            $detail = \Cache::tags($tags)->get($id);       
-            if ($detail) {
-                if (!empty($options['select'])) {
-                    $detail = \Arr::only($detail,$options['select']);
-                }
-                return $detail;
-            }     
+            $data = $this->cache()->detail($id,$options) ?? [];
+            if ($data) {
+                return $data;
+            }
         }
         $url = $this->_url.'/'.$id;
         $response = \Http::acceptJson()->withToken(env('API_MICROSERVICE_TOKEN',''))->get($url,$options);
@@ -137,5 +126,14 @@ abstract class Model
         } 
         \Log::error($this->$url . $response->body());
         return false;
+    }
+    /**
+     * @author: namtq
+     * @todo: load class cache same name
+     */
+    public function cache() {
+        $className = get_called_class();
+        $className = str_replace('Microservices\models\\','',$className);
+        return \Microservices::loadCache($className);
     }
 }

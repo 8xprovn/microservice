@@ -30,8 +30,5 @@ class EmployeeToRole extends \Microservices\models\Model
         \Log::error($url . $response->body());
         return false;
     }
-    public function cache() {
-        return new \Microservices\Caches\Authorization\EmployeeToRole();
-    }
 }
 
