@@ -3,6 +3,7 @@ namespace Microservices\models;
 
 use Illuminate\Support\Facades\DB;
 use MongoDB\Operation\FindOneAndUpdate;
+use function MongoDB\is_first_key_operator;
 
 abstract class BaseModel
 {
@@ -97,7 +98,7 @@ abstract class BaseModel
         }
         return \DB::table($this->table)->insert($multiParams);
     }
-    public function update($id, $params) 
+    public function update($id, $params,$options = []) 
     {
         // $params = \Arr::whereNotNull($params);
 
@@ -108,8 +109,26 @@ abstract class BaseModel
         if (!empty($this->idAutoIncrement)) {
             $id = (int) $id;
         }
-        $params['updated_time'] = time();
-        $result = \DB::table($this->table)->where($this->primaryKey, $id)->update($params);
+        if (is_first_key_operator($params)) {
+            $params['$set'] = array_merge($params['$set'] ?? [],['updated_time' => time()]);
+        } else {
+            $params['updated_time'] = time();
+        }
+        
+        ////////// CHECK OPTION RETURN //////
+        if (!empty($options['isReturnData'])) {
+            $result = \DB::getCollection('wallet')->findOneAndUpdate(
+                [$this->primaryKey => $id],
+                $params,
+                array('new' => false, 'upsert' => false, 'returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER),
+            );
+            if ($result) {
+                $result = iterator_to_array($result);
+            }
+        }
+        else {
+            $result = \DB::table($this->table)->where($this->primaryKey, $id)->update($params);
+        }
         if (!empty($this->is_cache)) {
             $this->cache()->delete($id);
         }
