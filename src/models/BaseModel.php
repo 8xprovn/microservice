@@ -31,7 +31,8 @@ abstract class BaseModel
         ////// KTRA NEU CHI LAY THEO ID 
         // dd($params);
         if (count($params) == 1 && !empty($params[$this->primaryKey])) {
-            return $this->details($params[$this->primaryKey],$options);      
+            $data = $this->details($params[$this->primaryKey],$options);
+            return collect($data);        
         }
         $params = $this->filter($params);
         $query = \DB::table($this->table);
