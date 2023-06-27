@@ -63,4 +63,15 @@ class CrmV2
         \Log::error($response->body());
         return false;
     }
+
+    public function getContactsIncludeCalendars($params= array())
+    {
+        $whereArr = \Arr::only($params, ['filter', 'page', 'limit']);
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/calendar-contact', $params);
+        if ($response->successful()) {
+             return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
 }
