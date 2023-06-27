@@ -9,6 +9,17 @@ class CrmV2
     }
 
     //Opportunity
+    public function getOpportunities($params= array())
+    {
+        $whereArr = \Arr::only($params, ['filter', 'page', 'limit']);
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/opportunities', $params);
+        if ($response->successful()) {
+             return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
+    
     public function getOpportunitieDetail($id)
     {
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/opportunities/'.$id);
