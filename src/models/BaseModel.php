@@ -15,6 +15,13 @@ abstract class BaseModel
         $this->setWhere($query, $params);
         return $query->count();
     }
+    public function sum($params,$field)
+    {
+        $params = $this->filter($params);
+        $query = \DB::table($this->table);
+        $this->setWhere($query, $params);
+        return $query->sum($field);
+    }
     public function all($params = [], $options = [])
     {
         if (!empty($this->only['lists'])) {

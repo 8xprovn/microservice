@@ -4,7 +4,6 @@ namespace Microservices\Caches\Authorization;
 
 class EmployeeToRole extends \Microservices\Caches\BaseCache
 {
-    protected $_url;
     protected $service = 'erp_authorization_backend_v2';
     protected $table = 'authorization_employee_to_roles';
     public function __construct($options = []) {
