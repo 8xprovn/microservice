@@ -149,7 +149,7 @@ abstract class BaseModel
         ////////// UPDATE DATA ////////
         $query = \DB::table($this->table);
         $this->setWhere($query, $conditions);
-        if ($this->is_cache) {
+        if (!empty($this->is_cache)) {
             $query->select($this->primaryKey);
             $arrIds = $query->get()->pluck($this->primaryKey)->all();
         }
