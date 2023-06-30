@@ -6,7 +6,7 @@ class TestsV2
     protected $_url;
     protected $_hash_secret;
     public function __construct() {
-        $this->_url = env('APP_URL').'/tests/api';
+        $this->_url = env('DOMAIN').'/tests/api';
         $this->_hash_secret = env('TEST_HASH_SECRET');
     }
 
