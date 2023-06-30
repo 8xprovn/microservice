@@ -103,7 +103,23 @@ abstract class BaseModel
         // $params = \Arr::whereNotNull($params);
 
         if (!empty($this->only['update'])) {
-            $params = \Arr::only($params, $this->only['update']);
+            if (is_first_key_operator($params)) {
+                foreach ($params as $k => $v) {
+                    $v = \Arr::only($v, $this->only['update']);
+                    if (empty($v)) {
+                        unset($params[$k]);
+                    }
+                    else {
+                        $params[$k] = $v;
+                    }
+                }
+            }
+            else {
+                $params = \Arr::only($params, $this->only['update']);
+            }
+        }
+        if (empty($params)) {
+            return false;
         }
         $params = $this->filter($params);
         if (!empty($this->idAutoIncrement)) {
@@ -145,6 +161,9 @@ abstract class BaseModel
         }
         $params = $this->filter($params);
         $condition = $this->filter($conditions);
+        if (empty($condition) || empty($params)) {
+            return false;
+        }
         $params['updated_time'] = time();
         ////////// UPDATE DATA ////////
         $query = \DB::table($this->table);
@@ -289,6 +308,11 @@ abstract class BaseModel
     {
         if (empty($this->casts) || empty($params)) {
             return $params;
+        }
+        if (is_first_key_operator($params)) {
+            foreach ($params as $k => $param) {
+                $params[$k] = $this->filter($param);
+            }
         }
         //$params = \Arr::dot($params);
 
