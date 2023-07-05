@@ -292,6 +292,9 @@ abstract class BaseModel
         }
         return $data;
     }
+    public function delete($id) {
+        return $this->remove($id);
+    }
     public function remove($id)
     {
         if (!empty($this->idAutoIncrement)) {
