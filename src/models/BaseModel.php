@@ -300,6 +300,10 @@ abstract class BaseModel
         if (!empty($this->idAutoIncrement)) {
             $id = (int) $id;
         }
+        else {
+            $arrId = $this->filter([$this->primaryKey => $id]);
+            $id = $arrId[$this->primaryKey];
+        }
         
         $result = \DB::table($this->table)->where($this->primaryKey, $id)->delete();
         if (!empty($this->is_cache)) {
