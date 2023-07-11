@@ -6,7 +6,7 @@ class TestsV2
     protected $_url;
     protected $_hash_secret;
     public function __construct() {
-        $this->_url = 'https://erp.ebomb.edu.vn/tests/api';
+        $this->_url = env('API_MICROSERVICE_URL_V2').'/tests';
         $this->_hash_secret = env('TEST_HASH_SECRET');
     }
 
