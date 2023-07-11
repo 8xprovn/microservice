@@ -4,7 +4,7 @@ namespace Microservices\models\Org;
 
 use Illuminate\Support\Arr;
 
-class Brands extends \Microservices\models\Model
+class Branchs extends \Microservices\models\Model
 {
     protected $_url;
     public function __construct($options = []) {
