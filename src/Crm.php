@@ -152,6 +152,16 @@ class Crm
         return false;
     }
 
+    public function updateContact($id, $params = []) {       
+        $params = \Arr::only($params, ['fullname', 'phone', 'email', 'birthdate', 'gender']);
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->patch($this->_url.'/contacts/'.$id, $params);
+        if ($response->successful()) {
+            return true;
+        }
+        \Log::error($response->body());
+        return false;
+    }
+
     //ACCOUNT
 
     public function getAccounts($params =array())
