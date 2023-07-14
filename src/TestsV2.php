@@ -61,4 +61,14 @@ class TestsV2
         \Log::error($response->body());
         return false;
     }
+
+    public function updateTestLog($id, $params = []) {       
+        $params = \Arr::only($params, ['score', 'contact_id', 'result', 'user_ans', 'review']);
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->patch($this->_url.'/test-logs/'.$id, $params);
+        if ($response->successful()) {
+            return true;
+        }
+        \Log::error($response->body());
+        return false;
+    }
 }
