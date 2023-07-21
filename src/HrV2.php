@@ -104,5 +104,59 @@ class HrV2
         \Log::error($response->body());
         return false;
      }
+
+    public function getAnnualLeave($params = [])
+    {
+       $whereArr = \Arr::only($params, ['filter','page','limit']);
+       $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/annual_leave',$whereArr);
+       if ($response->successful()) {
+            return $response->json();
+       }
+       \Log::error($response->body());
+       return false;
+    }
+
+    public function getReasonType($params = [])
+    {
+       $whereArr = \Arr::only($params, ['filter','page','limit']);
+       $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/setting/reason_type',$whereArr);
+       if ($response->successful()) {
+            return $response->json();
+       }
+       \Log::error($response->body());
+       return false;
+    }
+
+    public function getReasonTypeDetail($id)
+     {
+         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/setting/reason_type/'.$id);
+        if ($response->successful()) {
+             return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+     }
+
+     public function getEmployeeLeave($params = [])
+     {
+        $whereArr = \Arr::only($params, ['filter','page','limit']);
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->get($this->_url.'/employee_leave',$whereArr);
+        if ($response->successful()) {
+             return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+     }
+
+     public function createAnnualLeave($data = []) {
+        $input = \Arr::only($data, ['employee_id', 'files', 'reason_type_id', 'reason', 'date', 'status', 'create_time', 'update_time', 'num_days', 'num_paid_leave', 'year', 'data']);
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post($this->_url.'/annual_leave', $input);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($response->body());
+        return false;
+    }
     
 }
