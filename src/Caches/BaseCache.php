@@ -96,9 +96,9 @@ class BaseCache
         if (is_array($key)) {
             $responses = \Cache::connection()->pipeline(function ($pipe) use($key) {
                 foreach ($key as $k => $v) {
-                    $key = $this->getCacheKey($k);
+                    $keyCache = $this->getCacheKey($k);
                     $v = serialize($v);
-                    $pipe->setex($key, $this->cacheDetailTime , $v);
+                    $pipe->setex($keyCache, $this->cacheDetailTime , $v);
                 }
             });
         }
