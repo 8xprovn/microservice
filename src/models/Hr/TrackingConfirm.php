@@ -4,7 +4,7 @@ namespace Microservices\models\Hr;
 
 use Illuminate\Support\Arr;
 
-class TicketType extends \Microservices\models\Model
+class TrackingConfirm extends \Microservices\models\Model
 {
     protected $_url;
     public function __construct($options = []) {
