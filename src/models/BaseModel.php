@@ -160,8 +160,8 @@ abstract class BaseModel
             $params = \Arr::only($params, $this->only['updateBatch']);
         }
         $params = $this->filter($params);
-        $condition = $this->filter($conditions);
-        if (empty($condition) || empty($params)) {
+        $conditions = $this->filter($conditions);
+        if (empty($conditions) || empty($params)) {
             return false;
         }
         $params['updated_time'] = time();
@@ -321,11 +321,16 @@ abstract class BaseModel
                 $params[$k] = $this->filter($param);
             }
         }
+        ///// ADD primaryKey to INT
+        if (!empty($this->idAutoIncrement)) {
+            $this->casts['integer'][] = $this->primaryKey;
+        }
         //$params = \Arr::dot($params);
 
         $result = [];
         $arrKeys = array_keys($params);
         foreach ($this->casts as $formatType => $v) {
+            $v = array_unique($v);
             //////////// CHECK CAC KEY TRUNG //////
             //var_dump($v,$arrKeys);
             // $keysIntersect = array_intersect($v,$arrKeys);
