@@ -47,9 +47,15 @@ abstract class BaseModel
             $this->setWhere($query, $params);
         }
         if (empty($options['order_by'])) {
-            $options['order_by'] = [$this->primaryKey, 'DESC'];
+            $options['order_by'] = [$this->primaryKey => 'DESC'];
         }
-        $query->orderBy($options['order_by'][0], $options['order_by'][1] ?? "ASC");
+        if (!empty($options['order_by'][0])) {
+            $options['order_by'][1] = $options['order_by'][1] ?? 'ASC';
+            $options['order_by'] = [$options['order_by'][0] => $options['order_by'][1]];
+        }
+        foreach ($options['order_by'] as $k => $v) {
+            $query->orderBy($k, $v);
+        }
         if (!empty($options['pagination'])) {
             return $query->simplePaginate($options['limit'] ?? config('data.default_limit_pagination'));
         } else {
