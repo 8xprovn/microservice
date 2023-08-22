@@ -97,7 +97,9 @@ abstract class BaseModel
             if ($this->idAutoIncrement) {
                 $params[$this->primaryKey] = $this->getNextSequence($this->table);
             }
-            $params['created_by'] = (int) \Auth::id();
+            if (empty($params['created_by']) && \Auth::id()) {
+                $params['created_by'] = (int) \Auth::id();
+            }
             $params['created_time'] = time();
             $params['updated_time'] = time();
             $multiParams[$k] = $params;
