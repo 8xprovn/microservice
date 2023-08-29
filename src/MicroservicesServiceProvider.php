@@ -22,6 +22,8 @@ class MicroservicesServiceProvider extends ServiceProvider
             \Microservices\Events\BusEvent::class,
             [\Microservices\Listeners\BusListener::class, 'handle']
         );
+        $loader = AliasLoader::getInstance();
+        $loader->alias('Microservices', MicroservicesFacade::class);
     }
 
     /**
@@ -35,8 +37,6 @@ class MicroservicesServiceProvider extends ServiceProvider
         $this->app->singleton('Microservices', function ($app) {
             return $app->make(Microservices::class);
         });
-        $loader = AliasLoader::getInstance();
-        $loader->alias('Microservices', MicroservicesFacade::class);
         //$this->app->alias('Microservices',MicroservicesFacade::class);
     }
 }
