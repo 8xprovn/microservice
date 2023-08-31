@@ -15,11 +15,12 @@ class Contacts extends \Microservices\models\Model
     public function find($phoneOrEmail,$options = array()) {
         $options = array_merge($options,['limit' => 1]);
         if (filter_var($phoneOrEmail, FILTER_VALIDATE_EMAIL)) {
-            return $this->all(['emailphone' => $phoneOrEmail],$options);
+            $contacts = $this->all(['emailphone' => $phoneOrEmail], $options);
         }
         else {
             $phoneOrEmail = preg_replace('/^0/', '+84', $phoneOrEmail);
-            return $this->all(['emailphone' => $phoneOrEmail],$options);
+            $contacts = $this->all(['emailphone' => $phoneOrEmail], $options);
         }
+        return !empty($contacts) ? $contacts[0] : [];
     }
 }
