@@ -50,7 +50,9 @@ abstract class Model
         }
         if ($id) {
             $data = $this->all([$primaryKey => $id],$options);
-            $arrData = $arrData + $data;
+            if ($data) {
+                $arrData = $arrData + $data;
+            }
         }
         return $arrData;
     }
