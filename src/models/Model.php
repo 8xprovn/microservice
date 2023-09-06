@@ -49,6 +49,12 @@ abstract class Model
             ////// lay cac key data ///
         }
         if ($id) {
+            /////// NEU PHAN TU > 100 SE SU DUNG UUID //////
+            if (count($id) > 100) {
+                $uuid = (string) \Str::uuid();
+                $cacheResult = \Cache::put( $uuid , $id, 120);
+                $id = $uuid;
+            }
             $data = $this->all([$primaryKey => $id],$options);
             if ($data) {
                 $arrData = $arrData + $data;

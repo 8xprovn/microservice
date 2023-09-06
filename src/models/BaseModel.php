@@ -214,7 +214,17 @@ abstract class BaseModel
     }
     public function details($id, $options = []) {
         if (!is_array($id)) {
-            $id = [$id]; 
+            ////// KTRA UUID KO //////
+            if (\Str::isUuid($id)) {
+                $id = \Cache::get($id);
+                if (!$id) {
+                    \Log::error('Microservice: Không tìm thấy cache id');
+                    return [];
+                }
+            }
+            else {
+                $id = [$id];
+            }
         }
         if (!empty($this->idAutoIncrement)) {
             $id = array_map('intval',$id);
