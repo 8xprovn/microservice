@@ -410,7 +410,16 @@ abstract class BaseModel
                                         unset($params[$key][$k]);
                                         continue;
                                     }
-                                    $params[$key][$k] = (is_numeric($v)) ? (int) $v : strtotime($v);
+                                    if (is_numeric($v)) {
+                                        $params[$key][$k] = $v;
+                                    }
+                                    else {
+                                        // ktra xem co phai thoi gian ko
+                                        if (strpos($v,':') === false && in_array($k,['lte','lt'])) {
+                                            $v .= ' 23:59:59';
+                                        }
+                                        $params[$key][$k] = strtotime($v);
+                                    }
                                 }
                             } else {
                                 $params[$key] = array_map(function ($item) {
