@@ -440,10 +440,14 @@ abstract class BaseModel
     }
     public function aggregate($aggregate)
     {
-        $aggregate = $this->replaceKey($aggregate);
-        if (!empty($aggregate[0]['$match'])) {
-            $aggregate[0]['$match'] = $this->getMatch($aggregate[0]['$match']);
+        foreach ($aggregate as $i => $aggs) {
+            foreach ($aggs as $j  => $a) {
+                if ($j == '$match') {
+                    $aggregate[$i][$j] = $this->getMatch($a);
+                }
+            }
         }
+        $aggregate = $this->replaceKey($aggregate);
         return \DB::collection($this->table)->raw(function ($collection) use ($aggregate) {
             return $collection->aggregate(
                 $aggregate
