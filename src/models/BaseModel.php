@@ -172,7 +172,11 @@ abstract class BaseModel
         if (empty($conditions) || empty($params)) {
             return false;
         }
-        $params['updated_time'] = time();
+        if (is_first_key_operator($params)) {
+            $params['$set'] = array_merge($params['$set'] ?? [],['updated_time' => time()]);
+        } else {
+            $params['updated_time'] = time();
+        }
         ////////// UPDATE DATA ////////
         $query = \DB::table($this->table);
         $this->setWhere($query, $conditions);
