@@ -445,9 +445,15 @@ abstract class BaseModel
                 if ($j == '$match') {
                     $aggregate[$i][$j] = $this->getMatch($a);
                 }
+                if (!$aggregate[$i][$j]) {
+                    unset($aggregate[$i][$j]);
+                }
+            }   
+            if (!$aggregate[$i]) {
+                unset($aggregate[$i]);
             }
         }
-        $aggregate = $this->replaceKey($aggregate);
+        $aggregate = array_values($this->replaceKey($aggregate));
         return \DB::collection($this->table)->raw(function ($collection) use ($aggregate) {
             return $collection->aggregate(
                 $aggregate
