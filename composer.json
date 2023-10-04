@@ -4,5 +4,15 @@
          "psr-4": {
              "Microservices\\": "src/"
          }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Microservices\\MicroservicesServiceProvider"
+            ],
+            "aliases": {
+                "Microservices": "Microservices\\Facade\\Microservices"
+            }
+        }
     }
  }
