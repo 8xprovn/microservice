@@ -415,7 +415,7 @@ abstract class BaseModel
                                         continue;
                                     }
                                     if (is_numeric($v)) {
-                                        $params[$key][$k] = $v;
+                                        $params[$key][$k] = (int) $v;
                                     }
                                     else {
                                         // ktra xem co phai thoi gian ko
