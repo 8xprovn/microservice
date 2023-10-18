@@ -144,14 +144,14 @@ abstract class BaseModel
             $result = \DB::getCollection('wallet')->findOneAndUpdate(
                 [$this->primaryKey => $id],
                 $params,
-                array('new' => false, 'upsert' => false, 'returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER),
+                array('new' => false, 'upsert' => $options['upsert'] ?? false, 'returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER),
             );
             if ($result) {
                 $result = iterator_to_array($result);
             }
         }
         else {
-            $result = \DB::table($this->table)->where($this->primaryKey, $id)->update($params);
+            $result = \DB::table($this->table)->where($this->primaryKey, $id)->update($params,$options);
         }
         if (!empty($this->is_cache)) {
             $this->cache()->delete($id);
