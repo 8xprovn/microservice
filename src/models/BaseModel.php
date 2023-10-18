@@ -159,7 +159,7 @@ abstract class BaseModel
         return $result;
         //$query->update($params);
     }
-    public function updateBatch($conditions, $params)
+    public function updateBatch($conditions, $params, $options = [])
     {
         if (!empty($this->only['updateBatchCondition'])) {
             $conditions = \Arr::only($conditions, $this->only['updateBatchCondition']);
@@ -184,7 +184,7 @@ abstract class BaseModel
             $query->select($this->primaryKey);
             $arrIds = $query->get()->pluck($this->primaryKey)->all();
         }
-        $result = $query->update($params);
+        $result = $query->update($params,$options);
         ////////// FLUSH CACHE ///////////
         if (!empty($this->is_cache) && $arrIds) {
             $this->cache()->delete($arrIds);
