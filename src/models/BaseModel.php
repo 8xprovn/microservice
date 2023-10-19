@@ -46,8 +46,12 @@ abstract class BaseModel
         if ($params) {
             $this->setWhere($query, $params);
         }
+        
         if (empty($options['order_by'])) {
             $options['order_by'] = [$this->primaryKey => 'DESC'];
+        }
+        if (!is_array($options['order_by'])) {
+            $options['order_by'] = [$options['order_by'] => 'ASC'];
         }
         if (!empty($options['order_by'][0])) {
             $options['order_by'][1] = $options['order_by'][1] ?? 'ASC';
