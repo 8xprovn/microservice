@@ -141,7 +141,7 @@ abstract class BaseModel
         
         ////////// CHECK OPTION RETURN //////
         if (!empty($options['isReturnData'])) {
-            $result = \DB::getCollection('wallet')->findOneAndUpdate(
+            $result = \DB::getCollection($this->table)->findOneAndUpdate(
                 [$this->primaryKey => $id],
                 $params,
                 array('new' => false, 'upsert' => $options['upsert'] ?? false, 'returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER),
@@ -178,13 +178,34 @@ abstract class BaseModel
             $params['updated_time'] = time();
         }
         ////////// UPDATE DATA ////////
-        $query = \DB::table($this->table);
-        $this->setWhere($query, $conditions);
-        if (!empty($this->is_cache)) {
-            $query->select($this->primaryKey);
-            $arrIds = $query->get()->pluck($this->primaryKey)->all();
+        
+        
+        //
+        $arrIds = [];
+        if (!empty($options['isReturnData'])) {
+            $result = \DB::getCollection($this->table)->findOneAndUpdate(
+                $conditions,
+                $params,
+                array('new' => false, 'upsert' => $options['upsert'] ?? false, 'returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER),
+            );
+            if ($result) {
+                $result = iterator_to_array($result);
+                if (!empty($result['_id'])) {
+                    $arrIds = [$result['_id']];
+                }
+            }
         }
-        $result = $query->update($params,$options);
+        else {
+            $query = \DB::table($this->table);
+            $this->setWhere($query, $conditions);
+            if (!empty($this->is_cache)) {
+                $query->select($this->primaryKey);
+                $arrIds = $query->get()->pluck($this->primaryKey)->all();
+            }
+            $result = $query->update($params,$options);
+        }
+
+        
         ////////// FLUSH CACHE ///////////
         if (!empty($this->is_cache) && $arrIds) {
             $this->cache()->delete($arrIds);
