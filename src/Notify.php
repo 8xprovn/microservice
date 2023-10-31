@@ -11,6 +11,7 @@ class Notify
         $this->url_sms = 'https://erp-api.ebomb.edu.vn/notification/send_sms';
         $this->url_mail = 'https://erp-api.ebomb.edu.vn/notification/send_mail';
         $this->url_mobile = 'https://erp-api.ebomb.edu.vn/notification/send_mobile';
+        $this->url_zns = 'https://erp-api.ebomb.edu.vn/notification/send_zns';
     }
     public function send($params) {
         switch($params['type']) {
@@ -42,6 +43,14 @@ class Notify
     public function send_mobile($params = array()) {
         $data = \Arr::only($params, ['channel','title','email', 'description', 'content', 'badge', 'token', 'url', 'notification_id', 'sound']);
         $response = Http::post($this->url_mobile, $data);
+        return $response;
+    }
+
+    //send zns
+    public function send_zns($params = array()) {
+        $data = \Arr::only($params, ['channel','phone','name', 'date']);
+        $response = Http::post($this->url_zns, $data);
+        dd($response);
         return $response;
     }
 }
