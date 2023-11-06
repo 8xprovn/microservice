@@ -7,13 +7,22 @@ abstract class Model
     protected $person_token = '';
 
     public function setToken($type = 'system') {
-        $this->person_token = \Request::cookie('imap_authen_access_token');
-        if ($type == 'system') {
+        switch($type) {
+            case 'system':
             $this->access_token = env('API_MICROSERVICE_TOKEN','');
+            break;
+            case 'cookie':
+            $this->access_token = \Request::cookie('imap_authen_access_token');
+            break;
+            case 'bearer':
+            $this->access_token = \Request::bearerToken();
+            break;
+            default:
+            abort(403, 'Unauthorized token type');
         }
-        else {
-            $this->access_token = $this->person_token;
-        }
+    }
+    public function getToken() {
+        return $this->access_token;
     }
     public function all($params = [], $options = [])
     {
