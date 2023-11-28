@@ -354,7 +354,7 @@ abstract class BaseModel
         
         $result = \DB::table($this->table)->where($this->primaryKey, $id)->delete();
         if (!empty($this->is_cache)) {
-            $this->cache->delete($id);
+            $this->cache()->delete($id);
         }
         return $result;
     }
