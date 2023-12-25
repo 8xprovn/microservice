@@ -81,6 +81,42 @@ class Lime
         }
     }
 
+    public function list_participants($iSurveyID, $sToken, $firstName, $lastName) {
+        $lsJSONRPCClient = $this->_lsJSONRPCClient;
+        try {
+            $sessionKey = $this->sessionKey();
+            $tokenExists = false;
+            $data = [];
+            $listParticipants = $lsJSONRPCClient->list_participants($sessionKey, $iSurveyID, 0, 100000, false, false);
+            foreach ($listParticipants as $value) {
+                if($value['token'] == $sToken) {
+                    $tokenExists = true;
+                }
+            }
+            if($tokenExists == true) {
+                $data = [
+                    'token' => $sToken,
+                ];
+            } else {
+                $tokenParams = array("lastname"=> $lastName,"firstname"=>$firstName,"token"=>$sToken);
+                $aParticipantData=array($tokenParams);
+                $bCreateToken = false;
+                
+                // Create the token in survey 2
+                $newToken = $lsJSONRPCClient->add_participants($sessionKey, $iSurveyID, $aParticipantData, $bCreateToken);
+                if (!empty($newToken[0]['token'])) {
+                    $data = [
+                        'token' => $sToken,
+                    ];
+                }
+            }
+            return $data;
+        }catch (\Throwable $e){
+            $result =  ['status' => 'error', 'message' => $e->getMessage()];
+            return $result;
+        }
+    }
+
     public function activate_tokens($iSurveyID){
         $lsJSONRPCClient = $this->_lsJSONRPCClient;
         try {
