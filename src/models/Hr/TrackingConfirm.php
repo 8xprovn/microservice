@@ -11,4 +11,25 @@ class TrackingConfirm extends \Microservices\models\Model
         $this->_url = env('API_MICROSERVICE_URL_V2').'/hr/tracking_confirm';
         $this->setToken($options['token'] ?? 'system');
     }
+
+    public function closeMonthly($params = [], $options = [])
+    {
+        $filter = [];
+        foreach($params as $k => $v){
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    $filter[$k] = $v;
+                    break;
+            }
+        }
+        $q = $options;
+        $q['filter'] = $filter;
+        $response = \Http::acceptJson()->withToken($this->access_token)->get($this->_url . "/close_monthly", $q);
+        if ($response->successful()) {
+            return $response->json();
+        } 
+        \Log::error($this->_url . $response->body());
+        return false;
+    }
 }
