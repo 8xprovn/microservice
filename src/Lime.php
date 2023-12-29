@@ -88,9 +88,11 @@ class Lime
             $tokenExists = false;
             $data = [];
             $listParticipants = $lsJSONRPCClient->list_participants($sessionKey, $iSurveyID, 0, 100000, false, false);
-            foreach ($listParticipants as $value) {
-                if($value['token'] == $sToken) {
-                    $tokenExists = true;
+            if (!empty($listParticipants) && is_array($listParticipants)) {
+                foreach ($listParticipants as $value) {
+                    if(is_array($value) && !empty($value['token']) && $value['token'] == $sToken) {
+                        $tokenExists = true;
+                    }
                 }
             }
             if($tokenExists == true) {
