@@ -48,9 +48,8 @@ class Notify
 
     //send zns
     public function send_zns($params = array()) {
-        $data = \Arr::only($params, ['channel','phone','name', 'date']);
+        $data = \Arr::only($params, ['channel','phone','name', 'date', "zns_template"]);
         $response = Http::post($this->url_zns, $data);
-        dd($response);
         return $response;
     }
 }
