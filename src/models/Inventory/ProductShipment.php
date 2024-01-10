@@ -2,7 +2,7 @@
 
 namespace Microservices\models\Inventory;
 
-class Product_Shipment extends \Microservices\models\Model
+class ProductShipment extends \Microservices\models\Model
 {
     protected $_url;
 //    protected $is_cache = 1;
