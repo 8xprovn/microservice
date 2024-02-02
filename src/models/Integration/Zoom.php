@@ -105,7 +105,7 @@ class Zoom
         if ($response->successful()) {
             return ['status' => $response->status(), 'data' => $response->json()];
         }
-        throw new \Exception($response->body());
-        return ['status' => $response->status(), 'data' => $response->body()];
+        // throw new \Exception($response->body());
+        return ['status' => $response->status(), 'data' => $response->json()];
     }
 }
