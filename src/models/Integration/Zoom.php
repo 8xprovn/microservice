@@ -93,4 +93,19 @@ class Zoom
         throw new \Exception($response->body());
         return ['status' => $response->status(), 'data' => $response->body()]; 
     }
+    public function addUser($data = []) // type (2 = licensed : 1 = basic)
+    {
+        if (empty($data['type'])) $data['type'] = 1;
+        $token = $this->getAccessToken();
+        $response = \Http::withToken($token)->post("https://api.zoom.us/v2/users", [
+            "action" => "create",
+            "user_info" => $data
+        ]); 
+        
+        if ($response->successful()) {
+            return ['status' => $response->status(), 'data' => $response->json()];
+        }
+        throw new \Exception($response->body());
+        return ['status' => $response->status(), 'data' => $response->body()];
+    }
 }
