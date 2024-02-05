@@ -1,6 +1,6 @@
 <?php
 
-namespace Microservices\models\Lms;
+namespace Microservices\models\Notification;
 
 use Illuminate\Support\Arr;
 
