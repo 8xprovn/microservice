@@ -37,7 +37,12 @@ abstract class Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $response = \Http::acceptJson()->withToken($this->access_token)->get($this->_url, $q);
+        $response = \Http::acceptJson()
+                    ->withToken($this->access_token)
+                    ->withHeaders([
+                         'Accept-Encoding' => 'gzip, deflate, br',
+                         'Expect' => '100-continue'
+                    ])->get($this->_url, $q);
         if ($response->successful()) {
             return $response->json();
         } 
@@ -84,7 +89,12 @@ abstract class Model
             }
         }
         $url = $this->_url.'/'.$id;
-        $response = \Http::acceptJson()->withToken(env('API_MICROSERVICE_TOKEN',''))->get($url,$options);
+        $response = \Http::acceptJson()
+                    ->withToken(env('API_MICROSERVICE_TOKEN',''))
+                    ->withHeaders([
+                         'Accept-Encoding' => 'gzip, deflate, br',
+                         'Expect' => '100-continue'
+                    ])->get($url,$options);
         if ($response->successful()) {
             return $response->json();
         } 
