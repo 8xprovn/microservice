@@ -12,4 +12,11 @@ class Campaign extends \Microservices\models\Model
         $this->_url = env('API_MICROSERVICE_URL_V2').'/crm/campaigns';
         $this->setToken($options['token'] ?? 'system');
     }
+    public function getContacts($params) {
+        $arrContacts = \Microservices::Crm('Campaign')->detail($params);
+        if(!empty($arrContacts) && !empty($arrContacts['contacts'])) {
+            return array_unique($arrContacts['contacts']);
+        }
+        return [];
+    }
 }
