@@ -23,4 +23,26 @@ class Contacts extends \Microservices\models\Model
         }
         return !empty($contacts) ? $contacts[0] : [];
     }
+
+    public function getContactId($params = [], $options = [])
+    {
+        $filter = [];
+        foreach($params as $k => $v){
+            if (is_null($v)) continue;
+            switch ($k) {
+                default:
+                    $filter[$k] = $v;
+                    break;
+            }
+        }
+        $q = $options;
+        $q['filter'] = $filter;
+        $response = \Http::acceptJson()->withToken($this->access_token)->get($this->_url, $q);
+        if ($response->successful()) {
+            $contact_ids = collect($response->json())->pluck('_id')->unique()->values()->all();
+            return $contact_ids;
+        } 
+        \Log::error($this->_url . $response->body());
+        return [];
+    }
 }
