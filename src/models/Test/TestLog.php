@@ -12,4 +12,46 @@ class TestLog extends \Microservices\models\Model
         $this->_url = env('API_MICROSERVICE_URL_V2').'/tests/test-logs';
         $this->setToken($options['token'] ?? 'system');
     }
+
+    public function createLog($params) {
+        $params = \Arr::whereNotNull($params);
+        if (!empty($this->only['create'])) {
+            $params = \Arr::only($params, $this->only['create']);
+        }
+        if (!empty($this->dataDefault['create'])) {
+            $params = array_merge($this->dataDefault['create'], $params);
+        }
+        if (!empty($this->idAutoIncrement) && empty($params[$this->primaryKey])) {
+            $params[$this->primaryKey] = $this->getNextSequence($this->table);
+        }
+        $params['created_time'] = time();
+        $url = $this->_url . "/create-log";
+        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        if ($response->successful()) {
+            return $response->json();
+        } 
+        \Log::error($url . $response->body());
+        return false;
+    }
+
+    public function updateLog($params) {
+        $params = \Arr::whereNotNull($params);
+        if (!empty($this->only['create'])) {
+            $params = \Arr::only($params, $this->only['create']);
+        }
+        if (!empty($this->dataDefault['create'])) {
+            $params = array_merge($this->dataDefault['create'], $params);
+        }
+        if (!empty($this->idAutoIncrement) && empty($params[$this->primaryKey])) {
+            $params[$this->primaryKey] = $this->getNextSequence($this->table);
+        }
+        $params['created_time'] = time();
+        $url = $this->_url . "/update-log";
+        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        if ($response->successful()) {
+            return $response->json();
+        } 
+        \Log::error($url . $response->body());
+        return false;
+    }
 }
