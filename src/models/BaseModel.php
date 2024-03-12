@@ -1,4 +1,5 @@
 <?php
+
 namespace Microservices\models;
 
 use Illuminate\Support\Facades\DB;
@@ -8,7 +9,7 @@ use function MongoDB\is_first_key_operator;
 abstract class BaseModel
 {
     protected $cacheDetailTime = 86400;
-    
+
     public function count($params)
     {
         $params = $this->filter($params);
@@ -16,7 +17,7 @@ abstract class BaseModel
         $this->setWhere($query, $params);
         return $query->count();
     }
-    public function sum($params,$field)
+    public function sum($params, $field)
     {
         $params = $this->filter($params);
         $query = \DB::table($this->table);
@@ -32,21 +33,21 @@ abstract class BaseModel
         ////// KTRA NEU CHI LAY THEO ID 
         // dd($params);
         if (count($params) == 1 && !empty($params[$this->primaryKey])) {
-            $data = $this->details($params[$this->primaryKey],$options);
-            return collect($data);        
+            $data = $this->details($params[$this->primaryKey], $options);
+            return collect($data);
         }
         $params = $this->filter($params);
         $query = \DB::table($this->table);
         if (!empty($options['select'])) {
             if (!is_array($options['select'])) {
-                $options['select'] = explode(',',$options['select']);
+                $options['select'] = explode(',', $options['select']);
             }
             $query->select($options['select']);
         }
         if ($params) {
             $this->setWhere($query, $params);
         }
-        
+
         if (empty($options['order_by'])) {
             $options['order_by'] = [$this->primaryKey => 'DESC'];
         }
@@ -65,7 +66,6 @@ abstract class BaseModel
         } else {
             return $query->limit($options['limit'] ?? 100)->offset($options['offset'] ?? 0)->get();
         }
-        
     }
     public function create(array $params)
     {
@@ -110,7 +110,7 @@ abstract class BaseModel
         }
         return \DB::table($this->table)->insert($multiParams);
     }
-    public function update($id, $params,$options = []) 
+    public function update($id, $params, $options = [])
     {
         // $params = \Arr::whereNotNull($params);
 
@@ -120,13 +120,11 @@ abstract class BaseModel
                     $v = \Arr::only($v, $this->only['update']);
                     if (empty($v)) {
                         unset($params[$k]);
-                    }
-                    else {
+                    } else {
                         $params[$k] = $v;
                     }
                 }
-            }
-            else {
+            } else {
                 $params = \Arr::only($params, $this->only['update']);
             }
         }
@@ -138,11 +136,11 @@ abstract class BaseModel
             $id = (int) $id;
         }
         if (is_first_key_operator($params)) {
-            $params['$set'] = array_merge($params['$set'] ?? [],['updated_time' => time()]);
+            $params['$set'] = array_merge($params['$set'] ?? [], ['updated_time' => time()]);
         } else {
             $params['updated_time'] = time();
         }
-        
+
         ////////// CHECK OPTION RETURN //////
         if (!empty($options['isReturnData'])) {
             $result = \DB::getCollection($this->table)->findOneAndUpdate(
@@ -153,9 +151,8 @@ abstract class BaseModel
             if ($result) {
                 $result = iterator_to_array($result);
             }
-        }
-        else {
-            $result = \DB::table($this->table)->where($this->primaryKey, $id)->update($params,$options);
+        } else {
+            $result = \DB::table($this->table)->where($this->primaryKey, $id)->update($params, $options);
         }
         if (!empty($this->is_cache)) {
             $this->cache()->delete($id);
@@ -177,13 +174,13 @@ abstract class BaseModel
             return false;
         }
         if (is_first_key_operator($params)) {
-            $params['$set'] = array_merge($params['$set'] ?? [],['updated_time' => time()]);
+            $params['$set'] = array_merge($params['$set'] ?? [], ['updated_time' => time()]);
         } else {
             $params['updated_time'] = time();
         }
         ////////// UPDATE DATA ////////
-        
-        
+
+
         //
         $arrIds = [];
         if (!empty($options['isReturnData'])) {
@@ -198,18 +195,17 @@ abstract class BaseModel
                     $arrIds = [$result['_id']];
                 }
             }
-        }
-        else {
+        } else {
             $query = \DB::table($this->table);
             $this->setWhere($query, $conditions);
             if (!empty($this->is_cache)) {
                 $query->select($this->primaryKey);
                 $arrIds = $query->get()->pluck($this->primaryKey)->all();
             }
-            $result = $query->update($params,$options);
+            $result = $query->update($params, $options);
         }
 
-        
+
         ////////// FLUSH CACHE ///////////
         if (!empty($this->is_cache) && $arrIds) {
             $this->cache()->delete($arrIds);
@@ -223,7 +219,7 @@ abstract class BaseModel
             $conditions = \Arr::only($conditions, $this->only['deleteBatch']);
         }
         $conditions = $this->filter($conditions);
-        if(empty($conditions)){
+        if (empty($conditions)) {
             return false;
         }
 
@@ -241,7 +237,8 @@ abstract class BaseModel
         }
         return $result;
     }
-    public function details($id, $options = []) {
+    public function details($id, $options = [])
+    {
         if (!is_array($id)) {
             ////// KTRA UUID KO //////
             if (\Str::isUuid($id)) {
@@ -250,33 +247,32 @@ abstract class BaseModel
                     \Log::error('Microservice: Không tìm thấy cache id');
                     return [];
                 }
-            }
-            else {
+            } else {
                 $id = [$id];
             }
         }
         if (!empty($this->idAutoIncrement)) {
-            $id = array_map('intval',$id);
+            $id = array_map('intval', $id);
         }
         $arrData = [];
         $isCache = (!empty($this->is_cache) && empty($options['reset_cache'])) ? 1 : 0;
         if (!empty($options['select'])) {
-            $options['select'] = is_array($options['select']) ? $options['select'] : explode(',',$options['select']);
-            array_push($options['select'],$this->primaryKey);
+            $options['select'] = is_array($options['select']) ? $options['select'] : explode(',', $options['select']);
+            array_push($options['select'], $this->primaryKey);
         }
         if ($isCache) {
-            $arrData = $this->cache()->detail($id,$options) ?? [];
+            $arrData = $this->cache()->detail($id, $options) ?? [];
             ////// lay cac key data ///
             if ($arrData) {
-                $arrKeysHit = \Arr::pluck($arrData,$this->primaryKey);
-                $id = array_diff($id,$arrKeysHit);
+                $arrKeysHit = \Arr::pluck($arrData, $this->primaryKey);
+                $id = array_diff($id, $arrKeysHit);
             }
         }
         if (!$id) {
             return $arrData;
         }
 
-        $query = \DB::table($this->table)->whereIn($this->primaryKey,$id);
+        $query = \DB::table($this->table)->whereIn($this->primaryKey, $id);
 
         if (!$isCache && !empty($options['select'])) {
             $query->select($options['select']);
@@ -290,20 +286,19 @@ abstract class BaseModel
             $data = $data->keyBy($this->primaryKey)->all();
             $this->cache()->update($data);
             if (!empty($options['select'])) {
-                $data = \Arr::map($data, function ($value, $key) use($options) {
-                    return \Arr::only($value,$options['select']);
+                $data = \Arr::map($data, function ($value, $key) use ($options) {
+                    return \Arr::only($value, $options['select']);
                 });
             }
             $data = array_values($data);
-        }
-        else {
+        } else {
             $data = $data->toArray();
         }
         $arrData = $arrData + $data;
         unset($data);
         return $arrData;
     }
-    public function detail($id,$options = [])
+    public function detail($id, $options = [])
     {
         if (is_array($id)) {
             return $this->details($id, $options);
@@ -314,44 +309,44 @@ abstract class BaseModel
         //////// GET CACHE ////////
         $isCache = (!empty($this->is_cache) && empty($options['reset_cache'])) ? 1 : 0;
         if ($isCache) {
-            $data = $this->cache()->detail($id,$options);
+            $data = $this->cache()->detail($id, $options);
             if ($data) {
                 return $data;
             }
         }
         /////// SELECT ///
-        
+
         $query = \DB::table($this->table)->where($this->primaryKey, $id);
         // GET DATA WITHOUT CACHE + WITH SELECT
         if (!empty($options['select'])) {
-            $options['select'] = is_array($options['select']) ? $options['select'] : explode(',',$options['select']);
-            array_push($options['select'],$this->primaryKey);
+            $options['select'] = is_array($options['select']) ? $options['select'] : explode(',', $options['select']);
+            array_push($options['select'], $this->primaryKey);
             if (!$isCache) {
                 $query->select($options['select']);
             }
         }
         $data = $query->first();
         if ($isCache) {
-            $this->cache()->update($id,$data);
-            if(!empty($options['select'])) {
-                $data = \Arr::only($data,$options['select']);
+            $this->cache()->update($id, $data);
+            if (!empty($options['select'])) {
+                $data = \Arr::only($data, $options['select']);
             }
         }
         return $data;
     }
-    public function delete($id) {
+    public function delete($id)
+    {
         return $this->remove($id);
     }
     public function remove($id)
     {
         if (!empty($this->idAutoIncrement)) {
             $id = (int) $id;
-        }
-        else {
+        } else {
             $arrId = $this->filter([$this->primaryKey => $id]);
             $id = $arrId[$this->primaryKey];
         }
-        
+
         $result = \DB::table($this->table)->where($this->primaryKey, $id)->delete();
         if (!empty($this->is_cache)) {
             $this->cache()->delete($id);
@@ -429,34 +424,45 @@ abstract class BaseModel
                         $params[$key] = (!is_array($params[$key])) ? (string) $params[$key] : array_map("strval", $params[$key]);
                         break;
                     case 'unixtime':
-
-                        if ((!is_array($params[$key]))) {
-                            $params[$key] = (is_numeric($params[$key])) ? (int) $params[$key] : strtotime($params[$key]);
-                        } else {
-                            if (array_keys($params[$key]) !== range(0, count($params[$key]) - 1)) { // nhieu chieu
-                                foreach ($params[$key] as $k => $v) {
-                                    if (is_null($v)) {
-                                        unset($params[$key][$k]);
-                                        continue;
-                                    }
-                                    if (is_numeric($v)) {
-                                        $params[$key][$k] = (int) $v;
-                                    }
-                                    else {
-                                        // ktra xem co phai thoi gian ko
-                                        if (strpos($v,':') === false && in_array($k,['lte','lt'])) {
-                                            $v .= ' 23:59:59';
-                                        }
-                                        $params[$key][$k] = strtotime($v);
-                                    }
-                                }
+                        if ($isRegex == 0) {
+                            if ((!is_array($params[$key]))) {
+                                $params[$key] = (is_numeric($params[$key])) ? (int) $params[$key] : strtotime($params[$key]);
                             } else {
-                                $params[$key] = array_map(function ($item) {
-                                    return (is_numeric($item)) ? (int) $item : strtotime($item);
-                                }, $params[$key]);
+                                if (array_keys($params[$key]) !== range(0, count($params[$key]) - 1)) { // nhieu chieu
+                                    foreach ($params[$key] as $k => $v) {
+                                        if (is_null($v)) {
+                                            unset($params[$key][$k]);
+                                            continue;
+                                        }
+                                        if (is_numeric($v)) {
+                                            $params[$key][$k] = (int) $v;
+                                        } else {
+                                            // ktra xem co phai thoi gian ko
+                                            if (strpos($v, ':') === false && in_array($k, ['lte', 'lt'])) {
+                                                $v .= ' 23:59:59';
+                                            }
+                                            $params[$key][$k] = strtotime($v);
+                                        }
+                                    }
+                                } else {
+                                    $params[$key] = array_map(function ($item) {
+                                        return (is_numeric($item)) ? (int) $item : strtotime($item);
+                                    }, $params[$key]);
+                                }
                             }
-
+                        } else {
+                            foreach ($data as $k => $dt) {
+                                $kk = preg_replace('/(\.|^)(\d+)(\.|$)/', '.', $k);
+                                $kk = trim($kk, '.');
+                                //var_dump($arr[0].'.'.$k,$key);
+                                if ($arr[0] . '.' . $kk == $key) {
+                                    $data[$k] = (is_numeric($dt)) ? (int) $dt : strtotime($dt);
+                                }
+                            }
+                            $data = \Arr::undot($data);
+                            $params[$arr[0]] = $data;
                         }
+
                         break;
                 }
             }
@@ -473,7 +479,7 @@ abstract class BaseModel
                 if (!$aggregate[$i][$j]) {
                     unset($aggregate[$i][$j]);
                 }
-            }   
+            }
             if (!$aggregate[$i]) {
                 unset($aggregate[$i]);
             }
@@ -517,7 +523,6 @@ abstract class BaseModel
                     $params[$k] = ['$in' => $v];
                 }
             } else {
-
             }
         }
         return $params;
@@ -563,13 +568,11 @@ abstract class BaseModel
                                                 $v[$kk] = ['$' . $kkk => $vv];
                                             }
                                         }
-
                                     }
                                 }
                                 $query->where($k, 'elemmatch', $v);
                                 break;
                             default:
-
                         }
                     }
                 } else {
@@ -581,14 +584,14 @@ abstract class BaseModel
                 }
                 $query->where($k, $v);
             }
-
         }
     }
     /**
      * @author: namtq
      * @todo: load class cache from cachePath
      */
-    public function cache($cachePath = '') {
+    public function cache($cachePath = '')
+    {
         $className = ($cachePath) ? $cachePath : $this->cachePath;
         return \Microservices::loadCache($className);
     }
