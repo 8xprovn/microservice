@@ -13,8 +13,9 @@ class ContactToCampaign extends \Microservices\models\Model
         $this->setToken($options['token'] ?? 'system');
     }
     public function getContacts($params) {
-        $contact_ids = \Microservices::Crm('ContactToCampaign')->all(['campaign_id' => $params], ['limit' => 500])->pluck('_id')->toArray();
+        $contact_ids = \Microservices::Crm('ContactToCampaign')->all(['campaign_id' => $params], ['limit' => 500]);
         if(!empty($contact_ids)) {
+            $contact_ids = collect($contact_ids)->pluck('_id')->unique()->values()->all();
             return array_unique($contact_ids);
         }
         return [];
