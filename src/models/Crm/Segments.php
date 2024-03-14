@@ -15,8 +15,9 @@ class Segments extends \Microservices\models\Model
     public function getContacts($params) {
         $segment = \Microservices::Crm('Segments')->detail($params);
         if (!empty($segment['data'])) {
-            $contact_ids = collect(\Microservices::Crm('Contacts')->all(json_decode(json_decode($segment['data'])->filter, true), ['limit' => 500]))->pluck('_id')->toArray();
+            $contact_ids = collect(\Microservices::Crm('Contacts')->all(json_decode(json_decode($segment['data'])->filter, true), ['limit' => 500]));
             if(!empty($contact_ids)) {
+                $contact_ids = collect($contact_ids)->pluck('_id')->unique()->values()->all();
                 return array_unique($contact_ids);
             }
         }
