@@ -1,6 +1,6 @@
 <?php
 
-namespace Microservices\models\Lms;
+namespace Microservices\models\Course;
 
 use Illuminate\Support\Arr;
 
