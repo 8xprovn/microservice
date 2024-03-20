@@ -4,7 +4,7 @@ namespace Microservices\models\Course;
 
 use Illuminate\Support\Arr;
 
-class Course extends \Microservices\models\Model
+class Courses extends \Microservices\models\Model
 {
     protected $_url;
     public function __construct($options = []) {
