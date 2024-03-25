@@ -14,7 +14,7 @@ class Students  extends \Microservices\models\Model
     }
     public function list_classes($params = [], $options = [])
     {
-        $url = env('API_MICROSERVICE_URL_V2') . '/class_to_contact';
+        $url = env('API_MICROSERVICE_URL_V2') . '/course/class_to_contact';
         $filter = [];
         foreach ($params as $k => $v) {
             if (is_null($v)) continue;
@@ -37,7 +37,7 @@ class Students  extends \Microservices\models\Model
 
     public function list_courses($params = [], $options = [])
     {
-        $url = env('API_MICROSERVICE_URL_V2') . '/course_to_contact';
+        $url = env('API_MICROSERVICE_URL_V2') . '/course/course_to_contact';
         $filter = [];
         foreach ($params as $k => $v) {
             if (is_null($v)) continue;
