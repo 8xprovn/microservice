@@ -50,10 +50,7 @@ class Students  extends \Microservices\models\Model
         $q = $options;
         $q['filter'] = $filter;
         $response = \Http::acceptJson()->withToken($this->access_token)->get($url, $q);
-      
-        dd($response, $url );
-
-
+       
         if ($response->successful()) {
             return $response->json();
         }
