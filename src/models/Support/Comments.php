@@ -9,4 +9,9 @@ class Comments extends \Microservices\models\Model
         $this->_url = env('API_MICROSERVICE_URL_V2') . '/support/comment';
         $this->setToken($options['token'] ?? 'system');
     }
+    public function listAll($options = [])
+    {
+        $this->_url = env('API_MICROSERVICE_URL_V2') . '/support/comment/all';
+        $this->setToken($options['token'] ?? 'system');
+    }
 }
