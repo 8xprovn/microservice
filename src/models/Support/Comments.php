@@ -26,7 +26,7 @@ class Comments extends \Microservices\models\Model
         $response = \Http::acceptJson()->withToken($this->access_token)->get($_url, $filter);
         if ($response->successful()) {
             $results = $response->json();
-            return $results ?? '';
+            return $results['html'] ?? '';
         } 
         return '';
     }
