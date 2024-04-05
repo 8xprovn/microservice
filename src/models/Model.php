@@ -144,10 +144,10 @@ abstract class Model
         return false;
     }
 
-    public function remove($id)
+    public function remove($id, $options = [])
     {
         $url = $this->_url.'/'.$id;
-        $response = \Http::acceptJson()->withToken($this->access_token)->DELETE($url);
+        $response = \Http::acceptJson()->withToken($this->access_token)->DELETE($url, $options);
         if ($response->successful()) {
             return $response->json();
         } 
