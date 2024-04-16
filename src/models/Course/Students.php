@@ -70,4 +70,17 @@ class Students  extends \Microservices\models\Model
         \Log::error($this->_url . $response->body());
         return [];
     }
+    
+    public function register_course($param = [])
+    {
+        $url = $this->_url . "/register-course";
+
+        $response = \Http::acceptJson()->withToken($this->access_token)->post($url, $param);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($this->_url . $response->body());
+        return [];
+    }
 }
