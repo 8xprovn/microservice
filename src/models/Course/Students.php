@@ -27,7 +27,7 @@ class Students  extends \Microservices\models\Model
         $q = $options;
         $q['filter'] = $filter;
         $response = \Http::acceptJson()->withToken($this->access_token)->get($url, $q);
-        
+
         if ($response->successful()) {
             return $response->json();
         }
@@ -50,7 +50,20 @@ class Students  extends \Microservices\models\Model
         $q = $options;
         $q['filter'] = $filter;
         $response = \Http::acceptJson()->withToken($this->access_token)->get($url, $q);
-       
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($this->_url . $response->body());
+        return [];
+    }
+
+    public function tracking($id, $param = [])
+    {
+        $url = $this->_url . "/$id/tracking";
+
+        $response = \Http::acceptJson()->withToken($this->access_token)->post($url, $param);
+
         if ($response->successful()) {
             return $response->json();
         }
