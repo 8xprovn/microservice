@@ -42,7 +42,6 @@ class Ticket extends \Microservices\models\Model
         if ($response->successful()) {
             return $response->json();
         }
-        dd($response->json());
         \Log::error($url . $response->body());
         return false;
     }
