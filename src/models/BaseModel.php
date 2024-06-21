@@ -30,12 +30,19 @@ abstract class BaseModel
             $arrOnly = array_merge($this->only['lists'], [$this->primaryKey]);
             $params = \Arr::only($params, $arrOnly);
         }
+        if (!empty($this->isSoftDelete)) {
+            $params = array_merge($params,['is_deleted' => 0]);
+        }
         ////// KTRA NEU CHI LAY THEO ID 
         // dd($params);
         if (count($params) == 1 && !empty($params[$this->primaryKey])) {
             $data = $this->details($params[$this->primaryKey], $options);
             return collect($data);
         }
+        if (!empty($this->dataDefault['lists'])) {
+            $params = array_merge($this->dataDefault['lists'],$params);
+        }
+        
         $params = $this->filter($params);
         $query = \DB::table($this->table);
         if (!empty($options['select'])) {
