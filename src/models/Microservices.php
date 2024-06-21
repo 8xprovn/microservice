@@ -4,6 +4,7 @@ namespace Microservices\models;
 class Microservices
 {
     private $eventInstance;
+    private $jobInstance;
     public function loadCache($classLoad,$arg = []) {
         $className = '\Microservices\Caches\\'.$classLoad;
         return new $className($arg);
@@ -14,7 +15,13 @@ class Microservices
         }
         return $this->eventInstance;
     }
-    // public function 
+    public function job() {
+        if (!$this->jobInstance) {
+            $this->jobInstance = new \Microservices\Jobs\Job;
+        }
+        return $this->jobInstance;
+    }
+    // public function
     public function __call($method,$arg = []) {
         $func = array_shift($arg);
         $className = '\Microservices\models\\'.$method.'\\'.$func;

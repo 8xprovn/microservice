@@ -43,11 +43,17 @@ class BusJob implements ShouldQueue
         }
         else {
             $func = 'handle';
-
         }
+
         if (strpos($listener, 'App\Http\Controllers') !== false) {
             $data = new Request($data);
         }
+
+        // Gọi phương thức handle của job khác
+        if (class_exists($listener)) {
+            return $listener::dispatch($data)->onQueue(config('app.service_code'));
+        }
+        
         return (new $listener())->$func($data);
     }
 }
