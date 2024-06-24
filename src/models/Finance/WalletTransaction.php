@@ -33,4 +33,16 @@ class WalletTransaction extends \Microservices\models\Model
         \Log::error($this->_url . $response->body());
         return [];
     }
+
+    public function confirm_info($id, $param = [])
+    {
+        $url = $this->_url."/confirm_info/$id";
+
+        $response = \Http::acceptJson()->withToken($this->access_token)->post($url, $param);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($this->_url . $response->body());
+        return [];
+    }
 }
