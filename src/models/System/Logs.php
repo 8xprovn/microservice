@@ -13,7 +13,7 @@ class Logs extends \Microservices\models\Model
     //protected $is_cache = 1;
     public function __construct($options = [])
     {
-        $this->_url = env('API_MICROSERVICE_URL_V2') . '/system/logs';
+        $this->_url = env('API_MICROSERVICE_URL_V2') . '/core/logs';
         $this->setToken($options['token'] ?? 'system');
         $this->_listener_file = '\App\Listeners\LogsSubscriber\store()';
         $this->_service_code = 'erp_system_backend_v2';
