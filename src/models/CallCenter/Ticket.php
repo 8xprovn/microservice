@@ -45,5 +45,55 @@ class Ticket extends \Microservices\models\Model
         \Log::error($url . $response->body());
         return false;
     }
-}
 
+    public function assign($id, $params)
+    {
+        if (!empty($this->only['update'])) {
+            $params = \Arr::only($params, $this->only['update']);
+        }
+        if (!empty($this->idAutoIncrement)) {
+            $id = (int) $id;
+        }
+        $url = $this->_url . '/' . $id . '/assign';
+        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($url . $response->body());
+        return false;
+    }
+
+    public function action($id, $params)
+    {
+        if (!empty($this->only['update'])) {
+            $params = \Arr::only($params, $this->only['update']);
+        }
+        if (!empty($this->idAutoIncrement)) {
+            $id = (int) $id;
+        }
+        $url = $this->_url . '/' . $id . '/action';
+        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($url . $response->body());
+        return false;
+    }
+
+    public function storeFollower($id, $params)
+    {
+        if (!empty($this->only['update'])) {
+            $params = \Arr::only($params, $this->only['update']);
+        }
+        if (!empty($this->idAutoIncrement)) {
+            $id = (int) $id;
+        }
+        $url = $this->_url . '/store-follower';
+        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($url . $response->body());
+        return false;
+    }
+}
