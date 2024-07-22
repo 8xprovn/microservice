@@ -39,5 +39,21 @@ class Logs extends \Microservices\models\Model
         \App\Jobs\BusJob::dispatch($this->_listener_file, $input)->onQueue($this->_service_code);
         return true;
     }
+    
+    public function updateLog($id ,$params = array())
+    {
+        $input = collect($params)->only(['status' , 'message'])->toArray();
 
+        ///////// VALIDATION ////////
+        $validator = \Validator::make($input, [
+            'status' => 'required',
+        ]);
+        if ($validator->fails()) {
+            \Log::error($validator->errors()->first());
+            return false;
+        }
+        $input['uuid'] = $id;
+        \App\Jobs\BusJob::dispatch('\App\Listeners\LogsSubscriber\update()', $input)->onQueue($this->_service_code);
+        return true;
+    } 
 }
