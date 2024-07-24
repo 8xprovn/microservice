@@ -96,4 +96,38 @@ class Ticket extends \Microservices\models\Model
         \Log::error($url . $response->body());
         return false;
     }
+
+    public function updateParamProcess($id, $params)
+    {
+        if (!empty($this->only['update'])) {
+            $params = \Arr::only($params, $this->only['update']);
+        }
+        if (!empty($this->idAutoIncrement)) {
+            $id = (int) $id;
+        }
+        $url = $this->_url . '/' . $id . '/update-params';
+        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($url . $response->body());
+        return false;
+    }
+
+    public function destroyFollower($id, $params)
+    {
+        if (!empty($this->only['update'])) {
+            $params = \Arr::only($params, $this->only['update']);
+        }
+        if (!empty($this->idAutoIncrement)) {
+            $id = (int) $id;
+        }
+        $url = $this->_url . '/' . $id . '/destroy-follower';
+        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($url . $response->body());
+        return false;
+    }
 }
