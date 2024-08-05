@@ -43,7 +43,7 @@ class Export implements ShouldQueue
         // Tạo log
         $relate_type = str_replace('\App\Jobs\\', '', $this->key);
         $relate_type = str_replace('\\', ' ', $relate_type);
-        (new Logs())->create(array_merge($data, ['service' => config('app.service_code'), 'relate_type' => \Str::slug($relate_type), 'relate_id' => 0, 'action' => 'export']));
+        // (new Logs())->create(array_merge($data, ['service' => config('app.service_code'), 'relate_type' => \Str::slug($relate_type), 'relate_id' => 0, 'action' => 'export']));
 
         $listener = $this->key;
         if (strpos($this->key, '()') !== false) {
