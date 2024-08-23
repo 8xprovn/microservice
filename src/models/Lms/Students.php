@@ -33,4 +33,14 @@ class Students extends \Microservices\models\Model
         \Log::error($this->_url . $response->body());
         return [];
     }
+    public function examTime($id,array $params)
+    {
+        $url = env('API_MICROSERVICE_URL_V2').'/lms/student' . "/$id/exam_time";
+        $response = \Http::acceptJson()->withToken($this->access_token)->post($url, $params);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($url . $response->body());
+        return [];
+    }
 }
