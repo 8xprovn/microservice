@@ -4,7 +4,7 @@ namespace Microservices\models\System;
 
 use Illuminate\Support\Arr;
 
-class ScheduleLogs extends \Microservices\models\Model
+class ScheduleLogDetail extends \Microservices\models\Model
 {
     protected $_url;
     protected $_service_code;
@@ -15,14 +15,13 @@ class ScheduleLogs extends \Microservices\models\Model
     {
         $this->_url = env('API_MICROSERVICE_URL_V2') . '/core/logs';
         $this->setToken($options['token'] ?? 'system');
-        $this->_listener_update = '\App\Listeners\ScheduleLogsSubscriber\update()';
+        $this->_listener_update = '\App\Listeners\ScheduleLogDetailSubscriber\update()';
         $this->_service_code = 'erp_system_backend_v2';
     }
     
-    public function update($params = array())
+    public function updateLogs($params = array())
     {
         $input = collect($params)->only(['listener', 'uuid', 'status'])->toArray();
-
         ///////// VALIDATION ////////
         $validator = \Validator::make($input, [
             'status' => 'required',
