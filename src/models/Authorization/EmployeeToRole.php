@@ -22,7 +22,7 @@ class EmployeeToRole extends \Microservices\models\Model
         }
         ////// MISS CACHE //////////
         $url = $this->_url.'/me';
-        $response = \Http::withToken($this->getToken())->get($url,$params);
+        $response = \Http::acceptJson()->withToken($this->getToken())->get($url,$params);
         
         if ($response->successful()) {
             return $response->json();
