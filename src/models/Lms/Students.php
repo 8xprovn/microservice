@@ -43,4 +43,20 @@ class Students extends \Microservices\models\Model
         \Log::error($url . $response->body());
         return [];
     }
+
+    public function in_tutoring($id,array $params)
+    {
+        $url = env('API_MICROSERVICE_URL_V2').'/lms/students' . "/$id/in_tutoring";
+        $response = \Http::acceptJson()->withToken($this->access_token)->post($url, $params);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        
+        if (!empty($response->json())) {
+            return $response->json();
+        }
+
+        \Log::error($url . $response->body());
+        return [];
+    }
 }
