@@ -12,13 +12,13 @@ class Qr
 
     function create($string, $size = 250)
     {
-        $_url = env('URL_QR') ?? 'https://qr.ebomb.edu.vn/file/qr';
+        $_url = env('URL_QR') ?? 'https://s.ebomb.edu.vn/file/qr';
         $file = '';
         if (empty($string)) {
             return $file;
         }
         $namefile = md5($string.$this->md5Secret).'.png';
-        $file = $_url.'/'.$size.'/'.$namefile.'?string='.urlencode($string);
+        $file = $_url.'/file/qr/'.$size.'/'.$namefile.'?string='.urlencode($string);
         return $file;
     }
 }
