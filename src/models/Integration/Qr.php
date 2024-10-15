@@ -12,7 +12,7 @@ class Qr
 
     function create($string, $size = 250)
     {
-        $_url = env('URL_QR') ?? 'https://s.ebomb.edu.vn/file/qr';
+        $_url = env('URL_QR') ?? 'https://s.ebomb.edu.vn';
         $file = '';
         if (empty($string)) {
             return $file;
