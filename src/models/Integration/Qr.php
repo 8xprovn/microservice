@@ -17,8 +17,15 @@ class Qr
         if (empty($string)) {
             return $file;
         }
-        $namefile = md5($string.$this->md5Secret).'.png';
-        $file = $_url.'/file/qr/'.$size.'/'.$namefile.'?string='.urlencode($string);
+        $md5String = md5($string.$this->md5Secret);
+        $part1 = substr($md5String, 0, 2);  // "7b"
+        $part2 = substr($md5String, 2, 2);  // "af"
+        $part3 = substr($md5String, 4, 2);  // "c7"
+
+        // Nối các phần lại với dấu "/"
+        $folder = $part1 . '/' . $part2 . '/' . $part3;
+        $namefile = $md5String.'.png';
+        $file = $_url.'/file/qr/'.$folder.'/'.$size.'/'.$namefile.'?string='.urlencode($string);
         return $file;
     }
 }
