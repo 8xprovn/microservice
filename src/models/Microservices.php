@@ -8,12 +8,14 @@ class Microservices
     private $jobInstance;
     private $jobExport;
 
-    public function loadCache($classLoad, $arg = [])
+    public function loadCache($classLoad)
     {
-        $className = '\Microservices\Caches\\' . $classLoad;
-        return new $className($arg);
+        $className = 'Microservices\Caches\\' . $classLoad;
+        app()->singletonIf($className, function ($app)  use($className) {
+            return new $className();
+        });
+        return app($className);
     }
-
     public function event()
     {
         if (!$this->eventInstance) {
@@ -42,7 +44,15 @@ class Microservices
     public function __call($method, $arg = [])
     {
         $func = array_shift($arg);
-        $className = '\Microservices\models\\' . $method . '\\' . $func;
-        return new $className(...$arg);
+        if (empty($func)) {
+            $className = 'App\Models\\' . $method;
+        }
+        else {
+            $className = 'Microservices\models\\' . $method . '\\' . $func;
+        }
+        app()->singletonIf($className, function ($app)  use($className) {
+            return new $className();
+        });
+        return app($className);
     }
 }
