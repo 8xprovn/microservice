@@ -17,11 +17,6 @@ class EmployeeToRole extends \Microservices\Caches\BaseCache
         $keys = $params['service'].':'.$params['group'];
         return \Cache::tags($tags)->get($keys);
     }
-    // public function rememberMe($userId,$params,$callback) {
-    //     $tags = $this->getCacheTag('me:'.$userId);
-    //     $keys = $params['service'].':'.$params['group'];
-    //     return Cache::tags($tags)->remember($keys, 3600, $callback);
-    // }
     public function putMe($userId,$params,$values) {
         if (!\Cache::supportsTags()) {
             return null;
@@ -36,6 +31,23 @@ class EmployeeToRole extends \Microservices\Caches\BaseCache
         }
         $tags = $this->getCacheTag('me:'.$userId);
         return \Cache::tags($tags)->flush();  
+    }
+    /**
+     * GET Cache permission cua 1 user
+     * @param mixed $params service, user_id
+     * @return mixed
+     */
+    public function getAllPermission($params) {
+        
+        return $this->detail($params['service'].':'.$params['user_id']);
+    }
+    /**
+     * SET Cache permission cua 1 user
+     * @param mixed $params service, user_id
+     * @return mixed
+     */
+    public function putAllPermission($params,$values) {
+        return $this->update($params['service'].':'.$params['user_id'],$values);
     }
 }
 

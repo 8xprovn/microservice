@@ -50,5 +50,21 @@ class EmployeeToRole extends \Microservices\models\Model
         \Log::error($url . $response->body());
         return false;
     }
+    public function getAllPermission($params) {
+        ////// GET FROM CACHE ////////
+        $permission = $this->cache()->getAllPermission($params);
+        if ($permission) {
+            return $permission;
+        }
+        ////// MISS CACHE //////////
+        $url = $this->_url.'/permission';
+        $response = \Http::acceptJson()->withToken($this->getToken())->get($url,$params);
+        
+        if ($response->successful()) {
+            return $response->json();
+        } 
+        \Log::error($url . $response->body());
+        return false;
+    }
 }
 
