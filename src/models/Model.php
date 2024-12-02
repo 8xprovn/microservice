@@ -105,9 +105,6 @@ abstract class Model
         if (!empty($this->dataDefault['create'])) {
             $params = array_merge($this->dataDefault['create'], $params);
         }
-        if (!empty($this->idAutoIncrement) && empty($params[$this->primaryKey])) {
-            $params[$this->primaryKey] = $this->getNextSequence($this->table);
-        }
         $params['created_time'] = time();
         $url = $this->_url;
         $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
