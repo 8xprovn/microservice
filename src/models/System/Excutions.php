@@ -16,7 +16,7 @@ class Excutions extends \Microservices\models\Model
         $this->_url = env('API_MICROSERVICE_URL_V2') . '/core/workflows/excutions';
         $this->setToken($options['token'] ?? 'system');
         $this->_listener = 'App\Jobs\Execution';
-        $this->_service_code = 'erp_system_backend_v3';
+        $this->_service_code = 'erp_system_backend_v2';
     }
 
     public function updateAction($params = array())
