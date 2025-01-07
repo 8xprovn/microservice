@@ -29,7 +29,16 @@ class Document extends \Microservices\models\Model
         if ($response->successful()) {
             $employee_id = [];
             $document = collect($response->json())->first();
-            if(empty($document) || empty($document['related'])){
+            if(empty($document)){
+                return [];
+            }
+            if (!empty($document['related_type'])) {
+                $document['related'][] = [
+                    'type' => 'type',
+                    'id' => $document['related_type']
+                ];
+            }
+            if (empty($document['related'])) {
                 return [];
             }
             foreach($document['related'] as $relate){
@@ -41,17 +50,30 @@ class Document extends \Microservices\models\Model
                         $employee_id = array_merge($employee_id, $relate['id']);
                         break;
                     default: 
-                        $url = env('API_MICROSERVICE_URL_V2').'/hr/employees';
-                        $employees = \Http::acceptJson()->withToken($this->access_token)->get($url, ['filter' => [$relate['type'] => $relate['id'], 'status' => 'active']]);
-                        if ($employees->successful()) {
-                            $employee_id = array_merge($employee_id, collect($employees->json())->pluck('_id')->unique()->values()->all());
+                        if ($relate['type'] == 'department') {
+                            $relate['type'] = 'rel_department_id';
                         }
+                        if ($relate['type'] == 'branch') {
+                            $relate['type'] = 'branch_id';
+                        }
+                        if ($relate['type'] == 'brand') {
+                            $relate['type'] = 'brand_id';
+                        }
+                        $filterEmployee[$relate['type']] = $relate['id'];
                         break;
+                }
+            }
+            if (!empty($filterEmployee)) {
+                $url = env('API_MICROSERVICE_URL_V2').'/hr/employees';
+                $filterEmployee['status'] = 'active';
+                $employees = \Http::acceptJson()->withToken($this->access_token)->get($url, ['filter' => $filterEmployee]);
+                if ($employees->successful()) {
+                    $employee_id = array_merge($employee_id, collect($employees->json())->pluck('_id')->unique()->values()->all());
                 }
             }
             return array_unique($employee_id);
         } 
         \Log::error($this->_url . $response->body());
         return [];
-    } 
+    }
 }
