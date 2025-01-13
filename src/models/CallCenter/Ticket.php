@@ -130,4 +130,21 @@ class Ticket extends \Microservices\models\Model
         \Log::error($url . $response->body());
         return false;
     }
+
+    public function cancel($id, $params)
+    {
+        if (!empty($this->only['update'])) {
+            $params = \Arr::only($params, $this->only['update']);
+        }
+        if (!empty($this->idAutoIncrement)) {
+            $id = (int) $id;
+        }
+        $url = $this->_url . '/' . $id . '/cancel';
+        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        \Log::error($url . $response->body());
+        return false;
+    }
 }
