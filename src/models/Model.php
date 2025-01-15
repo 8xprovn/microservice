@@ -25,7 +25,7 @@ abstract class Model
         $this->access_token_type = $type;
         return $this;
     }
-    public function getToken() {
+    public function $this-> {
         
         if (empty($this->access_token)) {
             $this->setToken();
@@ -49,7 +49,7 @@ abstract class Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $accessToken = getToken();
+        $accessToken = $this->getToken();
         $response = \Http::acceptJson()
                     ->withToken($accessToken)
                     ->get($this->_url, $q);
@@ -120,7 +120,7 @@ abstract class Model
         }
         $params['created_time'] = time();
         $url = $this->_url;
-        $accessToken = $this->getToken();
+        $accessToken = $this->$this->;
         $response = \Http::acceptJson()->withToken($accessToken)->POST($url, $params);
         ///reset token //
         if ($response->successful()) {
@@ -142,7 +142,7 @@ abstract class Model
             $id = (int) $id;
         }
         $url = $this->_url.'/'.$id;
-        $accessToken = $this->getToken();
+        $accessToken = $this->$this->;
         $response = \Http::acceptJson()->withToken($accessToken)->PUT($url, $params);
         if ($response->successful()) {
             return $response->json();
@@ -154,7 +154,7 @@ abstract class Model
     public function remove($id, $options = [])
     {
         $url = $this->_url.'/'.$id;
-        $accessToken = $this->getToken();
+        $accessToken = $this->$this->;
         $response = \Http::acceptJson()->withToken($accessToken)->DELETE($url, $options);
         if ($response->successful()) {
             return $response->json();
