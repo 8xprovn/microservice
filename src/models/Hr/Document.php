@@ -9,7 +9,7 @@ class Document extends \Microservices\models\Model
     protected $_url;
     public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/hr/documents';
-        $this->setToken($options['token'] ?? 'system');
+        
     }
 
     public function getEmployeeId($params = [], $options = [])
@@ -25,7 +25,7 @@ class Document extends \Microservices\models\Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $response = \Http::acceptJson()->withToken($this->access_token)->get($this->_url, $q);
+        $response = \Http::acceptJson()->withToken($this->getToken())->get($this->_url, $q);
         if ($response->successful()) {
             $employee_id = [];
             $document = collect($response->json())->first();
@@ -66,7 +66,7 @@ class Document extends \Microservices\models\Model
             if (!empty($filterEmployee)) {
                 $url = env('API_MICROSERVICE_URL_V2').'/hr/employees';
                 $filterEmployee['status'] = 'active';
-                $employees = \Http::acceptJson()->withToken($this->access_token)->get($url, ['filter' => $filterEmployee]);
+                $employees = \Http::acceptJson()->withToken($this->getToken())->get($url, ['filter' => $filterEmployee]);
                 if ($employees->successful()) {
                     $employee_id = array_merge($employee_id, collect($employees->json())->pluck('_id')->unique()->values()->all());
                 }

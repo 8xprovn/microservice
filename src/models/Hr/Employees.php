@@ -10,7 +10,7 @@ class Employees extends \Microservices\models\Model
     protected $is_cache = 1;
     public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/hr/employees';
-        $this->setToken($options['token'] ?? 'system');
+        
     }
     
 }

@@ -10,7 +10,7 @@ class Branchs extends \Microservices\models\Model
     protected $is_cache = 1;
     public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/org/branch';
-        $this->setToken($options['token'] ?? 'system');
+        
     }
 
     public function location($params = [], $options = [])
@@ -28,7 +28,7 @@ class Branchs extends \Microservices\models\Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $response = \Http::acceptJson()->withToken($this->access_token)->get(env('API_MICROSERVICE_URL_V2') . '/org/branch/location', $q);
+        $response = \Http::acceptJson()->withToken($this->getToken())->get(env('API_MICROSERVICE_URL_V2') . '/org/branch/location', $q);
         if ($response->successful()) {
             return $response->json();
         }

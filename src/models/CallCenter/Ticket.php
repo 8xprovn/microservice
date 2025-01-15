@@ -9,7 +9,7 @@ class Ticket extends \Microservices\models\Model
     protected $_url;
     public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/call-center/ticket';
-        $this->setToken($options['token'] ?? 'system');
+        
     }
 
     public function close($id, $params)
@@ -21,7 +21,7 @@ class Ticket extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = $this->_url . '/' . $id . '/close';
-        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         }
@@ -38,7 +38,7 @@ class Ticket extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = $this->_url . '/' . $id . '/comment';
-        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         }
@@ -55,7 +55,7 @@ class Ticket extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = $this->_url . '/' . $id . '/assign';
-        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         }
@@ -72,7 +72,7 @@ class Ticket extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = $this->_url . '/' . $id . '/action';
-        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         }
@@ -89,7 +89,7 @@ class Ticket extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = $this->_url . '/store-follower';
-        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         }
@@ -106,7 +106,7 @@ class Ticket extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = $this->_url . '/' . $id . '/update-params';
-        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         }
@@ -123,7 +123,7 @@ class Ticket extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = $this->_url . '/' . $id . '/destroy-follower';
-        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         }
@@ -140,7 +140,7 @@ class Ticket extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = $this->_url . '/' . $id . '/cancel';
-        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         }

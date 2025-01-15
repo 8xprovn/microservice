@@ -10,7 +10,7 @@ class Segments extends \Microservices\models\Model
     //protected $is_cache = 1;
     public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/crm/segments';
-        $this->setToken($options['token'] ?? 'system');
+        
     }
     public function getContacts($params) {
         $segment = \Microservices::Crm('Segments')->detail($params);

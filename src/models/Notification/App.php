@@ -9,7 +9,7 @@ class App extends \Microservices\models\Model
     protected $_url;
     public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/notification/type/app';
-        $this->setToken($options['token'] ?? 'system');
+        
     }
 
     public function updateReadStatus($id, $params)
@@ -21,7 +21,7 @@ class App extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = env('API_MICROSERVICE_URL_V2') . '/notification/app/is_read/' . $id;
-        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         }

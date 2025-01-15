@@ -9,7 +9,7 @@ class News extends \Microservices\models\Model
     protected $_url;
     public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/app/news';
-        $this->setToken($options['token'] ?? 'system');
+        
     }
 
     public function count($params = [], $options = [])
@@ -26,7 +26,7 @@ class News extends \Microservices\models\Model
         $q = $options;
         $q['filter'] = $filter;
         $response = \Http::acceptJson()
-                    ->withToken($this->access_token)
+                    ->withToken($this->getToken())
                     ->get($this->_url . '/count', $q);
         if ($response->successful()) {
             return $response->json();

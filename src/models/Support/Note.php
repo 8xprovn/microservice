@@ -10,6 +10,6 @@ class Note extends \Microservices\models\Model
     protected $is_cache = 1;
     public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/support/notes';
-        $this->setToken($options['token'] ?? 'system');
+        
     }
 }

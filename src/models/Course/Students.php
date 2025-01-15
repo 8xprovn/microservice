@@ -10,7 +10,7 @@ class Students  extends \Microservices\models\Model
     public function __construct($options = [])
     {
         $this->_url = env('API_MICROSERVICE_URL_V2') . '/course/students';
-        $this->setToken($options['token'] ?? 'system');
+        
     }
     public function list_classes($params = [], $options = [])
     {
@@ -26,7 +26,7 @@ class Students  extends \Microservices\models\Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $response = \Http::acceptJson()->withToken($this->access_token)->get($url, $q);
+        $response = \Http::acceptJson()->withToken($this->getToken())->get($url, $q);
 
         if ($response->successful()) {
             return $response->json();
@@ -49,7 +49,7 @@ class Students  extends \Microservices\models\Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $response = \Http::acceptJson()->withToken($this->access_token)->get($url, $q);
+        $response = \Http::acceptJson()->withToken($this->getToken())->get($url, $q);
 
         if ($response->successful()) {
             return $response->json();
@@ -62,7 +62,7 @@ class Students  extends \Microservices\models\Model
     {
         $url = $this->_url . "/$id/tracking";
 
-        $response = \Http::acceptJson()->withToken($this->access_token)->post($url, $param);
+        $response = \Http::acceptJson()->withToken($this->getToken())->post($url, $param);
 
         if ($response->successful()) {
             return $response->json();
@@ -75,7 +75,7 @@ class Students  extends \Microservices\models\Model
     {
         $url = $this->_url . "/register-course";
 
-        $response = \Http::acceptJson()->withToken($this->access_token)->post($url, $param);
+        $response = \Http::acceptJson()->withToken($this->getToken())->post($url, $param);
 
         if ($response->successful()) {
             return $response->json();

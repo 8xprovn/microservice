@@ -10,7 +10,7 @@ class Logs extends \Microservices\models\Model
     public function __construct($options = [])
     {
         $this->_url = env('API_MICROSERVICE_URL_V2') . '/inventory/logs';
-        $this->setToken($options['token'] ?? 'system');
+        
     }
 
     public function getLogStatus($status, $params = [], $options = [])
@@ -27,7 +27,7 @@ class Logs extends \Microservices\models\Model
             }
             $q = $options;
             $q['filter'] = $filter;
-            $response = \Http::acceptJson()->withToken($this->access_token)->get($this->_url. "-{$status}", $q);
+            $response = \Http::acceptJson()->withToken($this->getToken())->get($this->_url. "-{$status}", $q);
 
             if ($response->successful()) {
                 return $response->json();

@@ -10,7 +10,7 @@ class Contacts extends \Microservices\models\Model
     //protected $is_cache = 1;
     public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/crm/contacts';
-        $this->setToken($options['token'] ?? 'system');
+        
     }
     public function find($phoneOrEmail,$options = array()) {
         $options = array_merge($options,['limit' => 1]);
@@ -37,7 +37,7 @@ class Contacts extends \Microservices\models\Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $response = \Http::acceptJson()->withToken($this->access_token)->get($this->_url, $q);
+        $response = \Http::acceptJson()->withToken($this->getToken())->get($this->_url, $q);
         if ($response->successful()) {
             $contact_ids = collect($response->json())->pluck('_id')->unique()->values()->all();
             return $contact_ids;

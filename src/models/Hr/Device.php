@@ -9,7 +9,7 @@ class Device extends \Microservices\models\Model
     protected $_url;
     public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/hr/device';
-        $this->setToken($options['token'] ?? 'system');
+        
     }
 
     public function storeFirst(array $params)
@@ -26,7 +26,7 @@ class Device extends \Microservices\models\Model
         }
         $params['created_time'] = time();
         $url = env('API_MICROSERVICE_URL_V2').'/hr/device/store-first';
-        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         } 

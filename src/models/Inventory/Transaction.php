@@ -8,14 +8,14 @@ class Transaction extends \Microservices\models\Model
 //    protected $is_cache = 1;
     public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/inventory/transaction';
-        $this->setToken($options['token'] ?? 'system');
+        
     }
 
     public function transaction_detail($transaction_id, $options = []) 
     {
         $url = env('API_MICROSERVICE_URL_V2')."/inventory/transaction-detail/{$transaction_id}";
         try { 
-            $response = \Http::acceptJson()->withToken($this->access_token)->get($url);
+            $response = \Http::acceptJson()->withToken($this->getToken())->get($url);
            
             if ($response->successful()) {
                 return $response->json();

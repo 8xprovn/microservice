@@ -7,14 +7,14 @@ class WalletTransaction extends \Microservices\models\Model
     protected $_url;
     public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/finance/wallet-transaction';
-        $this->setToken($options['token'] ?? 'system');
+        
     }
 
     public function deposit($param = [])
     {
         $url = $this->_url . "/deposit";
 
-        $response = \Http::acceptJson()->withToken($this->access_token)->post($url, $param);
+        $response = \Http::acceptJson()->withToken($this->getToken())->post($url, $param);
         if ($response->successful()) {
             return $response->json();
         }
@@ -26,7 +26,7 @@ class WalletTransaction extends \Microservices\models\Model
     {
         $url = $this->_url . "/qr/create";
 
-        $response = \Http::acceptJson()->withToken($this->access_token)->get($url, $param);
+        $response = \Http::acceptJson()->withToken($this->getToken())->get($url, $param);
         if ($response->successful()) {
             return $response->json();
         }
@@ -38,7 +38,7 @@ class WalletTransaction extends \Microservices\models\Model
     {
         $url = $this->_url."/confirm_info/$id";
 
-        $response = \Http::acceptJson()->withToken($this->access_token)->post($url, $param);
+        $response = \Http::acceptJson()->withToken($this->getToken())->post($url, $param);
         if ($response->successful()) {
             return $response->json();
         }

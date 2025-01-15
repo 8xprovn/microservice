@@ -4,6 +4,7 @@ namespace Microservices\models;
 abstract class Model
 {
     protected $access_token = '';
+    protected $access_token_type = '';
     protected $person_token = '';
 
     public function setToken($type = 'system') {
@@ -18,12 +19,22 @@ abstract class Model
             $this->access_token = \Request::bearerToken();
             break;
             default:
-            abort(403, 'Unauthorized token type');
+            $this->access_token = $type;
+            $type = 'custom';
         }
+        $this->access_token_type = $type;
         return $this;
     }
     public function getToken() {
-        return $this->access_token;
+        
+        if (empty($this->access_token)) {
+            $this->setToken();
+        }
+        $token = $this->access_token;
+        if ($this->access_token_type != 'system') {
+            $this->setToken();
+        }
+        return $token;
     }
     public function all($params = [], $options = [])
     {
@@ -38,8 +49,7 @@ abstract class Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $accessToken = $this->access_token;
-        $this->setToken();
+        $accessToken = getToken();
         $response = \Http::acceptJson()
                     ->withToken($accessToken)
                     ->get($this->_url, $q);
@@ -110,8 +120,7 @@ abstract class Model
         }
         $params['created_time'] = time();
         $url = $this->_url;
-        $accessToken = $this->access_token;
-        $this->setToken();
+        $accessToken = $this->getToken();
         $response = \Http::acceptJson()->withToken($accessToken)->POST($url, $params);
         ///reset token //
         if ($response->successful()) {
@@ -133,8 +142,7 @@ abstract class Model
             $id = (int) $id;
         }
         $url = $this->_url.'/'.$id;
-        $accessToken = $this->access_token;
-        $this->setToken();
+        $accessToken = $this->getToken();
         $response = \Http::acceptJson()->withToken($accessToken)->PUT($url, $params);
         if ($response->successful()) {
             return $response->json();
@@ -146,8 +154,7 @@ abstract class Model
     public function remove($id, $options = [])
     {
         $url = $this->_url.'/'.$id;
-        $accessToken = $this->access_token;
-        $this->setToken();
+        $accessToken = $this->getToken();
         $response = \Http::acceptJson()->withToken($accessToken)->DELETE($url, $options);
         if ($response->successful()) {
             return $response->json();

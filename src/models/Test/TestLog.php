@@ -10,7 +10,7 @@ class TestLog extends \Microservices\models\Model
     //protected $is_cache = 1;
     public function __construct($options = []) {
         $this->_url = env('API_MICROSERVICE_URL_V2').'/tests/test-logs';
-        $this->setToken($options['token'] ?? 'system');
+        
     }
 
     public function createLog($params) {
@@ -26,7 +26,7 @@ class TestLog extends \Microservices\models\Model
         }
         $params['created_time'] = time();
         $url = $this->_url . "/create-log";
-        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         } 
@@ -47,7 +47,7 @@ class TestLog extends \Microservices\models\Model
         }
         $params['created_time'] = time();
         $url = $this->_url . "/update-log";
-        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         } 
