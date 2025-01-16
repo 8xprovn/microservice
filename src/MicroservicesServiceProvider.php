@@ -22,6 +22,11 @@ class MicroservicesServiceProvider extends ServiceProvider
             \Microservices\Events\BusEvent::class,
             [\Microservices\Listeners\BusListener::class, 'handle']
         );
+        Event::listen(
+            \Microservices\Events\FlowEvent::class,
+            [\Microservices\Listeners\FlowListener::class, 'handle']
+        );
+
         $loader = AliasLoader::getInstance();
         $loader->alias('Microservices', MicroservicesFacade::class);
     }
