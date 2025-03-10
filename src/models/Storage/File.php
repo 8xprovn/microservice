@@ -14,13 +14,9 @@ class File
         $this->hash = env('SERVICE_STORAGE_HASH_SECRET', '123456');
     }
     public function view($params)
-    {
-        // if (!empty($params['verify_hash'])) {
-        //     $params['_token'] = $this->token($params['verify_hash']); 
-        // }
+    { 
         $url = "{$this->url}/show-files";
-        $response = Http::get($url, $params);
-        // Nếu request thành công, lấy Content-Type từ API response
+        $response = Http::get($url, $params); 
         if ($response->successful()) {
             return $response->json();
         }
