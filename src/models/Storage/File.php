@@ -14,13 +14,15 @@ class File
         $this->hash = env('SERVICE_STORAGE_HASH_SECRET', '123456');
     }
     public function view($params)
-    { 
+    {
         $url = "{$this->url}/show-files";
-        $response = Http::get($url, $params); 
+        $response = Http::get($url, $params);
+        $result =  ['status' => $response->status()];
+
         if ($response->successful()) {
-            return $response->json();
+            $result = array_merge($response->json(), $result);
         }
-        return [];
+        return $result;
     }
     public function token($string, $config_key_md5 = '')
     {
