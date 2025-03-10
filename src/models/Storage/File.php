@@ -15,9 +15,9 @@ class File
     }
     public function view($params)
     {
-        if (!empty($params['verify_hash'])) {
-            $params['_token'] = $this->token($params['verify_hash']); 
-        }
+        // if (!empty($params['verify_hash'])) {
+        //     $params['_token'] = $this->token($params['verify_hash']); 
+        // }
         $url = "{$this->url}/show-files";
         $response = Http::get($url, $params);
         // Nếu request thành công, lấy Content-Type từ API response
