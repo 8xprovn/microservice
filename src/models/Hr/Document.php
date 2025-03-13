@@ -66,7 +66,7 @@ class Document extends \Microservices\models\Model
             if (!empty($filterEmployee)) {
                 $url = env('API_MICROSERVICE_URL_V2').'/hr/employees';
                 $filterEmployee['status'] = 'active';
-                $employees = \Http::acceptJson()->withToken($this->getToken())->get($url, ['filter' => $filterEmployee]);
+                $employees = \Http::acceptJson()->withToken($this->getToken())->get($url, ['filter' => $filterEmployee, 'limit' => 1000]);
                 if ($employees->successful()) {
                     $employee_id = array_merge($employee_id, collect($employees->json())->pluck('_id')->unique()->values()->all());
                 }
