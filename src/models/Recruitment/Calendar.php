@@ -19,6 +19,10 @@ class Calendar extends \Microservices\models\Model
         if ($response->successful()) {
             return $response->json();
         }
+        $responseJson = $response->json();
+        if (isset($responseJson['message'])) {
+            return $responseJson;
+        }
         \Log::error($this->_url . $response->body());
         return [];
     }
