@@ -26,6 +26,7 @@ abstract class BaseModel
     }
     public function all($params = [], $options = [])
     {
+        $options = $this->getSelectByRole($options);
         if (!empty($this->only['lists'])) {
             $arrOnly = array_merge($this->only['lists'], [$this->primaryKey]);
             $params = \Arr::only($params, $arrOnly);
@@ -246,6 +247,7 @@ abstract class BaseModel
     }
     public function details($id, $options = [])
     {
+        $options = $this->getSelectByRole($options);
         if (!is_array($id)) {
             ////// KTRA UUID KO //////
             if (\Str::isUuid($id)) {
@@ -322,7 +324,7 @@ abstract class BaseModel
             }
         }
         /////// SELECT ///
-
+        $options = $this->getSelectByRole($options);
         $query = \DB::table($this->table)->where($this->primaryKey, $id);
         // GET DATA WITHOUT CACHE + WITH SELECT
         if (!empty($options['select'])) {
@@ -601,5 +603,20 @@ abstract class BaseModel
     {
         $className = ($cachePath) ? $cachePath : $this->cachePath;
         return \Microservices::loadCache($className);
+    }
+
+    public function getSelectByRole($options = [])
+    {
+        if (\Auth::check()) {
+            $roleUser = \Auth::user()->api_role;
+        }
+        if (!empty($roleUser) && !empty($this->role) && !empty($this->role[$roleUser])) {
+            if (!empty($options['select'])) {
+                $options['select'] = array_values(array_intersect($this->role[$roleUser], $options['select']));
+            } else {
+                $options['select'] = $this->role[$roleUser];
+            }
+        }
+        return $options;
     }
 }
