@@ -608,13 +608,13 @@ abstract class BaseModel
     public function getSelectByRole($options = [])
     {
         if (\Auth::check()) {
-            $roleUser = \Auth::user()->api_role;
+            $isGuest = \Auth::user()->is_guest;
         }
-        if (!empty($roleUser) && !empty($this->role) && !empty($this->role[$roleUser])) {
+        if (!empty($isGuest) && !empty($this->role) && !empty($this->role['guest'])) {
             if (!empty($options['select'])) {
-                $options['select'] = array_values(array_intersect($this->role[$roleUser], $options['select']));
+                $options['select'] = array_values(array_intersect($this->role['guest'], $options['select']));
             } else {
-                $options['select'] = $this->role[$roleUser];
+                $options['select'] = $this->role['guest'];
             }
         }
         return $options;
