@@ -15,7 +15,7 @@ class ClassSchedule extends \Microservices\models\Model
     public function semesterTest($id, $params)
     {
         $url = $this->_url . '/' . $id . '/semester-test';
-        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         }
@@ -29,7 +29,7 @@ class ClassSchedule extends \Microservices\models\Model
     public function cancelSemesterTest($id, $params)
     {
         $url = $this->_url . '/' . $id . '/cancel-semester-test';
-        $response = \Http::acceptJson()->withToken($this->access_token)->POST($url, $params);
+        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
         if ($response->successful()) {
             return $response->json();
         }
