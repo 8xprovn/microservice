@@ -62,15 +62,16 @@ class ScheduleServiceProvider extends ServiceProvider
                 foreach ($data as $task) {
                     if (!empty($task['type']) && !empty($task['schedule_name'])) {
                         try {
+                            $micro = new \Microservices\models\Microservices();
                             if ($task['type'] === 'event') {
                                 $event = $task['schedule_name'] ?? '';
                                 if (!empty($event)) {
-                                    \Microservices::event()->BusEvent($event, $task);
+                                    $micro->event()->BusEvent($event, $task);
                                 }
                             } elseif ($task['type'] === 'job') {
                                 $jobClass = $task['schedule_name'] ?? '';
                                 if (!empty($jobClass)) {
-                                    \Microservices::job()->BusJob($jobClass, $task)->onQueue(config('app.service_code'));
+                                    $micro->job()->BusJob($jobClass, $task)->onQueue(config('app.service_code'));
                                 }
                             }
 
