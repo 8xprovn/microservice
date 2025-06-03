@@ -7,7 +7,7 @@ class LmsV2
     protected $_url;
     protected $_hash_secret;
     public function __construct() {
-        $this->_url = env('API_MICROSERVICE_URL').'/lms';
+        $this->_url = env('API_MICROSERVICE_URL_V2').'/lms';
         $this->_hash_secret = env('TEST_HASH_SECRET');
     }
 
