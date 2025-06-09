@@ -17,6 +17,7 @@ class Export extends BaseModel
         $client->useApplicationDefaultCredentials();
         $client->setApplicationName('Google Sheets IMAP ERP');
         $client->setScopes([\Google_Service_Sheets::DRIVE,\Google_Service_Drive::DRIVE]);
+        $client->setSubject(env('GOOGLE_EXPORT_SUBJECT'));
         $this->client = $client;
         return $client;
     }
@@ -35,7 +36,7 @@ class Export extends BaseModel
         $serviceDrive = new \Google_Service_Drive($client);
         $createFiles = new \Google_Service_Drive_DriveFile([
             'name' => ($options['name']??'file') . '-'.date('Y-m-d').microtime(true),
-            'parents' => ['1zT0JzAHTXbje9Z9rRdRlX-EEgjBV1yov'],
+            'parents' => [env('GOOGLE_EXPORT_PARENTS')],
             'mimeType' => 'application/vnd.google-apps.spreadsheet',
         ]);
         $createdData = $serviceDrive->files->create($createFiles,['fields' => 'id']);
