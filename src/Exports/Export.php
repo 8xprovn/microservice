@@ -30,14 +30,12 @@ class Export
             'service' => $_service,
             'created_time' => ['gte' => date('Y-m-d') . ' 00:00:00', 'lte' => date('Y-m-d') . ' 23:59:00']
         ], ['order_by' => array('created_time', 'desc')]);
+ 
+        // kiểm tra xem job đó đã xong chưa và thời gian export cách nhau khoản bn phút // && (time() - $_first['created_time']) < 10 * 60
+        if (!empty($rows) && collect($rows)->where('status', 'open')->count() > 0) {
+            return array('status' => 'error', 'message' => "Bạn đang có 1 job export chưa thực hiện xong, bạn vui lòng chờ !!!");
+        }
 
-        $_first = $rows[0] ?? [];
-
-        // if (!empty($_first)) {
-            // kiểm tra xem job đó đã xong chưa và thời gian export cách nhau khoản bn phút // && (time() - $_first['created_time']) < 10 * 60
-            // if ($_first['status'] == 'open') return array('status' => 'error', 'message' => "Bạn đang có 1 job export chưa thực hiện xong, bạn vui lòng chờ !!!");
-        // }
-        
         $input['uuid'] =  $arg[1]['uuid'] = $this->generate_uuid();
 
         \App\Jobs\BusJob::dispatch($this->_listener_file, $input)->onQueue($this->_service_code);
