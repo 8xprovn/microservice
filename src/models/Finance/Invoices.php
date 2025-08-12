@@ -11,6 +11,7 @@ class Invoices extends \Microservices\models\Model
     }
     protected $service = 'erp_finance_backend_v2';
     protected $table = 'invoices';
+    protected $is_cache = 1;
 
     public function send($id, $param = [])
     {
