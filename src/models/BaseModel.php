@@ -26,6 +26,7 @@ abstract class BaseModel
     }
     public function all($params = [], $options = [])
     {
+        $options = $this->getSelectByRole($options);
         if (!empty($this->only['lists'])) {
             $arrOnly = array_merge($this->only['lists'], [$this->primaryKey]);
             $params = \Arr::only($params, $arrOnly);
@@ -601,5 +602,20 @@ abstract class BaseModel
     {
         $className = ($cachePath) ? $cachePath : $this->cachePath;
         return \Microservices::loadCache($className);
+    }
+
+    public function getSelectByRole($options = [])
+    {
+        if (\Auth::check()) {
+            $isGuest = \Auth::user()->is_guest;
+        }
+        if (!empty($isGuest) && !empty($this->role) && !empty($this->role['guest'])) {
+            if (!empty($options['select'])) {
+                $options['select'] = array_values(array_intersect($this->role['guest'], $options['select']));
+            } else {
+                $options['select'] = $this->role['guest'];
+            }
+        }
+        return $options;
     }
 }
