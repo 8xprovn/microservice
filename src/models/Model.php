@@ -62,6 +62,9 @@ abstract class Model
     public function details($id, $options = []) {
         $arrData = [];
         $primaryKey = $this->primaryKey ?? '_id';
+        if (!empty($options['select']) && !in_array($primaryKey,  $options['select'])) {
+            $options['select'][] = $primaryKey;
+        }
         $isCache = (!empty($this->is_cache) && empty($options['reset_cache'])) ? 1 : 0;
         if ($isCache) {
             $arrData = $this->cache()->detail($id,$options) ?? [];
