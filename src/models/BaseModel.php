@@ -302,7 +302,7 @@ abstract class BaseModel
         } else {
             $data = $data->toArray();
         }
-        $arrData = $arrData + $data;
+        $arrData = array_merge($arrData, $data);
         unset($data);
         return $arrData;
     }
