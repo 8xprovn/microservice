@@ -32,4 +32,22 @@ class File
         }
         return md5("{$config_key_md5}_{$string}");
     }
+
+    public function show($path, $params = [])
+    { 
+        $arrs = explode('/', trim($path, '/'));
+        if (empty($arrs)) return '/';
+        $channel = trim(array_shift($arrs));
+        $configDomainChannel = config("filesystems.disks.{$channel}");
+        if (empty($configDomainChannel)) return env('SERVICE_MEDIA_URL', '') . '/' . trim($path, '/');
+        $configDomain = $configDomainChannel['url'] ?? env('SERVICE_MEDIA_URL', '');
+        $configDriver = $configDomainChannel['driver'] ?? '';
+        switch ($configDriver) {
+            case "onedrive":
+                $input = array_merge($params, ['path' => $path]);
+                return "{$this->url}/files?" . http_build_query($input);
+            default:
+                return $configDomain . '/' . trim($path, '/');
+        }
+    }
 }
