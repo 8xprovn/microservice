@@ -37,18 +37,24 @@ class File
     {
         $pathTrim = trim($path, '/');
         $arrs = explode('/', $pathTrim);
+
         if (empty($arrs)) return '/';
-        $channel = trim(array_shift($arrs));
-        $configDomainChannel = config("filesystems.disks.{$channel}");
-        if (empty($configDomainChannel)) return env('SERVICE_MEDIA_URL', '') . "/$pathTrim";
-        $configDomain = $configDomainChannel['url'] ?? env('SERVICE_MEDIA_URL', '');
-        $configDriver = $configDomainChannel['driver'] ?? '';
+        $channel = env('UPLOAD_CHANNEL', '');
+        $configDomainChannel = config("storage.{$channel}");
+        $diskUpload = env('UPLOAD_DISK', trim($arrs[0] ?? ''));
+
+        if (empty($configDomainChannel)) return env('SERVICE_MEDIA_URL', '') . '/' . trim($path, '/');
+        $disk = $configDomainChannel[$diskUpload] ?? [];
+
+        $configDomain = $disk['url'] ?? env('SERVICE_MEDIA_URL', '');
+        $configDriver = $disk['driver'] ?? '';
+
         switch ($configDriver) {
             case "onedrive":
                 $input = array_merge($params, ['path' => $path]);
                 return "{$this->url}/files?" . http_build_query($input);
             default:
-                return $configDomain . "/$pathTrim";
+                return $configDomain . '/' . trim($path, '/');
         }
     }
 }
