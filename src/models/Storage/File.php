@@ -8,10 +8,14 @@ class File
 {
     protected $url;
     protected $hash;
+    protected $_listener;
+    protected $_service_code;
     public function __construct()
     {
         $this->url = env('SERVICE_STORAGE_URL', 'https://storage.ebomb.edu.vn/api');
         $this->hash = env('SERVICE_STORAGE_HASH_SECRET', '123456');
+        $this->_listener = 'App\Jobs\MoveFileUpload';
+        $this->_service_code = 'erp_system_backend_v2';
     }
     public function view($params)
     {
@@ -75,6 +79,6 @@ class File
         }
         $files =  array_diff($fileNews, $fileOlds);
         if (empty($files)) return;
-        return \Microservices\Jobs\MoveFileUpload::dispatch($files)->onQueue(config('app.service_code'));
+        return \Microservices\Jobs\BusJob::dispatch($this->_listener, ['files' => $files])->onQueue($this->_service_code);
     }
 }
