@@ -53,4 +53,28 @@ class File
                 return $configDomain . '/' . trim($path, '/');
         }
     }
+
+    public function move($datas = [], $dataOlds = [])
+    {
+        $fileNews = $fileOlds = [];
+        foreach ($datas as $file) {
+            if (is_array($file)) {
+                $fileNews = array_merge($fileNews, array_values($file));
+            } else {
+                $fileNews[] = $file;
+            }
+        }
+        if (!empty($dataOlds)) {
+            foreach ($dataOlds as $file) {
+                if (is_array($file)) {
+                    $fileOlds = array_merge($fileOlds, array_values($file));
+                } else {
+                    $fileOlds[] = $file;
+                }
+            }
+        }
+        $files =  array_diff($fileNews, $fileOlds);
+        if (empty($files)) return;
+        return \Microservices\Jobs\MoveFileUpload::dispatch($files)->onQueue(config('app.service_code'));
+    }
 }
