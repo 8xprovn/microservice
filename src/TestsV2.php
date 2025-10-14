@@ -62,8 +62,8 @@ class TestsV2
         return false;
     }
 
-    public function updateTestLog($id, $params = []) {       
-        $params = \Arr::only($params, ['score', 'contact_id', 'result', 'user_ans', 'review']);
+    public function updateTestLog($id, $params = []) {      
+        $params = \Arr::only($params, ['score', 'contact_id', 'result', 'user_ans', 'review', 'review_file', 'score_detail_note']);
         $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->patch($this->_url.'/test-logs/'.$id, $params);
         if ($response->successful()) {
             return true;
