@@ -42,13 +42,15 @@ class File
         $arrs = explode('/', trim($path, '/'));
         if (empty($arrs)) return '/';
         $channel = env('UPLOAD_CHANNEL', trim($arrs[0] ?? ''));
-        $configChannel = config("storage.{$channel}");
 
+        $configChannels = (array) json_decode(env("CHANNEL", '{}'));
+
+        $configChannel = !empty($configChannels[$channel]) ? (array) $configChannels[$channel] : [];
+        
         if (empty($configChannel)) return env('SERVICE_MEDIA_URL', '') . '/' . trim($path, '/');
 
         $configDomain = $configChannel['url'] ?? env('SERVICE_MEDIA_URL', '');
         $configDriver = $configChannel['driver'] ?? '';
-
         switch ($configDriver) {
             case "onedrive":
                 $input = array_merge($params, ['path' => $path]);
