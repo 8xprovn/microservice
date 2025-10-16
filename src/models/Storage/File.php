@@ -43,7 +43,7 @@ class File
         if (empty($arrs)) return '/';
         $channel = env('UPLOAD_CHANNEL', trim($arrs[0] ?? ''));
 
-        $configChannels = (array) json_decode(env("CHANNEL", '{}'));
+        $configChannels = (array) json_decode(env("STORAGE_CHANNEL", '{}'));
 
         $configChannel = !empty($configChannels[$channel]) ? (array) $configChannels[$channel] : [];
         
