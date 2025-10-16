@@ -45,18 +45,22 @@ class File
 
         $configChannels = (array) json_decode(env("STORAGE_CHANNEL", '{}'));
 
-        $configChannel = !empty($configChannels[$channel]) ? (array) $configChannels[$channel] : [];
-        
-        if (empty($configChannel)) return env('SERVICE_MEDIA_URL', '') . '/' . trim($path, '/');
+        $configDriver = env("STORAGE_DISK", '');
 
-        $configDomain = $configChannel['url'] ?? env('SERVICE_MEDIA_URL', '');
-        $configDriver = $configChannel['driver'] ?? '';
+        foreach ($configChannels as $key => $v) {
+            if (in_array($channel, $configChannels)) {
+                $configDriver = $key;
+                break;
+            }
+        }
         switch ($configDriver) {
             case "onedrive":
                 $input = array_merge($params, ['path' => $path]);
                 return "{$this->url}/files?" . http_build_query($input);
+            case "r2":
+                return env('SERVICE_MEDIA_URL_R2', '') . '/' . trim($path, '/');
             default:
-                return $configDomain . '/' . trim($path, '/');
+                return env('SERVICE_MEDIA_URL', '') . '/' . trim($path, '/');
         }
     }
 
