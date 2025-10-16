@@ -48,7 +48,7 @@ class File
         $configDriver = env("STORAGE_DISK", '');
 
         foreach ($configChannels as $key => $v) {
-            if (in_array($channel, $configChannels)) {
+            if ((is_array($v) && in_array($channel, $v)) || (is_string($v) && $channel == $v)) {
                 $configDriver = $key;
                 break;
             }
