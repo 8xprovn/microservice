@@ -12,7 +12,7 @@ class File
     protected $_service_code;
     public function __construct()
     {
-        $this->url = env('SERVICE_STORAGE_URL', 'https://storage.ebomb.edu.vn/api');
+        $this->url = env('SERVICE_UPLOAD_URL_V2', 'https://storage.ebomb.edu.vn');
         $this->hash = env('SERVICE_STORAGE_HASH_SECRET', '123456');
         $this->_listener = 'App\Jobs\MoveFileUpload';
         $this->_service_code = 'erp_system_backend_v2';
@@ -56,7 +56,7 @@ class File
         switch ($configDriver) {
             case "onedrive":
                 $input = array_merge($params, ['path' => $path]);
-                return "{$this->url}/files?" . http_build_query($input);
+                return "{$this->url}/api/files/show?" . http_build_query($input);
             case "r2":
                 return env('SERVICE_MEDIA_URL_R2', '') . '/' . trim($path, '/');
             default:
