@@ -69,9 +69,14 @@ class File
         $fileNews = $fileOlds = [];
         foreach ($datas as $file) {
             if (is_array($file)) {
+                $file = array_map(function ($item) use ($urlPreview) {
+                    $path = array_reverse(explode('path=', $item))[0] ?? '';
+                    return trim($path, " \t\n\r\0\x0B'\"");
+                }, $file);
                 $fileNews = array_merge($fileNews, array_values($file));
             } else {
-                $fileNews[] = $file;
+                $file = array_reverse(explode('path=', $file))[0] ?? '';
+                $fileNews[] = trim($file, " \t\n\r\0\x0B'\"");
             }
         }
         if (!empty($dataOlds)) {
@@ -84,6 +89,7 @@ class File
             }
         }
         $files =  array_diff($fileNews, $fileOlds);
+
         if (empty($files)) return;
         return \Microservices\Jobs\BusJob::dispatch($this->_listener, ['files' => $files])->onQueue($this->_service_code);
     }
