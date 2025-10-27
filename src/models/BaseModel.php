@@ -32,7 +32,7 @@ abstract class BaseModel
             $params = \Arr::only($params, $arrOnly);
         }
         if (!empty($this->isSoftDelete)) {
-            $params = array_merge($params,['is_deleted' => 0]);
+            $params = array_merge($params, ['is_deleted' => 0]);
         }
         ////// KTRA NEU CHI LAY THEO ID 
         // dd($params);
@@ -41,9 +41,9 @@ abstract class BaseModel
             return collect($data);
         }
         if (!empty($this->dataDefault['lists'])) {
-            $params = array_merge($this->dataDefault['lists'],$params);
+            $params = array_merge($this->dataDefault['lists'], $params);
         }
-        
+
         $params = $this->filter($params);
         $query = \DB::table($this->table);
         if (!empty($options['select'])) {
@@ -93,7 +93,7 @@ abstract class BaseModel
         }
         $params['created_time'] = time();
         $params['updated_time'] = time();
-
+        $this->asyncFile($params);
         return DB::table($this->table)->insertGetId($params);
     }
     public function createBatch(array $multiParams)
@@ -115,6 +115,7 @@ abstract class BaseModel
             $params['created_time'] = time();
             $params['updated_time'] = time();
             $multiParams[$k] = $params;
+            $this->asyncFile($params);
         }
         return \DB::table($this->table)->insert($multiParams);
     }
@@ -148,7 +149,7 @@ abstract class BaseModel
         } else {
             $params['updated_time'] = time();
         }
-
+        
         ////////// CHECK OPTION RETURN //////
         if (!empty($options['isReturnData'])) {
             $result = \DB::getCollection($this->table)->findOneAndUpdate(
@@ -165,6 +166,7 @@ abstract class BaseModel
         if (!empty($this->is_cache)) {
             $this->cache()->delete($id);
         }
+        $this->asyncFile($params);
         return $result;
         //$query->update($params);
     }
@@ -213,7 +215,7 @@ abstract class BaseModel
             $result = $query->update($params, $options);
         }
 
-
+        $this->asyncFile($params);
         ////////// FLUSH CACHE ///////////
         if (!empty($this->is_cache) && $arrIds) {
             $this->cache()->delete($arrIds);
@@ -617,5 +619,39 @@ abstract class BaseModel
             }
         }
         return $options;
+    }
+
+    protected function asyncFile($params = [])
+    {
+        
+        if (empty($this->casts) || empty($this->casts['file']) || empty($params)) {
+            return;
+        }
+        $files = [];
+        foreach ($this->casts['file'] as $field) {
+            $arrFile = [];
+            if (!empty($params[$field])) {
+                $arrFile = $params[$field];
+            } elseif (strpos($field, '.') !== false) {
+                $arr = explode('.', $field, 2);
+                $key = $arr[0];
+                $sub_key = $arr[1] ?? '';
+                if (empty($params[$key]) || empty($sub_key)) continue;
+                if (!empty($params[$key][$sub_key])) {
+                    $arrFile = $params[$key][$sub_key];
+                } else {
+                    $arrFileItem = collect($params[$key])->pluck($sub_key)->filter()->values()->toArray();
+                    foreach($arrFileItem as $item){
+                        $arrFile = array_merge($arrFile, is_array($item) ? $item : [$item]);
+                    }
+                }
+            }
+            if (!empty($arrFile)) { 
+                $files = array_merge($files, is_array($arrFile) ? $arrFile : [$arrFile]);
+            }
+        } 
+        
+        if (!empty($files)) \Microservices::Storage('File')->move($files);
+        return;
     }
 }
