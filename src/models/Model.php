@@ -1,8 +1,12 @@
 <?php
 namespace Microservices\models;
 
+use Microservices\Traits\SafeHttpClient;
+use Illuminate\Http\Request;
+
 abstract class Model
 {
+    use SafeHttpClient;
     protected $access_token = '';
     protected $access_token_type = '';
     protected $person_token = '';
@@ -13,10 +17,10 @@ abstract class Model
             $this->access_token = env('API_MICROSERVICE_TOKEN','');
             break;
             case 'cookie':
-            $this->access_token = \Request::cookie('imap_authen_access_token');
+            $this->access_token = Request::cookie('imap_authen_access_token');
             break;
             case 'bearer':
-            $this->access_token = \Request::bearerToken();
+            $this->access_token = Request::bearerToken();
             break;
             default:
             $this->access_token = $type;
@@ -50,14 +54,13 @@ abstract class Model
         $q = $options;
         $q['filter'] = $filter;
         $accessToken = $this->getToken();
-        $response = \Http::acceptJson()
-                    ->withToken($accessToken)
-                    ->get($this->_url, $q);
-        if ($response->successful()) {
-            return $response->json();
-        } 
-        \Log::error($this->_url . $response->body());
-        return false;
+        // $response = \Http::acceptJson()
+        //             ->withToken($accessToken)
+        //             ->get($this->_url, $q);
+        // if ($response->successful()) {
+        //     return $response->json();
+        // } 
+        return $this->safeGet($this->_url, $accessToken, $q);
     }
     public function details($id, $options = []) {
         $arrData = [];
@@ -79,7 +82,7 @@ abstract class Model
             /////// NEU PHAN TU > 100 SE SU DUNG UUID //////
             if (count($id) > 100) {
                 $uuid = (string) \Str::uuid();
-                $cacheResult = \Cache::put( $uuid , $id, 120);
+                \Cache::put( $uuid , $id, 120);
                 $id = $uuid;
             }
             $data = $this->all([$primaryKey => $id],$options);
@@ -94,6 +97,10 @@ abstract class Model
         if (is_array($id)) {
             return $this->details($id,$options);
         }
+        
+        if (!empty($this->idAutoIncrement)) {
+            $id = (int) $id;
+        }
         $isCache = (!empty($this->is_cache) && empty($options['reset_cache'])) ? 1 : 0;
         if ($isCache) {
             $data = $this->cache()->detail($id,$options) ?? [];
@@ -102,14 +109,8 @@ abstract class Model
             }
         }
         $url = $this->_url.'/'.$id;
-        $response = \Http::acceptJson()
-                    ->withToken(env('API_MICROSERVICE_TOKEN',''))
-                    ->get($url,$options);
-        if ($response->successful()) {
-            return $response->json();
-        } 
-        \Log::error($url . $response->body());
-        return false;
+        $accessToken = $this->getToken();
+        return $this->safeGet($url, $accessToken, $options);
     }
 
     public function create(array $params)
@@ -122,15 +123,9 @@ abstract class Model
             $params = array_merge($this->dataDefault['create'], $params);
         }
         $params['created_time'] = time();
-        $url = $this->_url;
+        
         $accessToken = $this->getToken();
-        $response = \Http::acceptJson()->withToken($accessToken)->POST($url, $params);
-        ///reset token //
-        if ($response->successful()) {
-            return $response->json();
-        } 
-        \Log::error($url . $response->body());
-        return false;
+        return $this->safePost($this->_url, $accessToken, $params);
     }
 
 
@@ -146,24 +141,18 @@ abstract class Model
         }
         $url = $this->_url.'/'.$id;
         $accessToken = $this->getToken();
-        $response = \Http::acceptJson()->withToken($accessToken)->PUT($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        } 
-        \Log::error($url . $response->body());
-        return false;
+
+        return $this->safePost($url, $accessToken, $params, 'PUT');
     }
 
     public function remove($id, $options = [])
     {
         $url = $this->_url.'/'.$id;
         $accessToken = $this->getToken();
-        $response = \Http::acceptJson()->withToken($accessToken)->DELETE($url, $options);
-        if ($response->successful()) {
-            return $response->json();
-        } 
-        \Log::error($this->$url . $response->body());
-        return false;
+
+
+
+        return $this->safePost($url, $accessToken, [], 'DELETE');
     }
     /**
      * @author: namtq
