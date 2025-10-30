@@ -11,7 +11,7 @@ trait SafeHttpClient
     protected function safeGet(string $url, string $token, array $options = [], array $headers = [])
     {
         try {
-            return Http::retry(times: 1, 200)
+            return Http::retry(1, 200)
                 ->withOptions([
                     'connect_timeout' => 2,
                     'timeout' => 5,
