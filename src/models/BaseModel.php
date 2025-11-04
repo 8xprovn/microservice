@@ -10,6 +10,11 @@ abstract class BaseModel
 {
     protected $cacheDetailTime = 86400;
 
+    public function getCast($type = '')
+    {
+        return (!empty($this->casts) && !empty($this->casts[$type])) ?  $this->casts[$type] : [];
+    }
+
     public function count($params)
     {
         $params = $this->filter($params);
@@ -166,7 +171,6 @@ abstract class BaseModel
         if (!empty($this->is_cache)) {
             $this->cache()->delete($id);
         }
-        $this->asyncFile($params);
         return $result;
         //$query->update($params);
     }
@@ -215,7 +219,7 @@ abstract class BaseModel
             $result = $query->update($params, $options);
         }
 
-        $this->asyncFile($params);
+
         ////////// FLUSH CACHE ///////////
         if (!empty($this->is_cache) && $arrIds) {
             $this->cache()->delete($arrIds);
@@ -620,75 +624,11 @@ abstract class BaseModel
         }
         return $options;
     }
-
-     protected function asyncFile($params = [])
-    { 
-        if (empty($this->casts) || empty($params)) {
-            return;
-        }
-        $files = [];
-        if (!empty($this->casts['file'])) {
-            foreach ($this->casts['file'] as $field) {
-                $arrFile = [];
-                if (!empty($params[$field])) {
-                    $arrFile = $params[$field];
-                } elseif (strpos($field, '.') !== false) {
-                    $arr = explode('.', $field, 2);
-                    $key = $arr[0];
-                    $sub_key = $arr[1] ?? '';
-                    if (empty($params[$key]) || empty($sub_key)) continue;
-                    if (!empty($params[$key][$sub_key])) {
-                        $arrFile = $params[$key][$sub_key];
-                    } else {
-                        $arrFileItem = collect($params[$key])->pluck($sub_key)->filter()->values()->toArray();
-                        foreach ($arrFileItem as $item) {
-                            $arrFile = array_merge($arrFile, is_array($item) ? $item : [$item]);
-                        }
-                    }
-                }
-                if (!empty($arrFile)) {
-                    $files = array_merge($files, is_array($arrFile) ? $arrFile : [$arrFile]);
-                }
-            }
-        }
-
-        if (!empty($this->casts['content_file'])) {
-            foreach ($this->casts['content_file'] as $field) {
-                $arrFile = [];
-                if (!empty($params[$field])) {
-                    preg_match_all('/<img[^>]+src=["\']([^"\']+)["\']/i', $params[$field], $matches);
-                    if (!empty($matches[1])) {
-                        $imagePaths = array_filter($matches[1], fn($src) => !empty($src));
-                        $arrFile = array_merge($arrFile, $imagePaths);
-                    }
-                } elseif (strpos($field, '.') !== false) {
-                    $arr = explode('.', $field, 2);
-                    $key = $arr[0];
-                    $sub_key = $arr[1] ?? '';
-                    if (empty($params[$key]) || empty($sub_key)) continue;
-                    if (!empty($params[$key][$sub_key])) {
-                        preg_match_all('/<img[^>]+src=["\']([^"\']+)["\']/i', $params[$key][$sub_key], $matches);
-                        if (!empty($matches[1])) {
-                            $imagePaths = array_filter($matches[1], fn($src) => !empty($src));
-                            $arrFile = array_merge($arrFile, $imagePaths);
-                        }
-                    } else {
-                        $arrFileItem = collect($params[$key])->pluck($sub_key)->filter()->values()->toArray();
-                        foreach ($arrFileItem as $item) {
-                            preg_match_all('/<img[^>]+src=["\']([^"\']+)["\']/i', $item, $matches);
-                            if (!empty($matches[1])) {
-                                $imagePaths = array_filter($matches[1], fn($src) => !empty($src));
-                                $arrFile = array_merge($arrFile, $imagePaths);
-                            }
-                        }
-                    }
-                }
-                if (!empty($arrFile)) {
-                    $files = array_merge($files, is_array($arrFile) ? $arrFile : [$arrFile]);
-                }
-            }
-        } 
-        if (!empty($files)) \Microservices::Storage('File')->move($files);
+    protected function asyncFile($params = [])
+    {
+        if (empty($params) || empty($this->casts) || (empty($this->casts['file']) && empty($this->casts['content_file']))) return;
+        if (!empty($this->casts['file'])) \Microservices::Storage('File')->asyncMoveFileKey($params, [], $this->casts['file']);
+        if (!empty($this->casts['content_file'])) \Microservices::Storage('File')->asyncMoveFileContent($params, [], $this->casts['content_file']);
         return;
-    } 
+    }
 }
