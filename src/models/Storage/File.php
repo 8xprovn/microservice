@@ -170,7 +170,7 @@ class File
             }
 
             // sửa chuỗi đường dẫn thường
-            $str = $this->normalizePathString($str);
+            return $this->normalizePathString($str);
         }
 
         // Array
