@@ -60,7 +60,7 @@ abstract class Model
         // if ($response->successful()) {
         //     return $response->json();
         // } 
-        return $this->safeGet($this->_url, $accessToken, $q);
+        return $this->safeGet($this->_url, $q ,$accessToken);
     }
     public function details($id, $options = []) {
         $arrData = [];
@@ -110,7 +110,7 @@ abstract class Model
         }
         $url = $this->_url.'/'.$id;
         $accessToken = $this->getToken();
-        return $this->safeGet($url, $accessToken, $options);
+        return $this->safeGet($url, $options, $accessToken);
     }
 
     public function create(array $params)
@@ -125,7 +125,7 @@ abstract class Model
         $params['created_time'] = time();
         
         $accessToken = $this->getToken();
-        return $this->safePost($this->_url, $accessToken, $params);
+        return $this->safePost($this->_url, $params, $accessToken);
     }
 
 
@@ -142,17 +142,17 @@ abstract class Model
         $url = $this->_url.'/'.$id;
         $accessToken = $this->getToken();
 
-        return $this->safePost($url, $accessToken, $params, 'PUT');
+        return $this->safePut($url, $params, $accessToken);
     }
 
-    public function remove($id, $options = [])
+    public function remove($id, $params = [])
     {
         $url = $this->_url.'/'.$id;
         $accessToken = $this->getToken();
 
 
 
-        return $this->safePost($url, $accessToken, [], 'DELETE');
+        return $this->safeDelete($url,  $params, $accessToken );
     }
     /**
      * @author: namtq
