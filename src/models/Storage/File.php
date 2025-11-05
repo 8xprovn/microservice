@@ -103,13 +103,13 @@ class File
      * - $fields: mảng đường dẫn dot-notation, ví dụ: ['file', 'data.file', 'datas.file', 'content']
      * - $alsoUpdateHtmlImg: true => nếu field là string HTML, sẽ sửa cả <img src|srcset> bên trong.
      */
-    public function convertPathSave($params, $fields, bool $alsoUpdateHtmlImg = true): array
+    public function convertPathSave($params, $fields, bool $handelDomain = false): array
     {
         if (!is_array($params) || empty($fields)) return (array) $params;
 
         foreach ($fields as $path) {
-            $this->applyTransformByPath($params, $path, function ($val) use ($alsoUpdateHtmlImg) {
-                return $this->replaceTmpToSrcRecursive($val, $alsoUpdateHtmlImg);
+            $this->applyTransformByPath($params, $path, function ($val) use ($handelDomain) {
+                return $this->replaceTmpToSrcRecursive($val, $handelDomain);
             });
         }
         return $params;
@@ -157,26 +157,26 @@ class File
      *  - HTML chứa <img> (cả src & srcset) nếu $handleHtmlImages = true
      * Đồng thời dọn '//' dư nhưng giữ nguyên 'http://', 'https://'.
      */
-    private function replaceTmpToSrcRecursive($data, bool $handleHtmlImages = true)
+    private function replaceTmpToSrcRecursive($data, bool $handelDomain = false)
     {
         // String
         if (is_string($data)) {
             $str = trim($data);
 
-            if ($handleHtmlImages && stripos($str, '<img') !== false) {
+            if (stripos($str, '<img') !== false) {
                 // sửa trong HTML (src, srcset)
-                $str = $this->replaceTmpInHtmlImages($str);
+                $str = $this->replaceTmpInHtmlImages($str, $handelDomain);
                 return $str;
             }
 
             // sửa chuỗi đường dẫn thường
-            return $this->normalizePathString($str);
+            $str = $this->normalizePathString($str);
         }
 
         // Array
         if (is_array($data)) {
             foreach ($data as $k => $v) {
-                $data[$k] = $this->replaceTmpToSrcRecursive($v, $handleHtmlImages);
+                $data[$k] = $this->replaceTmpToSrcRecursive($v, $handelDomain);
             }
         }
 
@@ -205,15 +205,16 @@ class File
     /**
      * Thay /tmp -> /src bên trong HTML: xử lý cả src & srcset của <img>.
      */
-    private function replaceTmpInHtmlImages(string $html): string
+    private function replaceTmpInHtmlImages(string $html, $isDomain = false): string
     {
         // src="..."/src='...'/src=unquoted...
         $html = preg_replace_callback(
             '/\bsrc\s*=\s*(["\']?)([^"\'>\s]+)\1/iu',
-            function ($m) {
+            function ($m) use ($isDomain) {
                 $url  = $m[2];
                 $url = array_reverse(explode('path=', $url))[0] ?? '';
                 $new  = $this->normalizePathString($url);
+                if (!empty($isDomain)) $new = $this->show($new);
                 return str_replace($m[2], $new, $m[0]);
             },
             $html
