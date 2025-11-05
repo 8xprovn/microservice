@@ -53,6 +53,7 @@ class File
                 break;
             }
         }
+
         switch ($configDriver) {
             case "onedrive":
                 $input = array_merge($params, ['path' => $path]);
@@ -93,6 +94,134 @@ class File
         if (empty($dataFileNew) && empty($dataFileOld)) return;
         return \Microservices\Jobs\BusJob::dispatch($this->_listener, ['files' => $dataFileNew, 'delete' => $dataFileOld])->onQueue($this->_service_code);
     }
+
+
+
+
+    /**
+     * Thay /tmp -> /src trên các field chỉ định.
+     * - $fields: mảng đường dẫn dot-notation, ví dụ: ['file', 'data.file', 'datas.file', 'content']
+     * - $alsoUpdateHtmlImg: true => nếu field là string HTML, sẽ sửa cả <img src|srcset> bên trong.
+     */
+    public function convertPathSave($params, $fields, bool $alsoUpdateHtmlImg = true): array
+    {
+        if (!is_array($params) || empty($fields)) return (array) $params;
+
+        foreach ($fields as $path) {
+            $this->applyTransformByPath($params, $path, function ($val) use ($alsoUpdateHtmlImg) {
+                return $this->replaceTmpToSrcRecursive($val, $alsoUpdateHtmlImg);
+            });
+        }
+        return $params;
+    }
+
+    /* =================== Helpers =================== */
+
+    /**
+     * Áp dụng 1 transform cho node theo đường dẫn dot-notation.
+     * Tự lách qua mảng list nếu không có key trùng ở level hiện tại.
+     */
+    private function applyTransformByPath(array &$node, string $path, callable $transform): void
+    {
+        $parts = array_values(array_filter(explode('.', $path), 'strlen'));
+        $this->walkAndTransform($node, $parts, $transform);
+    }
+
+    private function walkAndTransform(&$node, array $parts, callable $transform): void
+    {
+        if (empty($parts)) {
+            $node = $transform($node);
+            return;
+        }
+
+        if (!is_array($node)) return;
+
+        $key = array_shift($parts);
+
+        if (array_key_exists($key, $node)) {
+            $this->walkAndTransform($node[$key], $parts, $transform);
+            return;
+        }
+
+        // Nếu là list (mảng số), thử áp tiếp cho từng phần tử
+        foreach ($node as &$child) {
+            if (is_array($child)) {
+                $this->walkAndTransform($child, array_merge([$key], $parts), $transform);
+            }
+        }
+    }
+
+    /**
+     * Đệ quy thay /tmp -> /src cho:
+     *  - String thường (đường dẫn)
+     *  - HTML chứa <img> (cả src & srcset) nếu $handleHtmlImages = true
+     * Đồng thời dọn '//' dư nhưng giữ nguyên 'http://', 'https://'.
+     */
+    private function replaceTmpToSrcRecursive($data, bool $handleHtmlImages = true)
+    {
+        // String
+        if (is_string($data)) {
+            $str = trim($data);
+
+            if ($handleHtmlImages && stripos($str, '<img') !== false) {
+                // sửa trong HTML (src, srcset)
+                $str = $this->replaceTmpInHtmlImages($str);
+                return $str;
+            }
+
+            // sửa chuỗi đường dẫn thường
+            return $this->normalizePathString($str);
+        }
+
+        // Array
+        if (is_array($data)) {
+            foreach ($data as $k => $v) {
+                $data[$k] = $this->replaceTmpToSrcRecursive($v, $handleHtmlImages);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Chuẩn hoá 1 đường dẫn/string:
+     * - đổi /tmp/ -> /src/ (kể cả trường hợp bắt đầu bằng 'tmp/')
+     * - dọn '//' dư nhưng không phá 'http(s)://'
+     */
+    private function normalizePathString(string $str): string
+    {
+        if ($str === '') return $str;
+
+        // Chỉ xử lý khi có tmp như  .../tmp/... hoặc bắt đầu tmp/
+        if (preg_match('#(^|/)tmp/#i', $str)) {
+            $str = preg_replace(['#(^|/)tmp/#i', '#/tmp/#i'], '/src/', $str);
+            // dọn // dư, giữ http(s)://
+            $str = preg_replace('#(?<!:)//+#', '/', $str);
+        }
+
+        return $str;
+    }
+
+    /**
+     * Thay /tmp -> /src bên trong HTML: xử lý cả src & srcset của <img>.
+     */
+    private function replaceTmpInHtmlImages(string $html): string
+    {
+        // src="..."/src='...'/src=unquoted...
+        $html = preg_replace_callback(
+            '/\bsrc\s*=\s*(["\']?)([^"\'>\s]+)\1/iu',
+            function ($m) {
+                $url  = $m[2];
+                $url = array_reverse(explode('path=', $url))[0] ?? '';
+                $new  = $this->normalizePathString($url);
+                return str_replace($m[2], $new, $m[0]);
+            },
+            $html
+        );
+        return $html;
+    }
+
+
 
     /**
      * So sánh nội dung HTML theo các field, trích <img src="..."> từ new/old,
@@ -189,6 +318,7 @@ class File
         // bỏ rỗng + trùng
         return array_values(array_filter(array_unique($files)));
     }
+
 
     /**
      * Trả về các "giá trị thô" lấy theo field (hỗ trợ "a.b", và mảng nhiều item).

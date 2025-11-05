@@ -39,8 +39,7 @@ abstract class BaseModel
         if (!empty($this->isSoftDelete)) {
             $params = array_merge($params, ['is_deleted' => 0]);
         }
-        ////// KTRA NEU CHI LAY THEO ID 
-        // dd($params);
+        ////// KTRA NEU CHI LAY THEO ID  
         if (count($params) == 1 && !empty($params[$this->primaryKey])) {
             $data = $this->details($params[$this->primaryKey], $options);
             return collect($data);
@@ -97,8 +96,10 @@ abstract class BaseModel
             $params['created_by'] = (int) \Auth::id();
         }
         $params['created_time'] = time();
-        $params['updated_time'] = time();
-        $this->asyncFile($params);
+        $params['updated_time'] = time(); 
+        if (!empty($this->casts['file']) || !empty($this->casts['content_file'])) {
+            $params =  $this->asyncFile($params);
+        } 
         return DB::table($this->table)->insertGetId($params);
     }
     public function createBatch(array $multiParams)
@@ -119,8 +120,10 @@ abstract class BaseModel
             }
             $params['created_time'] = time();
             $params['updated_time'] = time();
+            if (!empty($this->casts['file']) || !empty($this->casts['content_file'])) {
+                $params =  $this->asyncFile($params);
+            }
             $multiParams[$k] = $params;
-            $this->asyncFile($params);
         }
         return \DB::table($this->table)->insert($multiParams);
     }
@@ -624,11 +627,12 @@ abstract class BaseModel
         }
         return $options;
     }
-    protected function asyncFile($params = [])
+    public function asyncFile(&$params = [], $dataOld = [])
     {
-        if (empty($params) || empty($this->casts) || (empty($this->casts['file']) && empty($this->casts['content_file']))) return;
-        if (!empty($this->casts['file'])) \Microservices::Storage('File')->asyncMoveFileKey($params, [], $this->casts['file']);
-        if (!empty($this->casts['content_file'])) \Microservices::Storage('File')->asyncMoveFileContent($params, [], $this->casts['content_file']);
-        return;
+        if (empty($params) || empty($this->casts) || (empty($this->casts['file']) && empty($this->casts['content_file']))) return $params;
+        if (!empty($this->casts['file']))  \Microservices::Storage('File')->asyncMoveFileKey($params, $dataOld, $this->casts['file']);
+        if (!empty($this->casts['content_file']))  \Microservices::Storage('File')->asyncMoveFileContent($params, $dataOld, $this->casts['content_file']);
+        $fields = array_merge($this->casts['file'] ?? [], $this->casts['content_file'] ?? []);
+        return \Microservices::Storage('File')->convertPathSave($params, $fields);
     }
 }
