@@ -343,6 +343,10 @@ abstract class BaseModel
             }
         }
         $data = $query->first();
+
+        if (!empty($data) && !empty($this->casts['content_file'])) {
+            $data = \Microservices::Storage('File')->convertPathSave($data, $this->casts['content_file'], true);
+        }
         if ($isCache) {
             $this->cache()->update($id, $data);
             if (!empty($options['select'])) {

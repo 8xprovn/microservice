@@ -6,14 +6,21 @@ use Illuminate\Support\Facades\Http;
 
 class File
 {
+    protected $domains;
     protected $url;
     protected $hash;
     protected $_listener;
     protected $_service_code;
     public function __construct()
     {
-        $this->url = env('SERVICE_UPLOAD_URL_V2', 'https://storage.ebomb.edu.vn');
+        $this->url = env('SERVICE_UPLOAD_URL_V2', '');
         $this->hash = env('SERVICE_STORAGE_HASH_SECRET', '123456');
+        $this->domains = array_values(array_filter([
+            env('SERVICE_UPLOAD_URL_V2', ''),
+            env('SERVICE_MEDIA_URL_R2', ''),
+            env('SERVICE_MEDIA_URL', ''),
+        ]));
+
         $this->_listener = 'App\Jobs\MoveFileUpload';
         $this->_service_code = 'erp_system_backend_v2';
     }
@@ -39,6 +46,8 @@ class File
 
     public function show($path, $params = [])
     {
+        $path = $this->splitEncodedPath($path);
+
         $arrs = explode('/', trim($path, '/'));
         if (empty($arrs)) return '/';
         $channel = env('UPLOAD_CHANNEL', trim($arrs[0] ?? ''));
@@ -53,7 +62,6 @@ class File
                 break;
             }
         }
-
         switch ($configDriver) {
             case "onedrive":
                 $input = array_merge($params, ['path' => $path]);
@@ -95,9 +103,34 @@ class File
         return \Microservices\Jobs\BusJob::dispatch($this->_listener, ['files' => $dataFileNew, 'delete' => $dataFileOld])->onQueue($this->_service_code);
     }
 
+    private function splitEncodedPath(string $encoded)
+    {
+        // 1) Giải mã URL-encoded (an toàn hơn urldecode cho path)
+        return rawurldecode($encoded);
+    }
 
-
-
+    /**
+     * URL tuyệt đối có thuộc một trong các base URL ENV hay không
+     */
+    private function isAllowedEnvUrl(string $url): bool
+    {
+        $bases = $this->domains;
+        if (empty($bases)) return false;
+        // Chuẩn hoá URL đầu vào để so sánh
+        $u = $url;
+        if (strpos($u, '//') === 0) {
+            $u = 'http:' . $u; // thêm scheme giả để parse ok
+        }
+        // So khớp bằng "bắt đầu với" sau khi chuẩn hoá trailing slash
+        foreach ($bases as $base) {
+            if ($base === '') continue;
+            $b = rtrim($base, '/');
+            if (stripos($u, $b . '/') === 0 || strcasecmp(rtrim($u, '/'), $b) === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
     /**
      * Thay /tmp -> /src trên các field chỉ định.
      * - $fields: mảng đường dẫn dot-notation, ví dụ: ['file', 'data.file', 'datas.file', 'content']
@@ -199,27 +232,41 @@ class File
             $str = preg_replace('#(?<!:)//+#', '/', $str);
         }
 
-        return $str;
+        return trim(str_replace($this->domains, '', $str), '/');
     }
 
     /**
      * Thay /tmp -> /src bên trong HTML: xử lý cả src & srcset của <img>.
      */
-    private function replaceTmpInHtmlImages(string $html, $isDomain = false): string
+    private function replaceTmpInHtmlImages(string $html, $isDomain = true): string
     {
+
         // src="..."/src='...'/src=unquoted...
         $html = preg_replace_callback(
             '/\bsrc\s*=\s*(["\']?)([^"\'>\s]+)\1/iu',
             function ($m) use ($isDomain) {
                 $url  = $m[2];
                 $url = array_reverse(explode('path=', $url))[0] ?? '';
+                if ((preg_match('#^https?://#i',  $url) || preg_match('#^http?://#i',  $url)) && !$this->isAllowedEnvUrl($url)) {
+                    return str_replace($m[2], $url, $m[0]);
+                }
                 $new  = $this->normalizePathString($url);
-                if (!empty($isDomain)) $new = $this->show($new);
+                if (!empty($isDomain)) $new = $this->replaceDomainInHtml($new);
                 return str_replace($m[2], $new, $m[0]);
             },
             $html
         );
         return $html;
+    }
+
+    private function replaceDomainInHtml(string $url): string
+    {
+        $url = trim(html_entity_decode($url));
+        // URL tuyệt đối ngoài hệ thống thì giữ nguyên
+        if ((preg_match('#^https?://#i', $url) || preg_match('#^http?://#i', $url)) && !$this->isAllowedEnvUrl($url)) {
+            return $url;
+        } 
+        return $this->show($url);
     }
 
 
