@@ -298,6 +298,11 @@ abstract class BaseModel
         if ($data->isEmpty()) {
             return $arrData;
         }
+        if (!empty($this->casts['content_file']) && $fields = $this->casts['content_file']) {
+            $data = collect($data)->map(function ($item) use ($fields) {
+                return  \Microservices::Storage('File')->convertPathSave($item, $fields, true);
+            });
+        }
         ///////
         if ($isCache) {
             $data = $data->keyBy($this->primaryKey)->all();
