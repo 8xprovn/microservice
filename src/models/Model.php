@@ -2,7 +2,7 @@
 namespace Microservices\models;
 
 use Microservices\Traits\SafeHttpClient;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Request;
 
 abstract class Model
 {
