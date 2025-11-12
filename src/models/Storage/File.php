@@ -16,6 +16,7 @@ class File
         $this->url = env('SERVICE_UPLOAD_URL_V2', '');
         $this->hash = env('SERVICE_STORAGE_HASH_SECRET', '123456');
         $this->domains = array_values(array_filter([
+            env('SERVICE_UPLOAD_URL_V2', '') . '/storage/',
             env('SERVICE_UPLOAD_URL_V2', ''),
             env('SERVICE_MEDIA_URL_R2', ''),
             env('SERVICE_MEDIA_URL', ''),
