@@ -47,6 +47,7 @@ class File
 
     public function show($path, $params = [])
     {
+        if (empty($path)) return '';
         $path = $this->splitEncodedPath($path);
 
         $arrs = explode('/', trim($path, '/'));
@@ -203,7 +204,7 @@ class File
                 return $str;
             }
 
-            $path = $this->normalizePathString($str); 
+            $path = $this->normalizePathString($str);
             return !empty($handelDomain) ? $this->replaceDomainInHtml($path) :  $path;
         }
 
@@ -262,11 +263,12 @@ class File
 
     private function replaceDomainInHtml(string $url): string
     {
+        if (empty($url)) return '';
         $url = trim(html_entity_decode($url));
         // URL tuyệt đối ngoài hệ thống thì giữ nguyên
         if ((preg_match('#^https?://#i', $url) || preg_match('#^http?://#i', $url)) && !$this->isAllowedEnvUrl($url)) {
             return $url;
-        } 
+        }
         return $this->show($url);
     }
 
