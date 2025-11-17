@@ -203,7 +203,10 @@ class File
                 $str = $this->replaceTmpInHtmlImages($str, $handelDomain);
                 return $str;
             }
-
+            // ❗ Không phải đường dẫn file → return luôn, không động vào
+            if (!$this->isFilePath($str)) {
+                return $str;
+            }
             $path = $this->normalizePathString($str);
             return !empty($handelDomain) ? $this->replaceDomainInHtml($path) :  $path;
         }
@@ -216,6 +219,11 @@ class File
         }
 
         return $data;
+    }
+
+    private function isFilePath(string $str): bool
+    {
+        return preg_match('/\.(jpg|jpeg|png|gif|webp|svg|pdf|docx?|xlsx?|pptx?|zip|mp4|mp3)$/i', $str);
     }
 
     /**
