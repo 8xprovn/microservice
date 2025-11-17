@@ -203,8 +203,8 @@ class File
                 return $str;
             }
 
-            // sửa chuỗi đường dẫn thường
-            return $this->normalizePathString($str);
+            $path = $this->normalizePathString($str); 
+            return !empty($handelDomain) ? $this->replaceDomainInHtml($path) :  $path;
         }
 
         // Array
