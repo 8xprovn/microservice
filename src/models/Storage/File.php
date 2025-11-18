@@ -101,6 +101,7 @@ class File
         }
         $dataFileNew = array_values(array_diff($fileNews, $fileOlds));
         $dataFileOld =  array_values(array_diff($fileOlds, $fileNews));
+
         if (empty($dataFileNew) && empty($dataFileOld)) return;
         return \Microservices\Jobs\BusJob::dispatch($this->_listener, ['files' => $dataFileNew, 'delete' => $dataFileOld])->onQueue($this->_service_code);
     }
@@ -298,24 +299,32 @@ class File
         $allOld = [];
 
         foreach ($arrField as $field) {
-            // Lấy tất cả file ảnh từ HTML mới/cũ theo field (hỗ trợ dot notation)
-            $newFiles = $this->extractImagesByField($newParams, $field);
-            $oldFiles = $this->extractImagesByField($oldParams, $field);
+            // Lấy TẤT CẢ node theo field bằng logic giống convertPathSave
+            $rawNew = $this->collectByPath($newParams, $field);
+            $rawOld = $this->collectByPath($oldParams, $field);
+
+            $newFiles = [];
+            foreach ($rawNew as $item) {
+                $newFiles = array_merge($newFiles, $this->extractImageFiles($item, true));
+            }
+
+            $oldFiles = [];
+            foreach ($rawOld as $item) {
+                $oldFiles = array_merge($oldFiles, $this->extractImageFiles($item, true));
+            }
 
             $allNew = array_merge($allNew, $newFiles);
             $allOld = array_merge($allOld, $oldFiles);
         }
 
-        // Làm sạch & unique
+        // unique + bỏ rỗng
         $allNew = array_values(array_filter(array_unique($allNew)));
         $allOld = array_values(array_filter(array_unique($allOld)));
+        if (empty($allNew) && empty($allOld)) return;
 
-        if (!empty($allNew)) {
-            // move(new, old) -> chỉ move phần thật sự mới so với old
-            return $this->move($allNew, $allOld);
-        }
-        return;
+        return $this->move($allNew, $allOld);
     }
+
 
     /**
      * So sánh giá trị theo key (file path thường) theo các field (kể cả 'data.files'),
@@ -333,85 +342,75 @@ class File
         $allOld = [];
 
         foreach ($arrField as $field) {
-            $newFiles = $this->extractFilesByField($newParams, $field);
-            $oldFiles = $this->extractFilesByField($oldParams, $field);
+            $rawNew = $this->collectByPath($newParams, $field);
+            $rawOld = $this->collectByPath($oldParams, $field);
+
+            $newFiles = [];
+            foreach ($rawNew as $item) {
+                $newFiles = array_merge($newFiles, $this->normalizeFiles($item));
+            }
+
+            $oldFiles = [];
+            foreach ($rawOld as $item) {
+                $oldFiles = array_merge($oldFiles, $this->normalizeFiles($item));
+            }
 
             $allNew = array_merge($allNew, $newFiles);
             $allOld = array_merge($allOld, $oldFiles);
         }
 
-        // Làm sạch & unique
         $allNew = array_values(array_filter(array_unique($allNew)));
         $allOld = array_values(array_filter(array_unique($allOld)));
+
         if (empty($allNew) && empty($allOld)) return;
+
         return $this->move($allNew, $allOld);
-    }
+    } 
 
     /* =================== Helpers =================== */
-
     /**
      * Lấy tất cả file theo field (hỗ trợ dot notation và mảng lồng),
      * dùng cho key path thông thường (không phải HTML).
      */
-    private function extractFilesByField(array $source, string $field): array
+
+
+    private function collectByPath(array $node, string $path): array
     {
-        $raws = $this->getValuesByField($source, $field);
-        $files = [];
-        foreach ($raws as $raw) {
-            $files = array_merge($files, $this->normalizeFiles($raw));
-        }
-        // bỏ rỗng + trùng
-        return array_values(array_filter(array_unique($files)));
+        $parts = array_values(array_filter(explode('.', $path), 'strlen'));
+        $results = [];
+        $this->walkAndCollect($node, $parts, $results);
+        return $results;
     }
 
     /**
-     * Lấy tất cả file ảnh từ HTML theo field (hỗ trợ dot notation và mảng lồng).
+     * Đệ quy giống walkAndTransform, nhưng thay vì transform thì push vào $results.
      */
-    private function extractImagesByField(array $source, string $field, bool $onlyTmpOrSrc = false): array
+    private function walkAndCollect($node, array $parts, array &$results): void
     {
-        $raws = $this->getValuesByField($source, $field);
-        $files = [];
-        foreach ($raws as $raw) {
-            $files = array_merge($files, $this->extractImageFiles($raw, $onlyTmpOrSrc));
-        }
-        // bỏ rỗng + trùng
-        return array_values(array_filter(array_unique($files)));
-    }
-
-
-    /**
-     * Trả về các "giá trị thô" lấy theo field (hỗ trợ "a.b", và mảng nhiều item).
-     * Caller sẽ tự chuẩn hoá tiếp.
-     */
-    private function getValuesByField(array $source, string $field): array
-    {
-        if (strpos($field, '.') === false) {
-            return array_key_exists($field, $source) ? [$source[$field]] : [];
+        if (empty($parts)) {
+            // Đã tới node đích theo path → collect nó
+            $results[] = $node;
+            return;
         }
 
-        [$root, $sub] = explode('.', $field, 2);
-        if (!array_key_exists($root, $source)) return [];
+        if (!is_array($node)) return;
 
-        $val = $source[$root];
-        $out = [];
+        $key = array_shift($parts);
 
-        // Trường hợp object/assoc có key con
-        if (is_array($val) && array_key_exists($sub, $val)) {
-            $out[] = $val[$sub];
-            return $out;
+        if (array_key_exists($key, $node)) {
+            // Tìm được key khớp, đi tiếp nhánh đó
+            $this->walkAndCollect($node[$key], $parts, $results);
+            return;
         }
 
-        // Trường hợp là danh sách item
-        if (is_array($val)) {
-            foreach ($val as $item) {
-                if (!is_array($item)) continue;
-                if (array_key_exists($sub, $item)) {
-                    $out[] = $item[$sub];
-                }
+        // Không có key trực tiếp → coi như list, thử áp tiếp cho từng phần tử
+        foreach ($node as $child) {
+            if (is_array($child)) {
+                $this->walkAndCollect($child, array_merge([$key], $parts), $results);
             }
         }
-        return $out;
     }
+
 
     /**
      * Chuẩn hoá về mảng file phẳng cho key path thường.
@@ -447,9 +446,7 @@ class File
     private function extractImageFiles($input, bool $onlyTmpOrSrc = false): array
     {
         if (empty($input)) return [];
-
         $result = [];
-
         if (is_array($input)) {
             foreach ($input as $item) {
                 if ($item === null || $item === '') continue;
@@ -463,12 +460,37 @@ class File
         if (preg_match_all('/<img[^>]*\s+src=["\']([^"\']+)["\']/iu', $input, $m)) {
             foreach ($m[1] as $src) {
                 $src = trim($src);
-                if ($src === '') continue;
-                if ($onlyTmpOrSrc && !str_contains($src, '/tmp') && !str_contains($src, '/src')) continue;
-                $result[] = $src;
+                $domainImg = $this->getDomainFromUrl($src);
+                if (!in_array($domainImg, $this->domains)) continue;
+                $result[] = str_replace($this->domains, '', $src);
             }
         }
-
         return array_values(array_unique($result));
+    }
+    private function getDomainFromUrl(string $url): string
+    {
+        $url = trim($url);
+
+        if ($url === '') return '';
+
+        // Trường hợp dạng //example.com/path
+        if (strpos($url, '//') === 0) {
+            $url = 'http:' . $url;
+        }
+
+        $parsed = parse_url($url);
+
+        // ❗ Không có host → URL tương đối → không có domain
+        if (empty($parsed['host'])) {
+            return ''; // hoặc return null; tùy bạn
+        }
+
+        $domain = ($parsed['scheme'] ?? 'http') . '://' . $parsed['host'];
+
+        if (!empty($parsed['port'])) {
+            $domain .= ':' . $parsed['port'];
+        }
+
+        return $domain;
     }
 }
