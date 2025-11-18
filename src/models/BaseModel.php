@@ -639,9 +639,8 @@ abstract class BaseModel
     public function asyncFile(&$params = [], $dataOld = [])
     {
         if (empty($params) || empty($this->casts) || (empty($this->casts['file']) && empty($this->casts['content_file']))) return $params;
-        if (!empty($this->casts['file']))  \Microservices::Storage('File')->asyncMoveFileKey($params, $dataOld, $this->casts['file']);
-        if (!empty($this->casts['content_file']))  \Microservices::Storage('File')->asyncMoveFileContent($params, $dataOld, $this->casts['content_file']);
         $fields = array_merge($this->casts['file'] ?? [], $this->casts['content_file'] ?? []);
+        if (!empty($fields))  \Microservices::Storage('File')->asyncMoveFileKey($params, $dataOld, $fields);
         return \Microservices::Storage('File')->convertPathSave($params, $fields);
     }
 }
