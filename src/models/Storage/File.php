@@ -101,7 +101,6 @@ class File
         }
         $dataFileNew = array_values(array_diff($fileNews, $fileOlds));
         $dataFileOld =  array_values(array_diff($fileOlds, $fileNews));
-
         if (empty($dataFileNew) && empty($dataFileOld)) return;
         return \Microservices\Jobs\BusJob::dispatch($this->_listener, ['files' => $dataFileNew, 'delete' => $dataFileOld])->onQueue($this->_service_code);
     }
