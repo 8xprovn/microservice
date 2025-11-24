@@ -372,11 +372,20 @@ abstract class BaseModel
             $arrId = $this->filter([$this->primaryKey => $id]);
             $id = $arrId[$this->primaryKey];
         }
+        if (!empty($this->casts['file']) || !empty($this->casts['content_file'])) {
+            $detail = $this->detail($id);
+        }
 
         $result = \DB::table($this->table)->where($this->primaryKey, $id)->delete();
         if (!empty($this->is_cache)) {
             $this->cache()->delete($id);
         }
+
+        if (!empty($result) && !empty($detail)) {
+            $fields = array_merge($this->casts['file'] ?? [], $this->casts['content_file'] ?? []);
+            if (!empty($fields))  \Microservices::Storage('File')->asyncMoveFileKey([], $detail, $fields, $this->isDeleteFile ?? true);
+        }
+
         return $result;
     }
     public function filter($params)
