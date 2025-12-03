@@ -74,6 +74,20 @@ class File
                 return env('SERVICE_MEDIA_URL', '') . '/' . trim($path, '/');
         }
     }
+    private function getFileNameFromPath(string $path): string
+    {
+        if (!strpos($path, 'path=') === false) {
+            $path = array_reverse(explode('path=', $path))[0] ?? '';
+            $path = strtok($path, '&'); // hoặc: $path = explode('&', $path)[0];
+        }
+        // bỏ khoảng trắng, nháy, v.v.
+        $path = trim($path, " \t\n\r\0\x0B'\"");
+        // decode nếu dạng %encoded
+        if (strpos($path, '%') !== false) {
+            $path = urldecode($path);
+        }
+        return trim($path, "/");
+    }
 
     public function move($datas = [], $dataOlds = [])
     {
@@ -81,24 +95,27 @@ class File
         foreach ($datas as $file) {
             if (is_array($file)) {
                 $file = array_map(function ($item) {
-                    $path = array_reverse(explode('path=', $item))[0] ?? '';
-                    return trim($path, " \t\n\r\0\x0B'\"");
+                    return $this->getFileNameFromPath($item);
                 }, $file);
                 $fileNews = array_merge($fileNews, array_values($file));
-            } else {
-                $file = array_reverse(explode('path=', $file))[0] ?? '';
-                $fileNews[] = trim($file, " \t\n\r\0\x0B'\"");
+            } else { 
+                $fileNews[] = $this->getFileNameFromPath($file);
             }
         }
         if (!empty($dataOlds)) {
+
             foreach ($dataOlds as $file) {
                 if (is_array($file)) {
-                    $fileOlds = array_merge($fileOlds, array_values($file));
-                } else {
-                    $fileOlds[] = $file;
+                    $old = array_map(function ($item) {
+                        return $this->getFileNameFromPath($item);
+                    }, $file);
+                    $fileOlds = array_merge($fileOlds, array_values($old));
+                } else { 
+                    $fileOlds[] = $this->getFileNameFromPath($file);
                 }
             }
         }
+
         $dataFileNew = array_values(array_diff($fileNews, $fileOlds));
         $dataFileOld =  array_values(array_diff($fileOlds, $fileNews));
         if (empty($dataFileNew) && empty($dataFileOld)) return;
@@ -311,7 +328,7 @@ class File
             $allOld = array_merge($allOld, $this->normalizeFiles($item));
         }
 
-        if (empty($allNew) && empty($allOld)) return; 
+        if (empty($allNew) && empty($allOld)) return;
         return $this->move($allNew, $allOld);
     }
 
