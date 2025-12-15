@@ -66,6 +66,7 @@ class File
         }
         switch ($configDriver) {
             case "onedrive":
+                $params['preview'] = 1;
                 $input = array_merge($params, ['path' => $path]);
                 return "{$this->url}/api/files/show?" . http_build_query($input);
             case "r2":
