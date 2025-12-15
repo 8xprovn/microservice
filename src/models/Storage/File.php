@@ -66,7 +66,7 @@ class File
         }
         switch ($configDriver) {
             case "onedrive":
-                $params['preview'] = 1;
+                if (!isset($params['preview'])) $params['preview'] = 1;
                 $input = array_merge($params, ['path' => $path]);
                 return "{$this->url}/api/files/show?" . http_build_query($input);
             case "r2":
@@ -99,7 +99,7 @@ class File
                     return $this->getFileNameFromPath($item);
                 }, $file);
                 $fileNews = array_merge($fileNews, array_values($file));
-            } else { 
+            } else {
                 $fileNews[] = $this->getFileNameFromPath($file);
             }
         }
@@ -111,7 +111,7 @@ class File
                         return $this->getFileNameFromPath($item);
                     }, $file);
                     $fileOlds = array_merge($fileOlds, array_values($old));
-                } else { 
+                } else {
                     $fileOlds[] = $this->getFileNameFromPath($file);
                 }
             }
@@ -339,7 +339,7 @@ class File
     {
         $parts = explode('.', $field);
         $last  = count($parts) - 1;
-        
+
         $regex = '/^';
         foreach ($parts as $i => $part) {
             $regex .= preg_quote($part, '/');
