@@ -240,7 +240,7 @@ class File
 
     private function isFilePath(string $str): bool
     {
-        return preg_match('/\.(jpg|jpeg|png|gif|webp|svg|pdf|docx?|xlsx?|pptx?|zip|mp4|mp3)$/i', $str);
+        return preg_match('/\.(jpg|jpeg|png|gif|webp|webm|svg|pdf|docx?|xlsx?|pptx?|zip|mp4|mp3)$/i', $str);
     }
 
     /**
@@ -338,18 +338,17 @@ class File
     {
         $parts = explode('.', $field);
         $last  = count($parts) - 1;
-
+        
         $regex = '/^';
         foreach ($parts as $i => $part) {
-            $regex .= preg_quote($part, '/'); // escape an toàn tên key
+            $regex .= preg_quote($part, '/');
 
             if ($i < $last) {
-                // cho phép chèn .0 .1 ... giữa các cấp
-                $regex .= '(?:\.\d+)*\.';
+                $regex .= '(?:\.\d+)?\.';
             }
         }
-        $regex .= '$/';
 
+        $regex .= '(?:\.\d+)?$/';
         return $regex;
     }
 
