@@ -90,7 +90,7 @@ class Lime
             $listParticipants = $lsJSONRPCClient->list_participants($sessionKey, $iSurveyID, 0, 100000, false, false);
             if (!empty($listParticipants) && is_array($listParticipants)) {
                 foreach ($listParticipants as $value) {
-                    if(is_array($value) && !empty($value['token']) && $value['token'] == $sToken) {
+                    if(is_array($value) && isset($value['token']) && $value['token'] == $sToken) {
                         $tokenExists = true;
                     }
                 }
@@ -106,9 +106,10 @@ class Lime
                 
                 // Create the token in survey 2
                 $newToken = $lsJSONRPCClient->add_participants($sessionKey, $iSurveyID, $aParticipantData, $bCreateToken);
-                if (!empty($newToken[0]['token'])) {
+                if (is_array($newToken) && isset($newToken[0]) && is_array($newToken[0]) && isset($newToken[0]['token'])
+                ) {
                     $data = [
-                        'token' => $sToken,
+                        'token' => $newToken[0]['token'], // nên dùng token trả về
                     ];
                 }
             }
