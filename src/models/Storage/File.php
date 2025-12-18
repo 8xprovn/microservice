@@ -156,13 +156,13 @@ class File
      * - $fields: mảng đường dẫn dot-notation, ví dụ: ['file', 'data.file', 'datas.file', 'content']
      * - $alsoUpdateHtmlImg: true => nếu field là string HTML, sẽ sửa cả <img src|srcset> bên trong.
      */
-    public function convertPathSave($params, $fields, bool $handelDomain = false): array
+    public function convertPathSave($params, $fields, bool $handelDomain = false, $option = []): array
     {
         if (!is_array($params) || empty($fields)) return (array) $params;
 
         foreach ($fields as $path) {
-            $this->applyTransformByPath($params, $path, function ($val) use ($handelDomain) {
-                return $this->replaceTmpToSrcRecursive($val, $handelDomain);
+            $this->applyTransformByPath($params, $path, function ($val) use ($handelDomain, $option) {
+                return $this->replaceTmpToSrcRecursive($val, $handelDomain, $option);
             });
         }
         return $params;
@@ -210,7 +210,7 @@ class File
      *  - HTML chứa <img> (cả src & srcset) nếu $handleHtmlImages = true
      * Đồng thời dọn '//' dư nhưng giữ nguyên 'http://', 'https://'.
      */
-    private function replaceTmpToSrcRecursive($data, bool $handelDomain = false)
+    private function replaceTmpToSrcRecursive($data, bool $handelDomain = false, $option = [])
     {
         // String
         if (is_string($data)) {
@@ -218,7 +218,7 @@ class File
 
             if (stripos($str, '<img') !== false) {
                 // sửa trong HTML (src, srcset)
-                $str = $this->replaceTmpInHtmlImages($str, $handelDomain);
+                $str = $this->replaceTmpInHtmlImages($str, $handelDomain, $option);
                 return $str;
             }
             // ❗ Không phải đường dẫn file → return luôn, không động vào
@@ -226,13 +226,13 @@ class File
                 return $str;
             }
             $path = $this->normalizePathString($str);
-            return !empty($handelDomain) ? $this->replaceDomainInHtml($path) :  $path;
+            return !empty($handelDomain) ? $this->replaceDomainInHtml($path, $option) :  $path;
         }
 
         // Array
         if (is_array($data)) {
             foreach ($data as $k => $v) {
-                $data[$k] = $this->replaceTmpToSrcRecursive($v, $handelDomain);
+                $data[$k] = $this->replaceTmpToSrcRecursive($v, $handelDomain, $option);
             }
         }
 
@@ -266,20 +266,20 @@ class File
     /**
      * Thay /tmp -> /src bên trong HTML: xử lý cả src & srcset của <img>.
      */
-    private function replaceTmpInHtmlImages(string $html, $isDomain = true): string
+    private function replaceTmpInHtmlImages(string $html, $isDomain = true, $option = []): string
     {
 
         // src="..."/src='...'/src=unquoted...
         $html = preg_replace_callback(
             '/\bsrc\s*=\s*(["\']?)([^"\'>\s]+)\1/iu',
-            function ($m) use ($isDomain) {
+            function ($m) use ($isDomain, $option) {
                 $url  = $m[2];
                 $url = array_reverse(explode('path=', $url))[0] ?? '';
                 if ((preg_match('#^https?://#i',  $url) || preg_match('#^http?://#i',  $url)) && !$this->isAllowedEnvUrl($url)) {
                     return str_replace($m[2], $url, $m[0]);
                 }
                 $new  = $this->normalizePathString($url);
-                if (!empty($isDomain)) $new = $this->replaceDomainInHtml($new);
+                if (!empty($isDomain)) $new = $this->replaceDomainInHtml($new, $option);
                 return str_replace($m[2], $new, $m[0]);
             },
             $html
@@ -287,7 +287,7 @@ class File
         return $html;
     }
 
-    private function replaceDomainInHtml(string $url): string
+    private function replaceDomainInHtml(string $url, $option = []): string
     {
         if (empty($url)) return '';
         $url = trim(html_entity_decode($url));
@@ -295,7 +295,8 @@ class File
         if ((preg_match('#^https?://#i', $url) || preg_match('#^http?://#i', $url)) && !$this->isAllowedEnvUrl($url)) {
             return $url;
         }
-        return $this->show($url);
+        $option = collect($option)->only(['preview'])->toArray();
+        return $this->show($url, $option);
     }
 
 
