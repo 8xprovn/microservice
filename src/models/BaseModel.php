@@ -649,7 +649,7 @@ abstract class BaseModel
     {
         if (empty($params) || empty($this->casts) || (empty($this->casts['file']) && empty($this->casts['content_file']))) return $params;
         $fields = array_merge($this->casts['file'] ?? [], $this->casts['content_file'] ?? []);
-        if (!empty($fields))  \Microservices::Storage('File')->asyncMoveFileKey($params, $dataOld, $fields);
+        if (!empty($fields))  \Microservices::Storage('File')->asyncMoveFileKey($params, $dataOld, $fields,  $this->isDeleteFile ?? true);
         return \Microservices::Storage('File')->convertPathSave($params, $fields);
     }
 }
