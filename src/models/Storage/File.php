@@ -309,7 +309,7 @@ class File
      * @param array $arrField  Danh sách field: vd ['avatar', 'gallery', 'data.files']
      */
 
-    public function asyncMoveFileKey(array $newParams = [], array $oldParams = [], $arrField = [], $asyncDelete = false)
+    public function asyncMoveFileKey(array $newParams = [], array $oldParams = [], $arrField = [], $asyncDelete = true)
     {
         if (empty($arrField)) return;
         $arrDataNew = $arrDataOld = $allNew = $allOld = [];
@@ -317,7 +317,6 @@ class File
             $newValues = $this->getDotByField($newParams, $field);
             $oldValues = $this->getDotByField($oldParams, $field);
             // Nếu new KHÔNG chứa field → coi như không update → bỏ qua xoá
-            if (empty($newValues) && empty($asyncDelete)) continue;
             if (!empty($newValues)) $arrDataNew = array_merge($arrDataNew, $newValues);
             if (!empty($oldValues)) $arrDataOld = array_merge($arrDataOld, $oldValues);
         }
@@ -325,12 +324,11 @@ class File
         if (!empty($arrDataNew)) foreach ($arrDataNew as $item) {
             $allNew = array_merge($allNew, $this->normalizeFiles($item));
         }
-
         if (!empty($arrDataOld)) foreach ($arrDataOld as $item) {
             $allOld = array_merge($allOld, $this->normalizeFiles($item));
-        }
-
+        } 
         if (empty($allNew) && empty($allOld)) return;
+        if (empty($asyncDelete)) $allOld = [];
         return $this->move($allNew, $allOld);
     }
 
