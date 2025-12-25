@@ -241,7 +241,7 @@ class File
 
     private function isFilePath(string $str): bool
     {
-        return preg_match('/\.(jpg|jpeg|png|gif|webp|webm|svg|pdf|docx?|xlsx?|pptx?|zip|mp4|mp3)$/i', $str);
+        return preg_match('/\.(jpg|jpeg|png|gif|webp|webm|svg|pdf|docx?|xlsx?|pptx?|zip|mp4|m4a|mp3|wav|ogg|flac|aac|opus)$/i', $str);
     }
 
     /**
