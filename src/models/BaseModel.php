@@ -73,11 +73,22 @@ abstract class BaseModel
         foreach ($options['order_by'] as $k => $v) {
             $query->orderBy($k, $v);
         }
+        
+        $fields = array_merge($this->casts['file'] ?? [], $this->casts['content_file'] ?? []);
+      
         if (!empty($options['pagination'])) {
-            return $query->simplePaginate($options['limit'] ?? config('data.default_limit_pagination'));
+            $result = $query->simplePaginate($options['limit'] ?? config('data.default_limit_pagination'));
+            if (!empty($options['full_url']) && !empty($fields)) $result->getCollection()->transform(function ($item) use ($fields) {
+                return \Microservices::Storage('File')->convertPathSave($item, $fields, true);
+            });
         } else {
-            return $query->limit($options['limit'] ?? 100)->offset($options['offset'] ?? 0)->get();
-        }
+            $result = $query->limit($options['limit'] ?? 100)->offset($options['offset'] ?? 0)->get();
+            if (!empty($options['full_url']) && !empty($fields))  $result = $result->map(function ($item) use ($fields) {
+                return \Microservices::Storage('File')->convertPathSave($item, $fields, true);
+            }); 
+        } 
+        
+        return $result;
     }
     public function create(array $params)
     {
