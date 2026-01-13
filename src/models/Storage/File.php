@@ -90,7 +90,44 @@ class File
         return trim($path, "/");
     }
 
-    public function move($datas = [], $dataOlds = [])
+    public function moveDownload($datas = [], $channel = '', $folder = '')
+    {
+        $fileNews = $fileDownload = $fileReturn = [];
+        foreach ($datas as $file) {
+            if (is_array($file)) {
+                $file = array_map(function ($item) {
+                    return $this->getFileNameFromPath($item);
+                }, $file);
+                $fileNews = array_merge($fileNews, array_values($file));
+            } else {
+                $fileNews[] = $this->getFileNameFromPath($file);
+            }
+        }
+
+        if (empty($fileNews)) return [];
+        foreach ($fileNews as $k => $item) {
+            if (strpos($file, '/tmp') === 0  || strpos($file, 'tmp')  === 0) {
+                $path = str_replace(['//'], '/', "{$channel}/{$folder}/" . date('Y/m/d') . '/' . basename($item));
+                $fileDownload[] = [
+                    'url' => $item,
+                    'path' => $path
+                ];
+                $fileReturn[] = $path;
+                unset($fileNews[$k]);
+            } else {
+                $fileReturn[] = $item;
+            }
+        }
+
+        if (empty($fileNews) && empty($fileDownload)) return; 
+        \Microservices\Jobs\BusJob::dispatch($this->_listener, [
+            'files' => array_values($fileNews),
+            'download' => $fileDownload
+        ])->onQueue($this->_service_code);
+        return $fileReturn;
+    }
+
+    public function move($datas = [], $dataOlds = [], $channel = '')
     {
         $fileNews = $fileOlds = [];
         foreach ($datas as $file) {
