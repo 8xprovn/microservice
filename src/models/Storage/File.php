@@ -363,10 +363,14 @@ class File
         }
         if (!empty($arrDataOld)) foreach ($arrDataOld as $item) {
             $allOld = array_merge($allOld, $this->normalizeFiles($item));
-        } 
-        if (empty($allNew) && empty($allOld)) return;
-        if (empty($asyncDelete)) $allOld = [];
-        return $this->move($allNew, $allOld);
+        }
+
+        $diffNew = array_diff($allNew, $allOld); // NEW có, OLD không
+        $diffOld = array_diff($allOld, $allNew); // OLD có, NEW không
+
+        if (empty($diffNew) && empty($diffOld)) return;
+        if (empty($asyncDelete)) $diffOld = [];
+        return $this->move($diffNew, $diffOld);
     }
 
 
