@@ -365,8 +365,8 @@ class File
             $allOld = array_merge($allOld, $this->normalizeFiles($item));
         }
 
-        $diffNew = array_diff($allNew, $allOld); // NEW có, OLD không
-        $diffOld = array_diff($allOld, $allNew); // OLD có, NEW không
+        $diffNew = array_values(array_diff($allNew, $allOld)); // NEW có, OLD không
+        $diffOld = array_values(array_diff($allOld, $allNew)); // OLD có, NEW không
 
         if (empty($diffNew) && empty($diffOld)) return;
         if (empty($asyncDelete)) $diffOld = [];
