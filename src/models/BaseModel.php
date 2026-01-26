@@ -78,16 +78,16 @@ abstract class BaseModel
       
         if (!empty($options['pagination'])) {
             $result = $query->simplePaginate($options['limit'] ?? config('data.default_limit_pagination'));
-            if (!empty($options['full_url']) && !empty($fields)) $result->getCollection()->transform(function ($item) use ($fields) {
-                return \Microservices::Storage('File')->convertPathSave($item, $fields, true);
+            if (!empty($options['full_url']) && !empty($fields)) $result->getCollection()->transform(function ($item) use ($fields, $options) {
+                return \Microservices::Storage('File')->convertPathSave($item, $fields, true, ['preview' => $options['preview'] ?? 0]);
             });
         } else {
             $result = $query->limit($options['limit'] ?? 100)->offset($options['offset'] ?? 0)->get();
             if (!empty($options['full_url']) && !empty($fields))  $result = $result->map(function ($item) use ($fields) {
-                return \Microservices::Storage('File')->convertPathSave($item, $fields, true);
-            }); 
-        } 
-        
+                return \Microservices::Storage('File')->convertPathSave($item, $fields, true, ['preview' => $options['preview'] ?? 0]);
+            });
+        }
+
         return $result;
     }
     public function create(array $params)
