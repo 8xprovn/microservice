@@ -45,6 +45,13 @@ class File
         return md5("{$config_key_md5}_{$string}");
     }
 
+    public function resize($path, $width = 0, $height = 0, $type = 'crop')
+    {
+        if (empty($width) && empty($height)) return $this->show($path);
+        $path =  trim($path, '/');
+        return env('SERVICE_MEDIA_URL_RESIZE', 'https://img.ebomb.edu.vn') . "/{$type}/{$width}x{$height}/$path";
+    }
+
     public function show($path, $params = [])
     {
         if (empty($path)) return '';
