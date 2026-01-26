@@ -83,7 +83,7 @@ abstract class BaseModel
             });
         } else {
             $result = $query->limit($options['limit'] ?? 100)->offset($options['offset'] ?? 0)->get();
-            if (!empty($options['full_url']) && !empty($fields))  $result = $result->map(function ($item) use ($fields) {
+            if (!empty($options['full_url']) && !empty($fields))  $result = $result->map(function ($item) use ($fields, $options) {
                 return \Microservices::Storage('File')->convertPathSave($item, $fields, true, ['preview' => $options['preview'] ?? 0]);
             });
         }
