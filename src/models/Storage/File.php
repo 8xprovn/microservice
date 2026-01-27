@@ -298,11 +298,11 @@ class File
         if ($str === '') return $str;
 
         // Chỉ xử lý khi có tmp như  .../tmp/... hoặc bắt đầu tmp/
-        if (preg_match('#(^|/)tmp/#i', $str)) {
-            $str = preg_replace(['#(^|/)tmp/#i', '#/tmp/#i'], '/src/', $str);
-            // dọn // dư, giữ http(s)://
-            $str = preg_replace('#(?<!:)//+#', '/', $str);
-        }
+        // if (preg_match('#(^|/)tmp/#i', $str)) {
+        //     $str = preg_replace(['#(^|/)tmp/#i', '#/tmp/#i'], '/src/', $str);
+        //     // dọn // dư, giữ http(s)://
+        //     $str = preg_replace('#(?<!:)//+#', '/', $str);
+        // }
 
         return trim(str_replace($this->domains, '', $str), '/');
     }
