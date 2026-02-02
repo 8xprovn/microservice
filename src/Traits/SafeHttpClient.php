@@ -60,7 +60,7 @@ trait SafeHttpClient
                     'url' => $url,
                     'error' => $e->getMessage(),
                     'type' => get_class($e),
-                    'status' => method_exists($e, 'getCode') ? $e->getCode() : null,
+                    'status' => $e->response->status(),
                 ]);
             }
             return $e->response->json() ?? false;
@@ -99,7 +99,7 @@ trait SafeHttpClient
                     'url' => $url,
                     'error' => $e->getMessage(),
                     'type' => get_class($e),
-                    'status' => method_exists($e, 'getCode') ? $e->getCode() : null,
+                    'status' => $e->response->status(),
                 ]); 
             } 
             return $e->response->json() ?? false;
@@ -139,7 +139,7 @@ trait SafeHttpClient
                     'url' => $url,
                     'error' => $e->getMessage(),
                     'type' => get_class($e),
-                    'status' => method_exists($e, 'getCode') ? $e->getCode() : null,
+                    'status' => $e->response->status(),
                 ]); 
             } 
             return $e->response->json() ?? false;
