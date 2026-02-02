@@ -55,7 +55,7 @@ trait SafeHttpClient
                 ->post($url, $options)
                 ->throw()->json();
         } catch (RequestException $e) {
-            if (!empty($e->response) && $e->response->status() >= 500) {
+            if ($e->response?->serverError()) { 
                 Log::error('Post: Unexpected API exception', [
                     'url' => $url,
                     'error' => $e->getMessage(),
@@ -94,7 +94,7 @@ trait SafeHttpClient
                 ->put($url, $options)
                 ->throw()->json();
         } catch (RequestException $e) {
-            if (!empty($e->response) && $e->response->status() >= 500) {  
+            if ($e->response?->serverError()) {
                 Log::error('Post: Unexpected API exception', [
                     'url' => $url,
                     'error' => $e->getMessage(),
@@ -134,7 +134,7 @@ trait SafeHttpClient
                 ->delete($url, $options)
                 ->throw()->json();
         } catch (RequestException $e) {
-            if (!empty($e->response) && $e->response->status() >= 500) {  
+            if ($e->response?->serverError()) {  
                 Log::error('Post: Unexpected API exception', [
                     'url' => $url,
                     'error' => $e->getMessage(),
