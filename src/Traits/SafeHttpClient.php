@@ -4,6 +4,8 @@ namespace Microservices\Traits;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
+
 use Log;
 
 trait SafeHttpClient
@@ -52,8 +54,9 @@ trait SafeHttpClient
                 ->withToken($token)
                 ->post($url, $options)
                 ->throw()->json();
+        } catch (RequestException $e) {
+            return $e->response->json() ?? false;
         } catch (\Exception $e) {
-            // Lỗi không mong muốn (logic, parse, v.v.)
             Log::error('Post: Unexpected API exception', [
                 'url' => $url,
                 'error' => $e->getMessage(),
@@ -82,6 +85,8 @@ trait SafeHttpClient
                 ->withToken($token)
                 ->put($url, $options)
                 ->throw()->json();
+        } catch (RequestException $e) {
+            return $e->response->json() ?? false;
         } catch (\Exception $e) {
             // Lỗi không mong muốn (logic, parse, v.v.)
             Log::error('Put: Unexpected API exception', [
@@ -112,6 +117,8 @@ trait SafeHttpClient
                 ->withToken($token)
                 ->delete($url, $options)
                 ->throw()->json();
+        } catch (RequestException $e) {
+            return $e->response->json() ?? false;
         } catch (\Exception $e) {
             // Lỗi không mong muốn (logic, parse, v.v.)
             Log::error('Delete: Unexpected API exception', [
