@@ -55,6 +55,14 @@ trait SafeHttpClient
                 ->post($url, $options)
                 ->throw()->json();
         } catch (RequestException $e) {
+            if (!empty($e->response) && $e->response->status() >= 500) {
+                Log::error('Post: Unexpected API exception', [
+                    'url' => $url,
+                    'error' => $e->getMessage(),
+                    'type' => get_class($e),
+                    'status' => method_exists($e, 'getCode') ? $e->getCode() : null,
+                ]);
+            }
             return $e->response->json() ?? false;
         } catch (\Exception $e) {
             Log::error('Post: Unexpected API exception', [
@@ -86,6 +94,14 @@ trait SafeHttpClient
                 ->put($url, $options)
                 ->throw()->json();
         } catch (RequestException $e) {
+            if (!empty($e->response) && $e->response->status() >= 500) {  
+                Log::error('Post: Unexpected API exception', [
+                    'url' => $url,
+                    'error' => $e->getMessage(),
+                    'type' => get_class($e),
+                    'status' => method_exists($e, 'getCode') ? $e->getCode() : null,
+                ]); 
+            } 
             return $e->response->json() ?? false;
         } catch (\Exception $e) {
             // Lỗi không mong muốn (logic, parse, v.v.)
@@ -118,6 +134,14 @@ trait SafeHttpClient
                 ->delete($url, $options)
                 ->throw()->json();
         } catch (RequestException $e) {
+            if (!empty($e->response) && $e->response->status() >= 500) {  
+                Log::error('Post: Unexpected API exception', [
+                    'url' => $url,
+                    'error' => $e->getMessage(),
+                    'type' => get_class($e),
+                    'status' => method_exists($e, 'getCode') ? $e->getCode() : null,
+                ]); 
+            } 
             return $e->response->json() ?? false;
         } catch (\Exception $e) {
             // Lỗi không mong muốn (logic, parse, v.v.)
@@ -130,5 +154,4 @@ trait SafeHttpClient
         }
         return false;
     }
-    
 }
