@@ -185,6 +185,15 @@ abstract class BaseModel
         if (!empty($this->is_cache)) {
             $this->cache()->delete($id);
         }
+        if (!empty($result) && !empty($this->is_log)) {
+            $this->logs([
+                'relate_type' => $this->table,
+                'action' => 'update',
+                'relate_id' => $id,
+                'data_olds' => [],
+                'data_news' => $params
+            ]);
+        }
         return $result;
         //$query->update($params);
     }
@@ -662,5 +671,23 @@ abstract class BaseModel
         $fields = array_merge($this->casts['file'] ?? [], $this->casts['content_file'] ?? []);
         if (!empty($fields))  \Microservices::Storage('File')->asyncMoveFileKey($params, $dataOld, $fields,  $this->isDeleteFile ?? true);
         return \Microservices::Storage('File')->convertPathSave($params, $fields);
+    }
+
+    public function logs($data)
+    {
+        $user_id =  \Auth::id();
+        if (empty($user_id)) {
+            return false;
+        }
+
+        \Microservices::System('Logs')->pushLogs([
+            'relate_type' => $data['relate_type']??null,
+            'relate_id' =>  $data['relate_id']??null,
+            'created_by' => $user_id,
+            'action' => $data['action']??null,
+            'data_olds' => $data['data_olds']??[],
+            'data_news' => $data['data_news']??[],
+        ]);
+        return true;
     }
 }

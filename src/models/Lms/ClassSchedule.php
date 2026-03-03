@@ -40,4 +40,18 @@ class ClassSchedule extends \Microservices\models\Model
         \Log::error($this->_url . $response->body());
         return [];
     }
+    public function updateBySchedule($id, $params)
+    {
+        $url = $this->_url . '/' . $id . '/update_by_schedule';
+        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        $responseJson = $response->json();
+        if (isset($responseJson['message'])) {
+            return $responseJson;
+        }
+        \Log::error($this->_url . $response->body());
+        return [];
+    }
 }
