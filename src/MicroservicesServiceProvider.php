@@ -66,7 +66,7 @@ class MicroservicesServiceProvider extends ServiceProvider
                 $cleanKey = preg_replace('/^\x00\*\x00/', '', $key);
                 $cleanArray[$cleanKey] = $value;
             }
-            if (empty($cleanArray['data']['execution_log_id'])) {
+            if (!empty($cleanArray['data']['execution_log_id'])) {
                 \Microservices::System('ExcutionsLogs')->updateAction([
                     'execution_log_id' => $cleanArray['data']['execution_log_id'] ?? '-1',
                     'status' =>  'error',
