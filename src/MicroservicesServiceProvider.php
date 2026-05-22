@@ -4,9 +4,9 @@ namespace Microservices;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Foundation\AliasLoader;
-use Illuminate\Queue\Events\JobFailed; 
-use Illuminate\Support\Facades\Event;
+use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Event;
 use Microservices\models\Microservices;
 use Microservices\Facade\Microservices as MicroservicesFacade;
 
@@ -49,27 +49,34 @@ class MicroservicesServiceProvider extends ServiceProvider
     }
 
     public function actionJob()
-    { 
+    {
         Queue::failing(function (JobFailed $event) {
-            $jobName = $event->job->resolveName(); 
-            // ❌ Tránh loop
-            $shortName = class_basename($jobName);
+            $payload = $event->job->payload();
+            $jobFaileId = $event->job->getJobId();
+            $inputData = $payload['data']['command'] ?? null;
+            $error_message = $event->exception->getMessage();
+            // Nếu không phải job do BusJob dispatch, bỏ qua.
+            if (empty($inputData)) return;
 
-            if (in_array($shortName, ['BusJob', 'FailedJob', 'RetryFailedJob'])) {
-                return;
+            $jobInstance = unserialize($inputData);
+            $jobInstance = (array) $jobInstance;
+
+            $cleanArray = [];
+            foreach ($jobInstance as $key => $value) {
+                $cleanKey = preg_replace('/^\x00\*\x00/', '', $key);
+                $cleanArray[$cleanKey] = $value;
             }
-
-            \Microservices\Jobs\BusJob::dispatch(
-                'App\Jobs\FailedJob',
-                [
-                    'job_id' => $event->job->getJobId(),
-                    'job_name' => $jobName,
+            if (empty($cleanArray['data']['execution_log_id'])) {
+                \Microservices::System('ExcutionsLogs')->updateAction([
+                    'execution_log_id' => $cleanArray['data']['execution_log_id'] ?? '-1',
+                    'status' =>  'error',
+                    'status_listener' =>  'error',
+                    'fail_job_id' => $jobFaileId,
+                    'payload' => $cleanArray['data'] ?? [],
                     'service' => config('app.service_code'),
-                    'queue' => $event->job->getQueue(),
-                    'type' => 'failed',
-                    'error_message' => $event->exception->getMessage(),
-                ]
-            )->onQueue('erp_system_backend_v2');
-        }); 
+                    'error_message' => $error_message,
+                ]);
+            }
+        });
     }
 }
