@@ -7,24 +7,26 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
 
 class Retry implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $payloadId;
 
     /**
      * Create a new job instance.
      *
-     * @param  array  $payloadId
+     * @param  array  $jobId
      * @return void
      */
-    public function __construct($payloadId)
+    protected $data;
+    /**
+     * Create a new job instance.
+     */
+    public function __construct($data)
     {
-        $this->payloadId = $payloadId;
+        $this->data = $data;
     }
 
     /**
@@ -34,48 +36,21 @@ class Retry implements ShouldQueue
      */
     public function handle()
     {
-        // Lấy các failed jobs chứa ID trong payload
-        $failedJobs = DB::connection('mongodb') // Kết nối với MongoDB
-            ->collection('failed_jobs')        // Tên collection failed_jobs
-            ->where('payload', 'LIKE', '%"id":"' . $this->payloadId . '"%')
-            ->get();
-
-        if ($failedJobs->isEmpty()) {
-            Log::info("No failed jobs found with payload ID: {$this->payloadId}");
-            return;
+        $payload = $this->job->payload();
+        $data_command = $payload['data']['command'] ?? '';
+        $command = unserialize($data_command, ['allowed_classes' => true]);
+        $jobId = $command->serviceJob['uuid'] ?? $command->serviceJob['job_id'] ?? null;
+        if (empty($jobId)) {
+            preg_match('/s:\d+:"(?:uuid|job_id)";s:\d+:"([^"]+)"/',  $data_command, $matches);
+            $jobId = $matches[1] ?? null;
         }
+        Artisan::call('queue:retry', ['id' => [$jobId]]);
+        $output = Artisan::output();
 
-        foreach ($failedJobs as $failedJob) {
-            $this->retryJob($failedJob);
-        }
-    }
-
-    /**
-     * Retry a specific failed job.
-     *
-     * @param object $failedJob
-     * @return void
-     */
-
-
-    protected function retryJob($failedJob)
-    {
-        $job_id = (string)$failedJob['_id']; // Đảm bảo ID là string
-        try {
-
-            // Lấy job từ bảng failed_jobs
-            $payload = json_decode($failedJob['payload'], 1);
-            // Unserialize command từ payload
-            if (!isset($payload['data']['command'])) {
-                Log::error("Payload does not contain a valid command for Job ID: {$job_id}");
-                return;
-            }
-            $jobInstance = unserialize($payload['data']['command']);
-            dispatch($jobInstance);
-            DB::connection('mongodb')->collection('failed_jobs')->where('_id', $job_id)->delete();
-            Log::info("Successfully retried job ID: {$job_id} with payload ID: {$this->payloadId}");
-        } catch (\Exception $e) {
-            Log::error("Failed to retry job ID: {$job_id}. Error: {$e->getMessage()}");
-        }
+        logger()->info('Retry result', [
+            'job_id' => $jobId,
+            'output' => $output,
+            'payload' => $command,
+        ]);
     }
 }
