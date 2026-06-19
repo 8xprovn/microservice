@@ -11,7 +11,7 @@ class FaildJob
     public function __construct($options = [])
     {
         $this->_job = '\App\Jobs\FailedJob';
-        $this->_service_code = 'erp_system_backend_v3';
+        $this->_service_code = 'erp_system_backend_v2';
     }
 
     public function asyncFailedJob($params = array(), $status = 'failed')
