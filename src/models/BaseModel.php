@@ -73,9 +73,9 @@ abstract class BaseModel
         foreach ($options['order_by'] as $k => $v) {
             $query->orderBy($k, $v);
         }
-        
+
         $fields = array_merge($this->casts['file'] ?? [], $this->casts['content_file'] ?? []);
-      
+
         if (!empty($options['pagination'])) {
             $result = $query->simplePaginate($options['limit'] ?? config('data.default_limit_pagination'));
             if (!empty($options['full_url']) && !empty($fields)) $result->getCollection()->transform(function ($item) use ($fields, $options) {
@@ -107,10 +107,10 @@ abstract class BaseModel
             $params['created_by'] = (int) \Auth::id();
         }
         $params['created_time'] = time();
-        $params['updated_time'] = time(); 
+        $params['updated_time'] = time();
         if (!empty($this->casts['file']) || !empty($this->casts['content_file'])) {
             $params =  $this->asyncFile($params);
-        } 
+        }
         return DB::table($this->table)->insertGetId($params);
     }
     public function createBatch(array $multiParams)
@@ -676,6 +676,7 @@ abstract class BaseModel
                 $this->stripBase64ByField($params, $field);
             }
         }
+
         return \Microservices::Storage('File')->convertPathSave($params, $fields);
     }
 
@@ -717,9 +718,40 @@ abstract class BaseModel
             return $html;
         }
 
-        $html = preg_replace('/<img\b[^>]*\bsrc\s*=\s*(["\']?)data:image\/[^"\'>\s]*\1[^>]*>/iu', '', $html);
+        $markers = ['<img', '&lt;img'];
+        $offset = 0;
+        $length = strlen($html);
+
+        while ($offset < $length && ($pos = stripos($html, 'data:image', $offset)) !== false) {
+            $segment = substr($html, 0, $pos);
+            $imgStart = false;
+            $entityTag = false;
+
+            foreach ($markers as $marker) {
+                $start = strripos($segment, $marker);
+                if ($start !== false && ($imgStart === false || $start > $imgStart)) {
+                    $imgStart = $start;
+                    $entityTag = $marker === '&lt;img';
+                }
+            }
+
+            if ($imgStart === false) {
+                $offset = $pos + 10;
+                continue;
+            }
+
+            $closeTag = $entityTag ? '&gt;' : '>';
+            $tagEnd = stripos($html, $closeTag, $pos);
+            if ($tagEnd === false) {
+                break;
+            }
+            $tagEnd += strlen($closeTag);
+            $html = substr($html, 0, $imgStart) . substr($html, $tagEnd);
+            $length = strlen($html);
+            $offset = $imgStart;
+        }
+
         $html = preg_replace('/\bsrcset\s*=\s*(["\'])[^"\']*data:image\/[^"\']*\1/iu', '', $html);
-        $html = preg_replace('/background-image\s*:\s*url\(\s*(["\']?)data:image\/[^"\')]*\1\s*\)/iu', '', $html);
         $html = preg_replace('/\sstyle\s*=\s*["\']\s*["\']/iu', '', $html);
 
         return $html;
