@@ -670,7 +670,59 @@ abstract class BaseModel
         if (empty($params) || empty($this->casts) || (empty($this->casts['file']) && empty($this->casts['content_file']))) return $params;
         $fields = array_merge($this->casts['file'] ?? [], $this->casts['content_file'] ?? []);
         if (!empty($fields))  \Microservices::Storage('File')->asyncMoveFileKey($params, $dataOld, $fields,  $this->isDeleteFile ?? true);
+
+        if (!empty($this->casts['content_file'])) {
+            foreach ($this->casts['content_file'] as $field) {
+                $this->stripBase64ByField($params, $field);
+            }
+        }
         return \Microservices::Storage('File')->convertPathSave($params, $fields);
+    }
+
+    private function stripBase64ByField(array &$node, string $path): void
+    {
+        $parts = array_values(array_filter(explode('.', $path), 'strlen'));
+        $this->walkAndStripBase64($node, $parts);
+    }
+
+    private function walkAndStripBase64(&$node, array $parts): void
+    {
+        if (empty($parts)) {
+            if (is_string($node)) {
+                $node = $this->stripBase64FromHtml($node);
+            }
+            return;
+        }
+
+        if (!is_array($node)) {
+            return;
+        }
+
+        $key = array_shift($parts);
+        if (array_key_exists($key, $node)) {
+            $this->walkAndStripBase64($node[$key], $parts);
+            return;
+        }
+
+        foreach ($node as &$child) {
+            if (is_array($child)) {
+                $this->walkAndStripBase64($child, array_merge([$key], $parts));
+            }
+        }
+    }
+
+    private function stripBase64FromHtml(string $html): string
+    {
+        if ($html === '' || stripos($html, 'data:image') === false) {
+            return $html;
+        }
+
+        $html = preg_replace('/<img\b[^>]*\bsrc\s*=\s*(["\']?)data:image\/[^"\'>\s]*\1[^>]*>/iu', '', $html);
+        $html = preg_replace('/\bsrcset\s*=\s*(["\'])[^"\']*data:image\/[^"\']*\1/iu', '', $html);
+        $html = preg_replace('/background-image\s*:\s*url\(\s*(["\']?)data:image\/[^"\')]*\1\s*\)/iu', '', $html);
+        $html = preg_replace('/\sstyle\s*=\s*["\']\s*["\']/iu', '', $html);
+
+        return $html;
     }
 
     public function logs($data)
@@ -681,12 +733,12 @@ abstract class BaseModel
         }
 
         \Microservices::System('Logs')->pushLogs([
-            'relate_type' => $data['relate_type']??null,
-            'relate_id' =>  $data['relate_id']??null,
+            'relate_type' => $data['relate_type'] ?? null,
+            'relate_id' =>  $data['relate_id'] ?? null,
             'created_by' => $user_id,
-            'action' => $data['action']??null,
-            'data_olds' => $data['data_olds']??[],
-            'data_news' => $data['data_news']??[],
+            'action' => $data['action'] ?? null,
+            'data_olds' => $data['data_olds'] ?? [],
+            'data_news' => $data['data_news'] ?? [],
         ]);
         return true;
     }
