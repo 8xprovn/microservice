@@ -12,6 +12,12 @@ trait SafeHttpClient
 {
     protected function safeGet(string $url, array $options = [], string $token, array $headers = [])
     {
+        [$url, $options, $token, $headers] = $this->prepareRequest(
+            $url,
+            $options,
+            $token,
+            $headers
+        );
         try {
             return Http::retry(1, 200)
                 ->withOptions([
@@ -37,6 +43,12 @@ trait SafeHttpClient
     }
     protected function safePost(string $url, array $options = [], string $token, array $headers = [])
     {
+        [$url, $options, $token, $headers] = $this->prepareRequest(
+            $url,
+            $options,
+            $token,
+            $headers
+        );
         try {
             return Http::retry(
                     2, // số lần retry
@@ -76,6 +88,12 @@ trait SafeHttpClient
     }
     protected function safePut(string $url, array $options = [], string $token, array $headers = [])
     {
+        [$url, $options, $token, $headers] = $this->prepareRequest(
+            $url,
+            $options,
+            $token,
+            $headers
+        );
         try {
             return Http::retry(
                     2, // số lần retry
@@ -116,6 +134,12 @@ trait SafeHttpClient
     }
     protected function safeDelete(string $url, array $options = [], string $token, array $headers = [])
     {
+        [$url, $options, $token, $headers] = $this->prepareRequest(
+            $url,
+            $options,
+            $token,
+            $headers
+        );
         try {
             return Http::retry(
                     2, // số lần retry
@@ -153,5 +177,22 @@ trait SafeHttpClient
             ]);
         }
         return false;
+    }
+    private function prepareRequest(
+        string $url,
+        array $options,
+        string $token,
+        array $headers
+    ): array {
+        // Ví dụ sửa URL
+        $urlService = env('API_MICROSERVICE_URL_V2');
+        $urlLocal = env('API_MICROSERVICE_URL_INTERNAL');
+        if (strpos($url, $urlService) !== false && !empty($urlLocal)) {
+            $url = str_replace($urlService, $urlLocal, $url);
+            /// HOST ///
+            $headers['Host'] = parse_url($urlService, PHP_URL_HOST);
+        }
+
+        return [$url, $options, $token, $headers];
     }
 }
