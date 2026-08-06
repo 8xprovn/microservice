@@ -10,7 +10,7 @@ use Log;
 
 trait SafeHttpClient
 {
-    protected function safeGet(string $url, array $options = [], string $token, array $headers = [])
+    protected function safeGet(string $url, array $options = [], string $token = '', array $headers = [])
     {
         [$url, $options, $token, $headers] = $this->prepareRequest(
             $url,
@@ -41,7 +41,7 @@ trait SafeHttpClient
         }
         return false;
     }
-    protected function safePost(string $url, array $options = [], string $token, array $headers = [])
+    protected function safePost(string $url, array $options = [], string $token = '', array $headers = [])
     {
         [$url, $options, $token, $headers] = $this->prepareRequest(
             $url,
@@ -86,7 +86,7 @@ trait SafeHttpClient
         }
         return false;
     }
-    protected function safePut(string $url, array $options = [], string $token, array $headers = [])
+    protected function safePut(string $url, array $options = [], string $token = '', array $headers = [])
     {
         [$url, $options, $token, $headers] = $this->prepareRequest(
             $url,
@@ -132,7 +132,7 @@ trait SafeHttpClient
         }
         return false;
     }
-    protected function safeDelete(string $url, array $options = [], string $token, array $headers = [])
+    protected function safeDelete(string $url, array $options = [], string $token = '', array $headers = [])
     {
         [$url, $options, $token, $headers] = $this->prepareRequest(
             $url,
