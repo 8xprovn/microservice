@@ -1,6 +1,6 @@
 <?php
 
-namespace Microservices\models\Lms;
+namespace Microservices\models\Finance;
 
 use Illuminate\Support\Arr;
 
