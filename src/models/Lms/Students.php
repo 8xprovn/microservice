@@ -59,4 +59,20 @@ class Students extends \Microservices\models\Model
         \Log::error($url . $response->body());
         return [];
     }
+
+    public function sendResult($id,array $params)
+    {
+        $url = env('API_MICROSERVICE_URL_V2').'/lms/class' . "/$id/student/send_result";
+        $response = \Http::acceptJson()->withToken($this->getToken())->post($url, $params);
+        if ($response->successful()) {
+            return $response->json();
+        }
+        
+        if (!empty($response->json())) {
+            return $response->json();
+        }
+
+        \Log::error($url . $response->body());
+        return [];
+    }
 }
