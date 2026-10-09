@@ -21,12 +21,8 @@ class Ticket extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = $this->_url . '/' . $id . '/close';
-        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($url . $response->body());
-        return false;
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
 
     public function comment($id, $params)
@@ -38,12 +34,8 @@ class Ticket extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = $this->_url . '/' . $id . '/comment';
-        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($url . $response->body());
-        return false;
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
 
     public function assign($id, $params)
@@ -55,12 +47,8 @@ class Ticket extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = $this->_url . '/' . $id . '/assign';
-        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($url . $response->body());
-        return false;
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
 
     public function action($id, $params)
@@ -72,12 +60,8 @@ class Ticket extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = $this->_url . '/' . $id . '/action';
-        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($url . $response->body());
-        return false;
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
 
     public function storeFollower($id, $params)
@@ -89,12 +73,8 @@ class Ticket extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = $this->_url . '/store-follower';
-        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($url . $response->body());
-        return false;
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
 
     public function updateParamProcess($id, $params)
@@ -106,12 +86,8 @@ class Ticket extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = $this->_url . '/' . $id . '/update-params';
-        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($url . $response->body());
-        return false;
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
 
     public function destroyFollower($id, $params)
@@ -123,12 +99,8 @@ class Ticket extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = $this->_url . '/' . $id . '/destroy-follower';
-        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($url . $response->body());
-        return false;
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
 
     public function cancel($id, $params)
@@ -140,11 +112,7 @@ class Ticket extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = $this->_url . '/' . $id . '/cancel';
-        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($url . $response->body());
-        return false;
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
 }

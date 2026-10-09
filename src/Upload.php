@@ -22,7 +22,8 @@ class Upload
             $hash = hash('sha256',$files_path.$this->_hash_secret);
         }
         
-        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->patch( $this->_url.'/moves',[
+        $url = $this->_url.'/moves';
+        $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->patch( $url,[
             'files_path' => $files_path,
             'hash' => $hash
         ]);
@@ -30,7 +31,7 @@ class Upload
             return $response->json();
         }
 
-        \Log::error($response->body());
+        \Log::error($url . ' ' . $response->body());
         return false;
     }
 
@@ -73,7 +74,7 @@ class Upload
             if($responses['delete']->successful()) {
                 $result['delete'] = true;
             } else {
-                \Log::error($responses['delete']->body());
+                \Log::error($this->_url.'/deletes' . ' ' . $responses['delete']->body());
                 $result['delete'] = false;
             }
         }
@@ -83,7 +84,7 @@ class Upload
             if($responses['move']->successful()) {
                     $result['move'] = true;
             } else {
-                \Log::error($responses['move']->body());
+                \Log::error($this->_url.'/moves' . ' ' . $responses['move']->body());
                 $result['move'] = false;
             }
         }

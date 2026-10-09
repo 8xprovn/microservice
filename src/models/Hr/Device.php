@@ -26,11 +26,7 @@ class Device extends \Microservices\models\Model
         }
         $params['created_time'] = time();
         $url = env('API_MICROSERVICE_URL_V2').'/hr/device/store-first';
-        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        } 
-        \Log::error($url . $response->body());
-        return false;
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
 }

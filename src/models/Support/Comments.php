@@ -13,21 +13,17 @@ class Comments extends \Microservices\models\Model
     public function count($params)
     {
         $_url = env('API_MICROSERVICE_URL_V2') . '/support/comment/count';
-        $response = \Http::acceptJson()->withToken($this->getToken())->get($_url, $params);
-        if ($response->successful()) { 
-            return $response->json();
-        }
-        return 0;
+        $result = $this->safeGet($_url, $params, (string) $this->getToken());
+        return $result === false ? 0 : $result;
     }
 
     public function getComment($filter)
     {
         $_url = env('API_MICROSERVICE_URL_V2') . '/support/comment/render_comment';
-        $response = \Http::acceptJson()->withToken($this->getToken())->get($_url, $filter);
-        if ($response->successful()) {
-            $results = $response->json();
-            return $results['html'] ?? '';
-        } 
-        return '';
+        $results = $this->safeGet($_url, $filter, (string) $this->getToken());
+        if ($results === false || !is_array($results)) {
+            return '';
+        }
+        return $results['html'] ?? '';
     }
 }

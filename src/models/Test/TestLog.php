@@ -26,12 +26,8 @@ class TestLog extends \Microservices\models\Model
         }
         $params['created_time'] = time();
         $url = $this->_url . "/create-log";
-        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        } 
-        \Log::error($url . $response->body());
-        return false;
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
 
     public function updateLog($params) {
@@ -47,11 +43,7 @@ class TestLog extends \Microservices\models\Model
         }
         $params['created_time'] = time();
         $url = $this->_url . "/update-log";
-        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        } 
-        \Log::error($url . $response->body());
-        return false;
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
 }

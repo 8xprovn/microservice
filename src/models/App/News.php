@@ -25,13 +25,7 @@ class News extends \Microservices\models\Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $response = \Http::acceptJson()
-                    ->withToken($this->getToken())
-                    ->get($this->_url . '/count', $q);
-        if ($response->successful()) {
-            return $response->json();
-        } 
-        \Log::error($this->_url . $response->body());
-        return false;
+        $result = $this->safeGet($this->_url . '/count', $q, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
 }

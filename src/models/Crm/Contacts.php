@@ -37,12 +37,10 @@ class Contacts extends \Microservices\models\Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $response = \Http::acceptJson()->withToken($this->getToken())->get($this->_url, $q);
-        if ($response->successful()) {
-            $contact_ids = collect($response->json())->pluck('_id')->unique()->values()->all();
-            return $contact_ids;
-        } 
-        \Log::error($this->_url . $response->body());
+        $data = $this->safeGet($this->_url, $q, (string) $this->getToken());
+        if ($data) {
+            return collect($data)->pluck('_id')->unique()->values()->all();
+        }
         return [];
     }
 }

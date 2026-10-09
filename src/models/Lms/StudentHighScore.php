@@ -15,16 +15,7 @@ class StudentHighScore extends \Microservices\models\Model
     public function storeTicket($id,array $params)
     {
         $url = env('API_MICROSERVICE_URL_V2').'/lms/student/highscore' . "/$id/log";
-        $response = \Http::acceptJson()->withToken($this->getToken())->post($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        
-        if (!empty($response->json())) {
-            return $response->json();
-        }
-
-        \Log::error($url . $response->body());
-        return [];
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? [] : $result;
     }
 }

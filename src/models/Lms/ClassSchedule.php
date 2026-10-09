@@ -15,43 +15,19 @@ class ClassSchedule extends \Microservices\models\Model
     public function semesterTest($id, $params)
     {
         $url = $this->_url . '/' . $id . '/semester-test';
-        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        $responseJson = $response->json();
-        if (isset($responseJson['message'])) {
-            return $responseJson;
-        }
-        \Log::error($this->_url . $response->body());
-        return [];
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? [] : $result;
     }
     public function cancelSemesterTest($id, $params)
     {
         $url = $this->_url . '/' . $id . '/cancel-semester-test';
-        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        $responseJson = $response->json();
-        if (isset($responseJson['message'])) {
-            return $responseJson;
-        }
-        \Log::error($this->_url . $response->body());
-        return [];
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? [] : $result;
     }
     public function updateBySchedule($id, $params)
     {
         $url = $this->_url . '/' . $id . '/update_by_schedule';
-        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        $responseJson = $response->json();
-        if (isset($responseJson['message'])) {
-            return $responseJson;
-        }
-        \Log::error($this->_url . $response->body());
-        return [];
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? [] : $result;
     }
 }

@@ -1,10 +1,12 @@
 <?php
 namespace Microservices\models\Notification;
 
-use Illuminate\Support\Facades\Http;
+use Microservices\Traits\SafeHttpClient;
 
 class Notification
 {
+    use SafeHttpClient;
+
     protected $_url;
     public function __construct() {
         $this->_url = env('SERVICE_URL','').'/api';
@@ -12,11 +14,11 @@ class Notification
     public function send($params) {
         switch($params['type']) {
             default:
-            $response = \Http::withToken(env('API_MICROSERVICE_TOKEN',''))->post($this->_url.'/type/'.$params['type'], $params);
-            if ($response->successful()) {
-                return true;
+            $result = $this->safePost($this->_url.'/type/'.$params['type'], $params, (string) env('API_MICROSERVICE_TOKEN',''));
+            if ($result === false) {
+                return ['message' => ''];
             }
-            return ['message' => $response->body()];
+            return true;
         }
     }
 }

@@ -13,36 +13,21 @@ class WalletTransaction extends \Microservices\models\Model
     public function deposit($param = [])
     {
         $url = $this->_url . "/deposit";
-
-        $response = \Http::acceptJson()->withToken($this->getToken())->post($url, $param);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($this->_url . $response->body());
-        return [];
+        $result = $this->safePost($url, $param, (string) $this->getToken());
+        return $result === false ? [] : $result;
     }
 
     public function qr($param = [])
     {
         $url = $this->_url . "/qr/create";
-
-        $response = \Http::acceptJson()->withToken($this->getToken())->get($url, $param);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($this->_url . $response->body());
-        return [];
+        $result = $this->safeGet($url, $param, (string) $this->getToken());
+        return $result === false ? [] : $result;
     }
 
     public function confirm_info($id, $param = [])
     {
         $url = $this->_url."/confirm_info/$id";
-
-        $response = \Http::acceptJson()->withToken($this->getToken())->post($url, $param);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($this->_url . $response->body());
-        return [];
+        $result = $this->safePost($url, $param, (string) $this->getToken());
+        return $result === false ? [] : $result;
     }
 }

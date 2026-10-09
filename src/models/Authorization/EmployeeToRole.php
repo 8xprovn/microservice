@@ -22,13 +22,8 @@ class EmployeeToRole extends \Microservices\models\Model
         }
         ////// MISS CACHE //////////
         $url = $this->_url.'/me';
-        $response = \Http::acceptJson()->withToken($this->getToken())->get($url,$params);
-        
-        if ($response->successful()) {
-            return $response->json();
-        } 
-        \Log::error($url . $response->body());
-        return false;
+        $result = $this->safeGet($url, $params, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
     public function employee($params)
     {
@@ -42,13 +37,8 @@ class EmployeeToRole extends \Microservices\models\Model
         }
         ////// MISS CACHE //////////
         $url = $this->_url.'/detail';
-        $response = \Http::acceptJson()->withToken($this->getToken())->get($url,$params);
-        
-        if ($response->successful()) {
-            return $response->json();
-        } 
-        \Log::error($url . $response->body());
-        return false;
+        $result = $this->safeGet($url, $params, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
     public function getAllPermission($params) {
         ////// GET FROM CACHE ////////
@@ -58,13 +48,7 @@ class EmployeeToRole extends \Microservices\models\Model
         }
         ////// MISS CACHE //////////
         $url = $this->_url.'/permission';
-        $response = \Http::acceptJson()->withToken($this->getToken())->get($url,$params);
-        
-        if ($response->successful()) {
-            return $response->json();
-        } 
-        \Log::error($url . $response->body());
-        return false;
+        $result = $this->safeGet($url, $params, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
 }
-

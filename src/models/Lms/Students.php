@@ -25,54 +25,30 @@ class Students extends \Microservices\models\Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $response = \Http::acceptJson()->withToken($this->getToken())->get($this->_url, $q);
-        if ($response->successful()) {
-            $contact_ids = collect($response->json())->pluck('contact_id')->unique()->values()->all();
-            return $contact_ids;
-        } 
-        \Log::error($this->_url . $response->body());
+        $data = $this->safeGet($this->_url, $q, (string) $this->getToken());
+        if ($data) {
+            return collect($data)->pluck('contact_id')->unique()->values()->all();
+        }
         return [];
     }
     public function examTime($id,array $params)
     {
         $url = env('API_MICROSERVICE_URL_V2').'/lms/student' . "/$id/exam_time";
-        $response = \Http::acceptJson()->withToken($this->getToken())->post($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($url . $response->body());
-        return [];
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? [] : $result;
     }
 
     public function in_tutoring($id,array $params)
     {
         $url = env('API_MICROSERVICE_URL_V2').'/lms/students' . "/$id/in_tutoring";
-        $response = \Http::acceptJson()->withToken($this->getToken())->post($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        
-        if (!empty($response->json())) {
-            return $response->json();
-        }
-
-        \Log::error($url . $response->body());
-        return [];
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? [] : $result;
     }
 
     public function sendResult($id,array $params)
     {
         $url = env('API_MICROSERVICE_URL_V2').'/lms/class' . "/$id/student/send_result";
-        $response = \Http::acceptJson()->withToken($this->getToken())->post($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        
-        if (!empty($response->json())) {
-            return $response->json();
-        }
-
-        \Log::error($url . $response->body());
-        return [];
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? [] : $result;
     }
 }

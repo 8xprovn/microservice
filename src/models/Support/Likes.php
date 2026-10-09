@@ -13,20 +13,14 @@ class Likes extends \Microservices\models\Model
     public function count_like($params)
     {
         $_url = env('API_MICROSERVICE_URL_V2') . "/support/likes/count";
-        $response = \Http::acceptJson()->withToken($this->getToken())->get($_url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        return 0;
+        $result = $this->safeGet($_url, $params, (string) $this->getToken());
+        return $result === false ? 0 : $result;
     }
 
     public function change($data)
     {
         $_url = env('API_MICROSERVICE_URL_V2') . "/support/likes";
-        $response = \Http::acceptJson()->withToken($this->getToken())->post($_url, $data);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        return 0;
+        $result = $this->safePost($_url, $data, (string) $this->getToken());
+        return $result === false ? 0 : $result;
     }
 }

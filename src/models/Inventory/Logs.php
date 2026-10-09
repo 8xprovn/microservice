@@ -27,16 +27,7 @@ class Logs extends \Microservices\models\Model
             }
             $q = $options;
             $q['filter'] = $filter;
-            $response = \Http::acceptJson()->withToken($this->getToken())->get($this->_url. "-{$status}", $q);
-
-            if ($response->successful()) {
-                return $response->json();
-            }
-            if($response->status() == 403){
-                return ['status' => 'error' , 'message'  => 'UnAuthenticated'];
-            }
-            \Log::error($this->_url . $response->body());
-            return [];
+            return ($result = $this->safeGet($this->_url . "-{$status}", $q, (string) $this->getToken())) === false ? [] : $result;
         }catch (\Exception $ex){
             return [];
         }

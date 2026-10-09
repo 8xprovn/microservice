@@ -15,16 +15,8 @@ class Transaction extends \Microservices\models\Model
     {
         $url = env('API_MICROSERVICE_URL_V2')."/inventory/transaction-detail/{$transaction_id}";
         try { 
-            $response = \Http::acceptJson()->withToken($this->getToken())->get($url);
-           
-            if ($response->successful()) {
-                return $response->json();
-            }
-            if($response->status() == 403){
-                return ['status' => 'error' , 'message'  => 'UnAuthenticated'];
-            }
-            \Log::error($this->_url . $response->body());
-            return [];
+            $result = $this->safeGet($url, [], (string) $this->getToken());
+            return $result === false ? [] : $result;
         }catch (\Exception $ex){
             return [];
         } 

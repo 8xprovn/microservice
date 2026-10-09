@@ -28,11 +28,7 @@ class Branchs extends \Microservices\models\Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $response = \Http::acceptJson()->withToken($this->getToken())->get(env('API_MICROSERVICE_URL_V2') . '/org/branch/location', $q);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($this->_url . $response->body());
-        return false;
+        $result = $this->safeGet(env('API_MICROSERVICE_URL_V2') . '/org/branch/location', $q, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
 }

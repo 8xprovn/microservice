@@ -13,11 +13,7 @@ class Vouchers extends \Microservices\models\Model
     public function checkCode($params = [])
     {
         $url = $this->_url . '/code/check';
-        $response = \Http::acceptJson()->withToken($this->getToken())->get($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($this->_url . $response->body());
-        return [];
+        $result = $this->safeGet($url, $params, (string) $this->getToken());
+        return $result === false ? [] : $result;
     }
 }

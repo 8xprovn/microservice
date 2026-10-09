@@ -26,13 +26,8 @@ class Students  extends \Microservices\models\Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $response = \Http::acceptJson()->withToken($this->getToken())->get($url, $q);
-
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($this->_url . $response->body());
-        return [];
+        $result = $this->safeGet($url, $q, (string) $this->getToken());
+        return $result === false ? [] : $result;
     }
 
     public function list_courses($params = [], $options = [])
@@ -49,38 +44,21 @@ class Students  extends \Microservices\models\Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $response = \Http::acceptJson()->withToken($this->getToken())->get($url, $q);
-
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($this->_url . $response->body());
-        return [];
+        $result = $this->safeGet($url, $q, (string) $this->getToken());
+        return $result === false ? [] : $result;
     }
 
     public function tracking($id, $param = [])
     {
         $url = $this->_url . "/$id/tracking";
-
-        $response = \Http::acceptJson()->withToken($this->getToken())->post($url, $param);
-
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($this->_url . $response->body());
-        return [];
+        $result = $this->safePost($url, $param, (string) $this->getToken());
+        return $result === false ? [] : $result;
     }
     
     public function register_course($param = [])
     {
         $url = $this->_url . "/register-course";
-
-        $response = \Http::acceptJson()->withToken($this->getToken())->post($url, $param);
-
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($this->_url . $response->body());
-        return [];
+        $result = $this->safePost($url, $param, (string) $this->getToken());
+        return $result === false ? [] : $result;
     }
 }

@@ -25,11 +25,7 @@ class TrackingConfirm extends \Microservices\models\Model
         }
         $q = $options;
         $q['filter'] = $filter;
-        $response = \Http::acceptJson()->withToken($this->getToken())->get($this->_url . "/close_monthly", $q);
-        if ($response->successful()) {
-            return $response->json();
-        } 
-        \Log::error($this->_url . $response->body());
-        return false;
+        $result = $this->safeGet($this->_url . "/close_monthly", $q, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
 }

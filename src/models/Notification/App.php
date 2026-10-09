@@ -21,11 +21,7 @@ class App extends \Microservices\models\Model
             $id = (int) $id;
         }
         $url = env('API_MICROSERVICE_URL_V2') . '/notification/app/is_read/' . $id;
-        $response = \Http::acceptJson()->withToken($this->getToken())->POST($url, $params);
-        if ($response->successful()) {
-            return $response->json();
-        }
-        \Log::error($url . $response->body());
-        return false;
+        $result = $this->safePost($url, $params, (string) $this->getToken());
+        return $result === false ? false : $result;
     }
 }
