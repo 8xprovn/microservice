@@ -11,4 +11,15 @@ class PracticeResult extends \Microservices\models\Model
         $this->_url = env('API_MICROSERVICE_URL_V2').'/lms/practices-result';
         
     }
+    public function marks($id,array $params)
+    {
+        $url = env('API_MICROSERVICE_URL_V2').'/lms/practices-marks' . "/$id";
+        $response = \Http::acceptJson()->withToken($this->getToken())->post($url, $params);
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        \Log::error($url . $response->body());
+        return [];
+    }
 }

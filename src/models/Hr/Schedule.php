@@ -15,7 +15,11 @@ class Schedule extends \Microservices\models\Model
     {
         $params = ['employee_id' => $employee_id, 'month' => $month, 'year' => $year];
         $accessToken = $this->getToken();
+<<<<<<< HEAD
         return $this->safeGet("{$this->_url}/holiday", $params ,$accessToken); 
+=======
+        return $this->safeGet("{$this->_url}/holiday", $params, $accessToken);
+>>>>>>> ac580f26b63bba9b2fe03cf88a10db5cdda11749
     }
     public function getScheduleMe($userId, $key_cache, $params)
     {
