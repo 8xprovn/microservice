@@ -164,7 +164,7 @@ class File
         $dataFileNew = array_values(array_diff($fileNews, $fileOlds));
         $dataFileOld =  array_values(array_diff($fileOlds, $fileNews));
         if (empty($dataFileNew) && empty($dataFileOld)) return;
-        return \Microservices\Jobs\BusJob::dispatch($this->_listener, ['files' => $dataFileNew, 'delete' => $dataFileOld])->onQueue($this->_service_code);
+        return \Microservices\Jobs\BusJob::dispatch($this->_listener, ['files' => $dataFileNew, 'delete' => $dataFileOld, 'channel' => $channel, 'service_code' => config('app.service_code') , 'app_name' => config('app.name')])->onQueue($this->_service_code);
     }
 
     private function splitEncodedPath(string $encoded)
