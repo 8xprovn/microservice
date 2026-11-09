@@ -3,9 +3,24 @@
 namespace Microservices\Queue;
 
 use Illuminate\Queue\Failed\DatabaseUuidFailedJobProvider;
+use Illuminate\Support\Facades\Date;
+use MongoDB\BSON\UTCDateTime;
 
 class MongoUuidFailedJobProvider extends DatabaseUuidFailedJobProvider
 {
+    public function log($connection, $queue, $payload, $exception)
+    {
+        $this->getTable()->insert([
+            'uuid' => $uuid = json_decode($payload, true)['uuid'],
+            'connection' => $connection,
+            'queue' => $queue,
+            'payload' => $payload,
+            'exception' => (string) mb_convert_encoding($exception, 'UTF-8'),
+            'failed_at' => new UTCDateTime(Date::now()),
+        ]);
+
+        return $uuid;
+    }
 
     public function find($id)
     {
